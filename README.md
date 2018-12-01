@@ -5,7 +5,7 @@ SyncMeasure is a synchrony measurement tool that use the Leap Motion controller 
 
 **Installation Prerequisites - Important!**
 
-Install [R v3.4.4](https://cran.r-project.org/bin/windows/base/old/3.4.4/R-3.4.4-win.exe)
+Install [R v3.4.0](https://cran.r-project.org/bin/windows/base/old/3.4.0/R-3.4.0-win.exe) **Exact version!**
 
 Install [RTools](https://cran.r-project.org/bin/windows/Rtools/Rtools35.exe)
 
