@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using System.Xml;
 using Leap;
 using RDotNet;
@@ -182,6 +181,7 @@ namespace SyncMeasure
                 }
 
                 /* Calculate Arm, Elbow and Hand cvv */
+                // TODO: try to make parallel
 
                 // Hand
                 _engine.Evaluate("pos_1 <- cbind(hand0.pos.x, hand0.pos.y, hand0.pos.z)");
@@ -315,6 +315,17 @@ namespace SyncMeasure
                              "stringsAsFactors = F, verbose = F, check.names = T, blank.lines.skip = T)";
                 _engine.Evaluate(cmd);
 
+                /* Validate column names */
+                var colNames = _engine.Evaluate("colnames(dataset)").AsVector();
+                
+                foreach (var cName in (GeNecessaryColumnNames()))
+                {
+                    if (!colNames.Contains(cName))
+                    {
+                        return new ResultStatus(false, @"Provided file doesn't contain column name: " + cName);
+                    }
+                }
+
                 /* filter only the frames with two hands */
                 _engine.Evaluate("dataset <- dataset[dataset$" + _colNames[Resources.HANDS_IN_FRAME] + " == 2,]");
 
@@ -378,7 +389,7 @@ namespace SyncMeasure
                             if (firstHandLeft == secondHandLeft)
                             {
                                 errorMessage =
-                                    @"Both hands went out of frame at the same time, SyncMeasure tried to re-map the hand and therefore hands might be swapped.S";
+                                    @"Both hands went out of frame at the same time, SyncMeasure tried to re-map the hand and therefore hands might be swapped.";
                                 hand1.Id = firstHandId;
                                 hand2.Id = secondHandId;
                             }
@@ -501,6 +512,32 @@ namespace SyncMeasure
         }
 
         /// <summary>
+        /// Get list of column names that are used by SyncMeasure.
+        /// </summary>
+        /// <returns></returns>
+        private List<string> GeNecessaryColumnNames()
+        {
+            return new List<string>()
+            {
+                _colNames[Resources.TIMESTAMP],
+                _colNames[Resources.FRAME_ID],
+                _colNames[Resources.HAND_ID],
+                _colNames[Resources.HANDS_IN_FRAME],
+                _colNames[Resources.HAND_POS_X],
+                _colNames[Resources.HAND_POS_Y],
+                _colNames[Resources.HAND_POS_Z],
+                _colNames[Resources.GRAB_STRENGTH],
+                _colNames[Resources.PINCH_STRENGTH],
+                _colNames[Resources.ARM_POS_X],
+                _colNames[Resources.ARM_POS_Y],
+                _colNames[Resources.ARM_POS_Z],
+                _colNames[Resources.ELBOW_POS_X],
+                _colNames[Resources.ELBOW_POS_Y],
+                _colNames[Resources.ELBOW_POS_Z]
+            };
+        }
+
+        /// <summary>
         /// Set sync measuring weight. Sum of all weights must be 1.
         /// </summary>
         /// <param name="arm">Arm cvv weight</param>
@@ -573,9 +610,9 @@ namespace SyncMeasure
             _colNames[Resources.HAND_POS_X] =     "X.pos";
             _colNames[Resources.HAND_POS_Y] =     "Y.pos";
             _colNames[Resources.HAND_POS_Z] =     "Z.pos";
-            _colNames[Resources.HAND_VEL_X] =     "X_Velocity";
-            _colNames[Resources.HAND_VEL_Y] =     "Y_Velocity";
-            _colNames[Resources.HAND_VEL_Z] =     "Z_Velocity";
+            _colNames[Resources.HAND_VEL_X] =     "X_velocity";
+            _colNames[Resources.HAND_VEL_Y] =     "Y_velocity";
+            _colNames[Resources.HAND_VEL_Z] =     "Z_velocity";
             _colNames[Resources.PITCH] =          "Pitch";
             _colNames[Resources.ROLL] =           "Roll";
             _colNames[Resources.YAW] =            "yaw";
