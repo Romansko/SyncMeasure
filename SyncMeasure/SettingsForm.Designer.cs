@@ -28,13 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.dataGridView = new System.Windows.Forms.DataGridView();
-            this.key = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.applyButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.defaults = new System.Windows.Forms.Button();
+            this.key = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Enabled = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -49,7 +53,8 @@
             this.dataGridView.ColumnHeadersVisible = false;
             this.dataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.key,
-            this.Value});
+            this.Value,
+            this.Enabled});
             this.dataGridView.Dock = System.Windows.Forms.DockStyle.Top;
             this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dataGridView.Location = new System.Drawing.Point(0, 0);
@@ -57,28 +62,11 @@
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.RowHeadersVisible = false;
             this.dataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            this.dataGridView.Size = new System.Drawing.Size(292, 228);
+            this.dataGridView.Size = new System.Drawing.Size(292, 219);
             this.dataGridView.TabIndex = 0;
+            this.dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentClick);
             this.dataGridView.CellParsing += new System.Windows.Forms.DataGridViewCellParsingEventHandler(this.dataGridView_CellParsing);
-            // 
-            // key
-            // 
-            this.key.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.key.FillWeight = 40F;
-            this.key.HeaderText = "Key";
-            this.key.Name = "key";
-            this.key.ReadOnly = true;
-            this.key.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.key.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // Value
-            // 
-            this.Value.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Value.FillWeight = 60F;
-            this.Value.HeaderText = "Value";
-            this.Value.Name = "Value";
-            this.Value.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.Value.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.dataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellValueChanged);
             // 
             // applyButton
             // 
@@ -105,7 +93,7 @@
             // defaults
             // 
             this.defaults.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.defaults.Location = new System.Drawing.Point(106, 234);
+            this.defaults.Location = new System.Drawing.Point(109, 234);
             this.defaults.Name = "defaults";
             this.defaults.Size = new System.Drawing.Size(75, 35);
             this.defaults.TabIndex = 3;
@@ -113,18 +101,63 @@
             this.defaults.UseVisualStyleBackColor = true;
             this.defaults.Click += new System.EventHandler(this.defaults_Click);
             // 
+            // key
+            // 
+            this.key.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.AliceBlue;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.AliceBlue;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.Black;
+            this.key.DefaultCellStyle = dataGridViewCellStyle1;
+            this.key.FillWeight = 35F;
+            this.key.HeaderText = "Key";
+            this.key.Name = "key";
+            this.key.ReadOnly = true;
+            this.key.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.key.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Value
+            // 
+            this.Value.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            this.Value.DefaultCellStyle = dataGridViewCellStyle2;
+            this.Value.FillWeight = 45F;
+            this.Value.HeaderText = "Value";
+            this.Value.Name = "Value";
+            this.Value.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Value.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Enabled
+            // 
+            this.Enabled.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.Black;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.Transparent;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.Black;
+            this.Enabled.DefaultCellStyle = dataGridViewCellStyle3;
+            this.Enabled.FillWeight = 20F;
+            this.Enabled.HeaderText = "Enabled";
+            this.Enabled.Name = "Enabled";
+            this.Enabled.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Enabled.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
             // SettingsForm
             // 
+            this.AcceptButton = this.applyButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(292, 281);
             this.Controls.Add(this.defaults);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.applyButton);
             this.Controls.Add(this.dataGridView);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "SettingsForm";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SettingsForm";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
@@ -137,8 +170,9 @@
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.Button cancelButton;
+        private System.Windows.Forms.Button defaults;
         private System.Windows.Forms.DataGridViewTextBoxColumn key;
         private System.Windows.Forms.DataGridViewTextBoxColumn Value;
-        private System.Windows.Forms.Button defaults;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Enabled;
     }
 }

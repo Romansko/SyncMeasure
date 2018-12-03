@@ -93,7 +93,7 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            string regex = "([1-9]?[0-9]|100)%$";
+            var regex = "([1-9]?[0-9]|100)%$";
             circularProgressBar.Text = Regex.Replace(circularProgressBar.Text, regex, e.ProgressPercentage + "%");
         }
 
@@ -124,7 +124,7 @@ namespace SyncMeasure
         {
             if (sender is BackgroundWorker worker)
             {
-                string filePath = (string) e.Argument;
+                var filePath = (string) e.Argument;
                 e.Result = _handler.LoadLeapMotionOutputFile(filePath, worker, e);
             }
         }
@@ -159,7 +159,7 @@ namespace SyncMeasure
             }
             else
             {
-                ResultStatus status = (ResultStatus) e.Result;
+                var status = (ResultStatus) e.Result;
                 msg = status.Message;
                 if (status.Status)
                 {
@@ -198,7 +198,7 @@ namespace SyncMeasure
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            ResultStatus status = (ResultStatus)e.Result;
+            var status = (ResultStatus)e.Result;
             if (status.Status)
             {
                 try
@@ -231,59 +231,6 @@ namespace SyncMeasure
             }
         }
 
-        /******************************* menu strip buttons ******************************/
-
-        /// <summary>
-        /// On load button click.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void loadToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (openFileDialog.ShowDialog() != DialogResult.OK) return;
-            LoadFile(openFileDialog.FileName);
-        }
-
-        private void LoadFile(string filePath)
-        {
-            menuStrip.Enabled = false;
-            circularProgressBar.Text = "Loading..\n0%";
-            cancelButton.Enabled = true;
-            progGroupBox.Show();
-            if (!loadingBackgroundWorker.IsBusy)
-            {
-                loadingBackgroundWorker.RunWorkerAsync(filePath);
-            }
-        }
-
-        /// <summary>
-        /// On settings button click.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var settingForm = new SettingsForm(_handler);
-            settingForm.ShowDialog();
-        }
-
-        /// <summary>
-        /// On calculate button click.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void calculateToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            menuStrip.Enabled = false;
-            circularProgressBar.Text = "Calculating\n0%";
-            cancelButton.Enabled = true;
-            progGroupBox.Show();
-
-            if (!calcBackgroundWorker.IsBusy)
-            {
-                calcBackgroundWorker.RunWorkerAsync();
-            }
-        }
 
         /// <summary>
         /// Application exit.
@@ -292,7 +239,7 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            string tempGraph = Path.GetFullPath(Resources.HAND_CVV_GRAPH);
+            var tempGraph = Path.GetFullPath(Resources.HAND_CVV_GRAPH);
             try
             {
                 File.Delete(tempGraph);     // Delete temporary image.
@@ -312,7 +259,7 @@ namespace SyncMeasure
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                string[] filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
+                var filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
                 LoadFile(filePaths[0]);
             }
         }
@@ -340,11 +287,66 @@ namespace SyncMeasure
             }
         }
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+
+
+        /******************************* menu strip buttons ******************************/
+
+        /// <summary>
+        /// On load button click.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void loadToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new About()).ShowDialog();
+            if (openFileDialog.ShowDialog() != DialogResult.OK) return;
+            LoadFile(openFileDialog.FileName);
         }
 
+        private void LoadFile(string filePath)
+        {
+            menuStrip.Enabled = false;
+            circularProgressBar.Text = "Loading..\n0%";
+            cancelButton.Enabled = true;
+            progGroupBox.Show();
+            if (!loadingBackgroundWorker.IsBusy)
+            {
+                loadingBackgroundWorker.RunWorkerAsync(filePath);
+            }
+        }
+
+
+        /// <summary>
+        /// On calculate button click.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void calculateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            menuStrip.Enabled = false;
+            circularProgressBar.Text = "Calculating\n0%";
+            cancelButton.Enabled = true;
+            progGroupBox.Show();
+
+            if (!calcBackgroundWorker.IsBusy)
+            {
+                calcBackgroundWorker.RunWorkerAsync();
+            }
+        }
+
+        private void controlsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            (new ControlsForm()).ShowDialog();
+        }
+
+        private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            (new AboutForm()).ShowDialog();
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            (new SettingsForm(_handler)).ShowDialog();
+        }
     }
 }
 

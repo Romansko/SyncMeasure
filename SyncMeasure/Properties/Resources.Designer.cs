@@ -61,31 +61,6 @@ namespace SyncMeasure.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {\rtf1\ansi
-        ///\b SyncMeasure v1.0 \b0
-        ///\line\line
-        ///Controls
-        ///\line
-        ///-------------------------
-        ///\line
-        ///- Loading cvs can be done by dragging csv file to SyncMeasure or by clicking Load button (ctrl+L).
-        ///\line\line
-        ///- Calculating can be done by clicking Enter or by clicking Calculate button.
-        ///\line\line
-        ///- After parsing data, you can double click the graphs to expand. Use mouse wheel to zoom in / out.
-        ///\line\line
-        ///-------------------------
-        ///\line\line\line
-        ///SyncMeasure Homepage: 
-        ///\hlinkbase https://github.com [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string About {
-            get {
-                return ResourceManager.GetString("About", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to ./all.png.
         /// </summary>
         internal static string ALL_GRAPH {
@@ -136,6 +111,29 @@ namespace SyncMeasure.Properties {
         internal static string ARM_POS_Z {
             get {
                 return ResourceManager.GetString("ARM_POS_Z", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {\rtf1\ansi
+        ///\b SyncMeasure Controls \b0
+        ///\line\line
+        ///- Loading cvs can be done by dragging csv file to SyncMeasure or by clicking Load button (ctrl+L).
+        ///\line\line
+        ///- Calculating can be done by clicking Enter or by clicking Calculate button.
+        ///\line\line
+        ///- After parsing data, you can double click the graphs to expand. Use mouse wheel to zoom in / out.
+        ///\line\line
+        ///-------------------------
+        ///\line\line\line
+        ///SyncMeasure Homepage: 
+        ///\hlinkbase https://github.com/Romansko/SyncMeasure \hlinkbase0
+        ///\line
+        ///}.
+        /// </summary>
+        internal static string Controls {
+            get {
+                return ResourceManager.GetString("Controls", resourceCulture);
             }
         }
         

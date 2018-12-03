@@ -24,18 +24,23 @@ namespace SyncMeasure
         /// </summary>
         private void LoadSettings()
         {
-            dataGridView.Rows.Clear();;
+            dataGridView.Rows.Clear();
             var weights = _handler.GetWeights();
             dataGridView.Rows.Add();
             var row = dataGridView.Rows[0];
             row.Cells[0].Value = @"Weight Name";
             row.Cells[1].Value = @"Weight Value";
+            row.Cells[2].Value = @"Enabled";
             row.ReadOnly = true;
-            row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = Color.Gray;
+            row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = row.Cells[2].Style.BackColor = Color.Gray;
+            row.Cells[1].Style.SelectionForeColor = Color.Black;
+            row.Cells[0].Style.SelectionBackColor = row.Cells[1].Style.SelectionBackColor = row.Cells[2].Style.SelectionBackColor = Color.Gray;
             foreach (var w in weights)
             {
                 dataGridView.Rows.Add(w.Key, w.Value.ToString(CultureInfo.CurrentCulture));
-                dataGridView.Rows[dataGridView.Rows.Count-1].Cells[0].Style.BackColor = Color.AliceBlue;
+                var thisRow = dataGridView.Rows[dataGridView.Rows.Count - 1];
+                thisRow.Cells[2] = new DataGridViewCheckBoxCell {Value = !thisRow.Cells[1].Value.Equals("0")};
+                HandleWeightRow(thisRow);
             }
             var colNames = _handler.GetColNames();
             dataGridView.Rows.Add();
@@ -43,12 +48,15 @@ namespace SyncMeasure
             row.Cells[0].Value = @"Column Name";
             row.Cells[1].Value = @"Column R Name";
             row.ReadOnly = true;
-            row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = Color.Gray;
-            
+            row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = row.Cells[2].Style.BackColor = Color.Gray;
+            row.Cells[1].Style.SelectionForeColor = Color.Black;
+            row.Cells[0].Style.SelectionBackColor = row.Cells[1].Style.SelectionBackColor = row.Cells[2].Style.SelectionBackColor = Color.Gray;
             foreach (var n in colNames)
             {
                 dataGridView.Rows.Add(n.Key, n.Value);
-                dataGridView.Rows[dataGridView.Rows.Count - 1].Cells[0].Style.BackColor = Color.AliceBlue;
+                var thisRow = dataGridView.Rows[dataGridView.Rows.Count - 1];
+                thisRow.Cells[0].Style.BackColor = Color.AliceBlue;
+                thisRow.Cells[2].ReadOnly = true;
             }
         }
 
@@ -75,13 +83,13 @@ namespace SyncMeasure
                     return;
                 }
             }
-            double arm = GetWeightValue(Resources.ARM);
-            double elbow = GetWeightValue(Resources.ELBOW);
-            double hand = GetWeightValue(Resources.HAND);
-            double grab = GetWeightValue(Resources.GRAB);
-            double gesture = GetWeightValue(Resources.GESTURE);
+            var arm = GetWeightValue(Resources.ARM);
+            var elbow = GetWeightValue(Resources.ELBOW);
+            var hand = GetWeightValue(Resources.HAND);
+            var grab = GetWeightValue(Resources.GRAB);
+            var gesture = GetWeightValue(Resources.GESTURE);
 
-            if (!_handler.SetWeight(arm, elbow, hand, grab, gesture, out string errMsg))
+            if (!_handler.SetWeight(arm, elbow, hand, grab, gesture, out var errMsg))
             {
                 MessageBox.Show(errMsg, Resources.TITLE + @" - Weight setting failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -161,14 +169,14 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void dataGridView_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex < 0 || !(sender is DataGridView))
+            if (e.RowIndex < 0 || e.ColumnIndex != 1 || !(sender is DataGridView))
             {
                 return;
             }
 
-            var cell = ((DataGridView) sender)[e.ColumnIndex, e.RowIndex];
+            var dgv = (DataGridView) sender;
 
-            if (cell.ReadOnly)
+            if (dgv[1, e.RowIndex].ReadOnly)
             {
                 return;     // Header rows.
             }
@@ -177,13 +185,20 @@ namespace SyncMeasure
             /* Don't allow invalid weights input */
             if (e.RowIndex < maxWeightIndex)
             {
-                Regex regex = new Regex("(0.\\d+$)|0$");
+                var regex = new Regex("(0.\\d+$)|0$");
                 if (!regex.IsMatch((string)e.Value))
                 {
-                    e.Value = cell.Value;       // old value.
+                    e.Value = dgv[1, e.RowIndex].Value;       // old value.
                     e.ParsingApplied = true;
                     MessageBox.Show(@"Invalid weight value!", Resources.TITLE + @" - Invalid Weight",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (Math.Abs(Convert.ToDouble(e.Value)) < 0.0001)
+                {
+                    dgv[2, e.RowIndex].Value = false;
+                    e.ParsingApplied = true;
                 }
                 return;
             }
@@ -191,6 +206,42 @@ namespace SyncMeasure
             /* Col Names */
             e.Value = _handler.CreateValidColumnName((string)e.Value);
             e.ParsingApplied = true;
+        }
+
+        private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            (sender as DataGridView)?.CommitEdit(DataGridViewDataErrorContexts.Commit);
+        }
+
+        private void dataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex != 2 || e.RowIndex < 0 || !(sender is DataGridView))
+                return;
+
+            DataGridView dgv = (DataGridView) sender;
+            HandleWeightRow(dgv.Rows[e.RowIndex]);
+        }
+
+        /// <summary>
+        /// Enable / Disable weight row.
+        /// </summary>
+        /// <param name="row"></param>
+        private void HandleWeightRow(DataGridViewRow row)
+        {
+            if (row.Cells.Count != 3 || !(row.Cells[2] is DataGridViewCheckBoxCell))
+                return;
+            bool weightActive = (bool) row.Cells[2].Value;
+            if (!weightActive)
+            {
+                row.Cells[1].Value = "0";
+                row.Cells[1].ReadOnly = true;
+                row.Cells[1].Style.BackColor = Color.LightGray;
+            }
+            else
+            {
+                row.Cells[1].ReadOnly = false;
+                row.Cells[1].Style.BackColor = new Color();
+            }
         }
     }
 }

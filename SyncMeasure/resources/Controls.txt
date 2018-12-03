@@ -1,10 +1,6 @@
 ﻿{\rtf1\ansi
-\b SyncMeasure v1.0 \b0
+\b SyncMeasure Controls \b0
 \line\line
-Controls
-\line
--------------------------
-\line
 - Loading cvs can be done by dragging csv file to SyncMeasure or by clicking Load button (ctrl+L).
 \line\line
 - Calculating can be done by clicking Enter or by clicking Calculate button.

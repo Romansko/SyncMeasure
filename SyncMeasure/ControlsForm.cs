@@ -3,13 +3,13 @@ using SyncMeasure.Properties;
 
 namespace SyncMeasure
 {
-    public partial class About : Form
+    public partial class ControlsForm : Form
     {
-        public About()
+        public ControlsForm()
         {
             InitializeComponent();
-            richTextBox.Rtf = Resources.About;
-            Text += Resources.TITLE;
+            richTextBox.Rtf = Resources.Controls;
+            Text = Resources.TITLE + @" Controls";
         }
 
         public sealed override string Text

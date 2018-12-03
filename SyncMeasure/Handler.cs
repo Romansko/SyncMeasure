@@ -136,7 +136,7 @@ namespace SyncMeasure
                 foreach (var frame in _frames)
                 {
                     timestamps.Add((int) frame.Timestamp);
-                    for (int i = 0; i < 2; ++i) // do for both hands.
+                    for (var i = 0; i < 2; ++i) // do for both hands.
                     {
                         armsPos[i][0].Add(frame.Hands[i].Arm.Center.x);
                         armsPos[i][1].Add(frame.Hands[i].Arm.Center.y);
@@ -159,7 +159,7 @@ namespace SyncMeasure
                 RemoveFromR("diff");
                 RemoveFromR("func");
 
-                for (int i = 0; i < 2; ++i)     // for both hands.
+                for (var i = 0; i < 2; ++i)     // for both hands.
                 {
                     _engine.SetSymbol("hand" + i + ".pos.x", _engine.CreateNumericVector(handsPos[i][0]));
                     _engine.SetSymbol("hand" + i + ".pos.y", _engine.CreateNumericVector(handsPos[i][1]));
@@ -237,7 +237,7 @@ namespace SyncMeasure
                 bgWorker.ReportProgress(90);
 
                 /* Plot all cvv in one graph */
-                string allGraph = Path.GetFullPath(Resources.ALL_GRAPH).Replace("\\", "/");
+                var allGraph = Path.GetFullPath(Resources.ALL_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("allGraph", _engine.CreateCharacterVector(new[] { allGraph }));
                 _engine.Evaluate("png(filename=allGraph)");
                 _engine.Evaluate("plot(x = timestamps, y = hand.cvv(timestamps), type = 'l', main = 'CVV = f(Timestamp)', " +
@@ -247,7 +247,7 @@ namespace SyncMeasure
                 _engine.Evaluate("dev.off()");
 
                 /* Plot hand cvv */
-                string handsGraph = Path.GetFullPath(Resources.HAND_CVV_GRAPH).Replace("\\", "/");
+                var handsGraph = Path.GetFullPath(Resources.HAND_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("handsGraph", _engine.CreateCharacterVector(new[] { handsGraph }));
                 _engine.Evaluate("png(filename=handsGraph)");
                 _engine.Evaluate("plot(x = timestamps, y = hand.cvv(timestamps), type = 'l', main = 'Hands cvv = f(Timestamp)', " +
@@ -255,7 +255,7 @@ namespace SyncMeasure
                 _engine.Evaluate("dev.off()");
 
                 /* Plot arm cvv */
-                string armsGraph = Path.GetFullPath(Resources.ARM_CVV_GRAPH).Replace("\\", "/");
+                var armsGraph = Path.GetFullPath(Resources.ARM_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("armsGraph", _engine.CreateCharacterVector(new[] { armsGraph }));
                 _engine.Evaluate("png(filename=armsGraph)");
                 _engine.Evaluate("plot(x = timestamps, y = arm.cvv(timestamps), type = 'l', main = 'arm cvv = f(Timestamp)', " +
@@ -263,7 +263,7 @@ namespace SyncMeasure
                 _engine.Evaluate("dev.off()");
 
                 /* Plot elbow cvv */
-                string elbowGraph = Path.GetFullPath(Resources.ELBOW_CVV_GRAPH).Replace("\\", "/");
+                var elbowGraph = Path.GetFullPath(Resources.ELBOW_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("elbowsGraph", _engine.CreateCharacterVector(new[] { elbowGraph }));
                 _engine.Evaluate("png(filename=elbowsGraph)");
                 _engine.Evaluate("plot(x = timestamps, y = hand.cvv(timestamps), type = 'l', main = 'elbow cvv = f(Timestamp)', " +
@@ -280,7 +280,7 @@ namespace SyncMeasure
                 RemoveFromR("elbow.cvv");
 
                 bgWorker.ReportProgress(100);
-                string errorMessage = "";
+                var errorMessage = "";
                 return new ResultStatus(true, errorMessage);
             }
             catch (Exception e)
@@ -304,14 +304,14 @@ namespace SyncMeasure
                 return new ResultStatus(false, @"Invalid file path!");
             }
 
-            string errorMessage = "";
+            var errorMessage = "";
             try
             {
                 // import csv file
                 filePath = filePath.Replace("\\", "/");   // fix for [R].
 
                 // Load csv file to memory.
-                string cmd = "dataset <- fread(file='" + filePath + "', header = T, sep = ',', dec='.', " +
+                var cmd = "dataset <- fread(file='" + filePath + "', header = T, sep = ',', dec='.', " +
                              "stringsAsFactors = F, verbose = F, check.names = T, blank.lines.skip = T)";
                 _engine.Evaluate(cmd);
 
@@ -330,7 +330,7 @@ namespace SyncMeasure
                 _engine.Evaluate("dataset <- dataset[dataset$" + _colNames[Resources.HANDS_IN_FRAME] + " == 2,]");
 
                 // retrieve the data frame
-                DataFrame dataFrame = _engine.GetSymbol("dataset").AsDataFrame();
+                var dataFrame = _engine.GetSymbol("dataset").AsDataFrame();
                 
                 if (dataFrame == null)
                 {
@@ -345,8 +345,8 @@ namespace SyncMeasure
                 }
 
                 var frames = new List<Frame>();
-                int firstHandId = -1;
-                int secondHandId = -1;
+                var firstHandId = -1;
+                var secondHandId = -1;
                 for (var i = 0; i < dataFrame.RowCount - 1; i = i + 2)
                 {
                     if (bgWorker.CancellationPending)
@@ -355,7 +355,7 @@ namespace SyncMeasure
                         return null;        // will be ignored.
                     }
 
-                    double percent = (double) i / dataFrame.RowCount * 100;
+                    var percent = (double) i / dataFrame.RowCount * 100;
                     bgWorker.ReportProgress((int) percent);
                     
                     var hand1 = GetHand(dataFrame, i, out errorMessage);
@@ -384,8 +384,8 @@ namespace SyncMeasure
                         if (firstHandId != hand1.Id && secondHandId != hand2.Id)
                         {
                             /* Both hands went out of frame at the same time */
-                            bool firstHandLeft = frames[frames.Count - 1].Hands[0].IsLeft;
-                            bool secondHandLeft = frames[frames.Count - 1].Hands[1].IsLeft;
+                            var firstHandLeft = frames[frames.Count - 1].Hands[0].IsLeft;
+                            var secondHandLeft = frames[frames.Count - 1].Hands[1].IsLeft;
                             if (firstHandLeft == secondHandLeft)
                             {
                                 errorMessage =
@@ -395,16 +395,9 @@ namespace SyncMeasure
                             }
                             else
                             {
-                                if (firstHandLeft == hand1.IsLeft)
-                                {
-                                    hand1.Id = firstHandId;
-                                    hand2.Id = secondHandId;
-                                }
-                                else
-                                {
-                                    hand1.Id = secondHandId;
-                                    hand2.Id = firstHandId;
-                                }
+                                var sameType = (firstHandLeft == hand1.IsLeft);
+                                hand1.Id = sameType ? firstHandId : secondHandId;
+                                hand2.Id = sameType ? secondHandId : firstHandId;
                             }
                         }
                         else if (firstHandId != hand1.Id)     // only 1st hand went out of frame.
@@ -473,7 +466,7 @@ namespace SyncMeasure
                 x = (float) (double) dataFrame[index, _colNames[Resources.ELBOW_POS_X]];
                 y = (float) (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Y]];
                 z = (float) (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Z]];
-                Vector elbowPos = new Vector(x, y, z);
+                var elbowPos = new Vector(x, y, z);
 
                 // unbox double and cast to float.
                 x = (float) (double) dataFrame[index, _colNames[Resources.ARM_POS_X]];
@@ -550,7 +543,7 @@ namespace SyncMeasure
         public bool SetWeight(double arm, double elbow, double hand, double grab, double gesture,
             out string errorMessage)
         {
-            double weightSum = arm + elbow + hand + grab + gesture;
+            var weightSum = arm + elbow + hand + grab + gesture;
             if (Math.Abs(weightSum - 1.0) > 0)  // for not losing precision.
             {
                 errorMessage = @"Invalid weights sum: Must be equal to 1.";
@@ -691,6 +684,7 @@ namespace SyncMeasure
             {
                 writer.WriteElementString(colName.Key, colName.Value);
             }
+            writer.WriteEndElement();
 
             writer.WriteStartElement("Weights");      // Sync Weights
             foreach (var keyValuePair in _weights)
