@@ -16,13 +16,20 @@ namespace SyncMeasure
     public class Handler
     {
         private readonly REngine _engine;
-        private readonly Dictionary<string, double> _weights;
+        private readonly Dictionary<string, double> _weights;   // weight of sync properties.
         private readonly Dictionary<string, string> _colNames;  // csv file column names. (to be read with R).
         private List<Frame> _frames;                            // The parsed data.
+        public EFormat Format { get; private set; }                     // format being used.
+
+        public enum EFormat
+        {
+            OLD,
+            NEW
+        };
 
         public Handler(out ResultStatus resultStatus)
         {
-            /* [R] initialzation */
+            /* [R] initialization */
             _engine = REngine.GetInstance();
             var loadedPackages = LoadRPackages(out var errMsg);
             resultStatus = new ResultStatus(loadedPackages, errMsg);
@@ -60,12 +67,20 @@ namespace SyncMeasure
                 {Resources.ELBOW_POS_X, ""},
                 {Resources.ELBOW_POS_Y, ""},
                 {Resources.ELBOW_POS_Z, ""},
-                {Resources.SYNC_MODE, ""}
+                {Resources.GRAB_ANGLE, ""}
             };
-            SetDefaults();
+            SetNewFormatDefaults();
             LoadUserSettings();
         }
 
+        ~Handler()
+        {
+            /* Try delete saved graphs */
+            try { File.Delete(Resources.ARM_CVV_GRAPH); } catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.ELBOW_CVV_GRAPH); } catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.HAND_CVV_GRAPH); } catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.ALL_GRAPH); } catch (Exception) {/*ignored*/}
+        }
         public bool LoadRPackages(out string errorMessage)
         {
             if (_engine.Evaluate("require(cvv)").AsInteger()[0] == 0)
@@ -102,12 +117,12 @@ namespace SyncMeasure
         }
 
         /// <summary>
-        /// Calculate Synchronization from loaded DataFrame.
+        /// Measure Synchronization from loaded DataFrame.
         /// </summary>
         /// <param name="bgWorker"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public ResultStatus CalculateSynchronization(BackgroundWorker bgWorker, DoWorkEventArgs args)
+        public ResultStatus MeasureSynchronization(BackgroundWorker bgWorker, DoWorkEventArgs args)
         {
             try
             {
@@ -180,7 +195,7 @@ namespace SyncMeasure
                     return null;        // will be ignored.
                 }
 
-                /* Calculate Arm, Elbow and Hand cvv */
+                /* Measure Arm, Elbow and Hand cvv */
                 // TODO: try to make parallel
 
                 // Hand
@@ -307,22 +322,22 @@ namespace SyncMeasure
             var errorMessage = "";
             try
             {
-                // import csv file
+                /* Load csv file to memory. */
                 filePath = filePath.Replace("\\", "/");   // fix for [R].
-
-                // Load csv file to memory.
-                var cmd = "dataset <- fread(file='" + filePath + "', header = T, sep = ',', dec='.', " +
-                             "stringsAsFactors = F, verbose = F, check.names = T, blank.lines.skip = T)";
-                _engine.Evaluate(cmd);
+                _engine.Evaluate("dataset <- fread(file=file.path('" + filePath + "'), " +
+                                 "header = T, sep = ',', dec='.', stringsAsFactors = F, verbose = F, " +
+                                 "check.names = T, blank.lines.skip = T,  encoding = 'UTF-8')");
 
                 /* Validate column names */
                 var colNames = _engine.Evaluate("colnames(dataset)").AsVector();
                 
-                foreach (var cName in (GeNecessaryColumnNames()))
+                foreach (var cName in (GeMandatoryColumnNames()))
                 {
                     if (!colNames.Contains(cName))
                     {
-                        return new ResultStatus(false, @"Provided file doesn't contain column name: " + cName);
+                        errorMessage = @"Provided file doesn't contain column name: " + cName + Environment.NewLine +
+                                       @"Try changing Default Format in settings or rename column name.";
+                        return new ResultStatus(false, errorMessage);
                     }
                 }
 
@@ -410,9 +425,18 @@ namespace SyncMeasure
                         }
                     }
 
-                    int timestamp;
-                    var ts1 = (int) dataFrame[i, _colNames[Resources.TIMESTAMP]];
-                    var ts2 = (int) dataFrame[i + 1, _colNames[Resources.TIMESTAMP]];
+                    int timestamp, ts1, ts2;
+                    if (Format.Equals(EFormat.OLD))
+                    {
+                        ts1 = (int)dataFrame[i, _colNames[Resources.TIMESTAMP]];
+                        ts2 = (int)dataFrame[i + 1, _colNames[Resources.TIMESTAMP]];
+                    }
+                    else
+                    {
+                        ts1 = (int) (1000 * (double) dataFrame[i, _colNames[Resources.TIMESTAMP]]);
+                        ts2 = (int) (1000 * (double) dataFrame[i + 1, _colNames[Resources.TIMESTAMP]]);
+                    }
+                    
                     var diff = ts2 - ts1;
                     if (diff == 0)
                     {
@@ -455,12 +479,21 @@ namespace SyncMeasure
             {
                 var hand = new Hand
                 {
-                    Id = (int) dataFrame[index, _colNames[Resources.HAND_ID]],
                     FrameId = (int) dataFrame[index, _colNames[Resources.FRAME_ID]],
                     PinchStrength = (float) (double) dataFrame[index, _colNames[Resources.PINCH_STRENGTH]],
                     GrabStrength = (float) (double) dataFrame[index, _colNames[Resources.GRAB_STRENGTH]],
                     IsLeft = dataFrame[index, _colNames[Resources.HAND_TYPE]].ToString().ToLower().Contains("left")
                 };
+
+                if (Format.Equals(EFormat.NEW))
+                {
+                    hand.Id = hand.IsLeft ? 0 : 1;
+                }
+                else if (Format.Equals(EFormat.OLD))
+                {
+                    hand.Id = (int)dataFrame[index, _colNames[Resources.HAND_ID]];
+                }
+
                 float x, y, z;
                 // unbox double and cast to float.
                 x = (float) (double) dataFrame[index, _colNames[Resources.ELBOW_POS_X]];
@@ -508,13 +541,12 @@ namespace SyncMeasure
         /// Get list of column names that are used by SyncMeasure.
         /// </summary>
         /// <returns></returns>
-        private List<string> GeNecessaryColumnNames()
+        private List<string> GeMandatoryColumnNames()
         {
-            return new List<string>()
+            return new List<string>
             {
                 _colNames[Resources.TIMESTAMP],
                 _colNames[Resources.FRAME_ID],
-                _colNames[Resources.HAND_ID],
                 _colNames[Resources.HANDS_IN_FRAME],
                 _colNames[Resources.HAND_POS_X],
                 _colNames[Resources.HAND_POS_Y],
@@ -590,10 +622,14 @@ namespace SyncMeasure
         }
 
         /// <summary>
-        /// Set defaults settings.
+        /// Set old format defaults column names.
         /// </summary>
-        public void SetDefaults()
+        public void SetOldFormatDefaults()
         {
+        //    SetWeight(0.15, 0.15, 0.5, 0.1, 0.1, out _);      // Default weight initialization 
+            Format = EFormat.OLD;
+            if (!_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Add(Resources.HAND_ID, "");
+
             /* Set column names as appear in R env. */
             _colNames[Resources.TIMESTAMP] =      "Utc.Time";
             _colNames[Resources.FRAME_ID] =       "Frame..";
@@ -617,10 +653,41 @@ namespace SyncMeasure
             _colNames[Resources.ELBOW_POS_X] =    "elbow.pos.x";
             _colNames[Resources.ELBOW_POS_Y] =    "elbow.pos.y";
             _colNames[Resources.ELBOW_POS_Z] =    "elbow.pos.z";
-            _colNames[Resources.SYNC_MODE] =      "Sync.Mode";
+            _colNames[Resources.GRAB_ANGLE] =      "Sync.Mode";
+        }
 
-            /* Default weight initialization */
-            SetWeight(0.15, 0.15, 0.5, 0.1, 0.1, out _);
+        /// <summary>
+        /// Set new format defaults column names.
+        /// </summary>
+        public void SetNewFormatDefaults()
+        {
+     //       SetWeight(0.15, 0.15, 0.5, 0.1, 0.1, out _);      // Default weight initialization 
+            Format = EFormat.NEW;
+            if (_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Remove(Resources.HAND_ID);
+
+            /* Set column names as appear in R env. */
+            _colNames[Resources.TIMESTAMP] = "Time";
+            _colNames[Resources.FRAME_ID] = "Frame.ID";
+            _colNames[Resources.HANDS_IN_FRAME] = "X..hands";
+            _colNames[Resources.HAND_TYPE] = "Hand.Type";
+            _colNames[Resources.HAND_POS_X] = "Wrist.Pos.X";
+            _colNames[Resources.HAND_POS_Y] = "Wrist.Pos.Y";
+            _colNames[Resources.HAND_POS_Z] = "Wrist.Pos.Z";
+            _colNames[Resources.HAND_VEL_X] = "Velocity.X";
+            _colNames[Resources.HAND_VEL_Y] = "Velocity.Y";
+            _colNames[Resources.HAND_VEL_Z] = "Velocity.Z";
+            _colNames[Resources.PITCH] = "Pitch";
+            _colNames[Resources.ROLL] = "Roll";
+            _colNames[Resources.YAW] = "Yaw";
+            _colNames[Resources.GRAB_STRENGTH] = "Grab.Strenth";
+            _colNames[Resources.PINCH_STRENGTH] = "Pinch.Strength";
+            _colNames[Resources.GRAB_ANGLE] = "Grab.Angle";
+            _colNames[Resources.ARM_POS_X] = "Position.X";
+            _colNames[Resources.ARM_POS_Y] = "Position.Y";
+            _colNames[Resources.ARM_POS_Z] = "Position.Z";
+            _colNames[Resources.ELBOW_POS_X] = "Elbow.pos.X";
+            _colNames[Resources.ELBOW_POS_Y] = "Elbow.Pos.Y";
+            _colNames[Resources.ELBOW_POS_Z] = "Elbow.Pos.Z"; 
         }
 
         /// <summary>
@@ -634,7 +701,7 @@ namespace SyncMeasure
             var xmlSettings = new XmlDocument();
             xmlSettings.Load(Resources.SETTINGS);
             var rootElement = xmlSettings.DocumentElement;
-            if (rootElement == null || !Resources.TITLE.Equals(rootElement.Name))
+            if (rootElement == null || !Resources.TITLE.Equals(rootElement.Name) || !(rootElement.Attributes["Version"].Value.Equals(Resources.VERSION)))
                 return;
 
             var names = rootElement.SelectSingleNode("Names");

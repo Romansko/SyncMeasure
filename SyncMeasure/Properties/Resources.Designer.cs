@@ -120,7 +120,7 @@ namespace SyncMeasure.Properties {
         ///\line\line
         ///- Loading cvs can be done by dragging csv file to SyncMeasure or by clicking Load button (ctrl+L).
         ///\line\line
-        ///- Calculating can be done by clicking Enter or by clicking Calculate button.
+        ///- Sync Measure can be done by clicking Enter or by clicking Measure button.
         ///\line\line
         ///- After parsing data, you can double click the graphs to expand. Use mouse wheel to zoom in / out.
         ///\line\line
@@ -206,6 +206,15 @@ namespace SyncMeasure.Properties {
         internal static string GRAB {
             get {
                 return ResourceManager.GetString("GRAB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to GrabAngle.
+        /// </summary>
+        internal static string GRAB_ANGLE {
+            get {
+                return ResourceManager.GetString("GRAB_ANGLE", resourceCulture);
             }
         }
         
@@ -354,15 +363,6 @@ namespace SyncMeasure.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SyncMode.
-        /// </summary>
-        internal static string SYNC_MODE {
-            get {
-                return ResourceManager.GetString("SYNC_MODE", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Timestamp.
         /// </summary>
         internal static string TIMESTAMP {
@@ -381,7 +381,7 @@ namespace SyncMeasure.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 1.0.
+        ///   Looks up a localized string similar to 1.1.
         /// </summary>
         internal static string VERSION {
             get {

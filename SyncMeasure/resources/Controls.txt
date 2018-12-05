@@ -3,7 +3,7 @@
 \line\line
 - Loading cvs can be done by dragging csv file to SyncMeasure or by clicking Load button (ctrl+L).
 \line\line
-- Calculating can be done by clicking Enter or by clicking Calculate button.
+- Sync Measurement can be done by clicking Enter or by clicking Measure button.
 \line\line
 - After parsing data, you can double click the graphs to expand. Use mouse wheel to zoom in / out.
 \line\line

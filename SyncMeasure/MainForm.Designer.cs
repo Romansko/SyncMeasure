@@ -35,7 +35,7 @@
             this.allGraphBox = new Cyotek.Windows.Forms.ImageBox();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.calculateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.measureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.controlsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,7 +46,7 @@
             this.loadingBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.progGroupBox = new System.Windows.Forms.GroupBox();
             this.cancelButton = new System.Windows.Forms.Button();
-            this.calcBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.measureBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -64,6 +64,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.measureOnLoad = new System.Windows.Forms.CheckBox();
             this.menuStrip.SuspendLayout();
             this.progGroupBox.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -88,9 +89,9 @@
             this.circularProgressBar.BackColor = System.Drawing.Color.Transparent;
             this.circularProgressBar.Font = new System.Drawing.Font("Arial", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.circularProgressBar.ForeColor = System.Drawing.Color.DarkBlue;
-            this.circularProgressBar.InnerColor = System.Drawing.Color.White;
-            this.circularProgressBar.InnerMargin = 0;
-            this.circularProgressBar.InnerWidth = 0;
+            this.circularProgressBar.InnerColor = System.Drawing.Color.PowderBlue;
+            this.circularProgressBar.InnerMargin = 1;
+            this.circularProgressBar.InnerWidth = 1;
             this.circularProgressBar.Location = new System.Drawing.Point(21, 16);
             this.circularProgressBar.Margin = new System.Windows.Forms.Padding(0);
             this.circularProgressBar.MarqueeAnimationSpeed = 1000;
@@ -132,7 +133,7 @@
             this.menuStrip.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadToolStripMenuItem,
-            this.calculateToolStripMenuItem,
+            this.measureToolStripMenuItem,
             this.settingsToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.menuStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
@@ -151,14 +152,14 @@
             this.loadToolStripMenuItem.ToolTipText = "Load LeapMotion output csv file. (ctrl+L).";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
-            // calculateToolStripMenuItem
+            // measureToolStripMenuItem
             // 
-            this.calculateToolStripMenuItem.Enabled = false;
-            this.calculateToolStripMenuItem.Name = "calculateToolStripMenuItem";
-            this.calculateToolStripMenuItem.Size = new System.Drawing.Size(76, 23);
-            this.calculateToolStripMenuItem.Text = "&Calculate";
-            this.calculateToolStripMenuItem.ToolTipText = "Calculate the synchrony. (Enter).";
-            this.calculateToolStripMenuItem.Click += new System.EventHandler(this.calculateToolStripMenuItem_Click);
+            this.measureToolStripMenuItem.Enabled = false;
+            this.measureToolStripMenuItem.Name = "measureToolStripMenuItem";
+            this.measureToolStripMenuItem.Size = new System.Drawing.Size(106, 23);
+            this.measureToolStripMenuItem.Text = "&Measure Sync";
+            this.measureToolStripMenuItem.ToolTipText = "Measure the synchrony. (Enter).";
+            this.measureToolStripMenuItem.Click += new System.EventHandler(this.measureToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
@@ -182,19 +183,19 @@
             // controlsToolStripMenuItem
             // 
             this.controlsToolStripMenuItem.Name = "controlsToolStripMenuItem";
-            this.controlsToolStripMenuItem.Size = new System.Drawing.Size(180, 24);
+            this.controlsToolStripMenuItem.Size = new System.Drawing.Size(130, 24);
             this.controlsToolStripMenuItem.Text = "&Controls";
             this.controlsToolStripMenuItem.Click += new System.EventHandler(this.controlsToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(127, 6);
             // 
             // aboutToolStripMenuItem1
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(180, 24);
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(130, 24);
             this.aboutToolStripMenuItem1.Text = "&About";
             this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 
@@ -212,6 +213,9 @@
             // 
             // cancelButton
             // 
+            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.Location = new System.Drawing.Point(21, 119);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(100, 23);
@@ -318,9 +322,9 @@
             this.sumGroupBox.Controls.Add(this.label3);
             this.sumGroupBox.Controls.Add(this.label2);
             this.sumGroupBox.Controls.Add(this.label1);
-            this.sumGroupBox.Location = new System.Drawing.Point(481, 41);
+            this.sumGroupBox.Location = new System.Drawing.Point(481, 61);
             this.sumGroupBox.Name = "sumGroupBox";
-            this.sumGroupBox.Size = new System.Drawing.Size(148, 134);
+            this.sumGroupBox.Size = new System.Drawing.Size(148, 114);
             this.sumGroupBox.TabIndex = 9;
             this.sumGroupBox.TabStop = false;
             this.sumGroupBox.Text = "Summary";
@@ -404,6 +408,17 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Avg CVV:";
             // 
+            // measureOnLoad
+            // 
+            this.measureOnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.measureOnLoad.AutoSize = true;
+            this.measureOnLoad.Location = new System.Drawing.Point(481, 38);
+            this.measureOnLoad.Name = "measureOnLoad";
+            this.measureOnLoad.Size = new System.Drawing.Size(132, 17);
+            this.measureOnLoad.TabIndex = 10;
+            this.measureOnLoad.Text = "Measure Sync on load";
+            this.measureOnLoad.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -411,6 +426,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightBlue;
             this.ClientSize = new System.Drawing.Size(641, 347);
+            this.Controls.Add(this.measureOnLoad);
             this.Controls.Add(this.sumGroupBox);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.progGroupBox);
@@ -422,7 +438,6 @@
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SyncMeasure";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainForm_DragEnter);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
@@ -448,13 +463,13 @@
         private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem calculateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem measureToolStripMenuItem;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.ToolTip toolTip;
         private System.ComponentModel.BackgroundWorker loadingBackgroundWorker;
         private System.Windows.Forms.GroupBox progGroupBox;
         private System.Windows.Forms.Button cancelButton;
-        private System.ComponentModel.BackgroundWorker calcBackgroundWorker;
+        private System.ComponentModel.BackgroundWorker measureBackgroundWorker;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
@@ -476,6 +491,7 @@
         private System.Windows.Forms.ToolStripMenuItem controlsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
+        private System.Windows.Forms.CheckBox measureOnLoad;
     }
 }
 

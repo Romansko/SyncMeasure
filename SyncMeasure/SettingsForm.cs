@@ -30,7 +30,7 @@ namespace SyncMeasure
             var row = dataGridView.Rows[0];
             row.Cells[0].Value = @"Weight Name";
             row.Cells[1].Value = @"Weight Value";
-            row.Cells[2].Value = @"Enabled";
+            //row.Cells[2].Value = @"Enabled";
             row.ReadOnly = true;
             row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = row.Cells[2].Style.BackColor = Color.Gray;
             row.Cells[1].Style.SelectionForeColor = Color.Black;
@@ -38,9 +38,12 @@ namespace SyncMeasure
             foreach (var w in weights)
             {
                 dataGridView.Rows.Add(w.Key, w.Value.ToString(CultureInfo.CurrentCulture));
-                var thisRow = dataGridView.Rows[dataGridView.Rows.Count - 1];
-                thisRow.Cells[2] = new DataGridViewCheckBoxCell {Value = !thisRow.Cells[1].Value.Equals("0")};
-                HandleWeightRow(thisRow);
+                row = dataGridView.Rows[dataGridView.Rows.Count - 1];
+                /* Temporary */
+                //row.Cells[2] = new DataGridViewCheckBoxCell {Value = !row.Cells[1].Value.Equals("0")};
+                row.Cells[2].ReadOnly = true;
+                /**/
+                HandleWeightRow(row);
             }
             var colNames = _handler.GetColNames();
             dataGridView.Rows.Add();
@@ -79,7 +82,7 @@ namespace SyncMeasure
                 var colValue = GetColName(col);
                 if (!_handler.SetColName(col, colValue))
                 {
-                    MessageBox.Show(@"Failed changing column name.", Resources.TITLE + @" - Column name changing failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, @"Failed changing column name.", Resources.TITLE + @" - Column name changing failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -89,11 +92,13 @@ namespace SyncMeasure
             var grab = GetWeightValue(Resources.GRAB);
             var gesture = GetWeightValue(Resources.GESTURE);
 
+            /* Temporary disable
             if (!_handler.SetWeight(arm, elbow, hand, grab, gesture, out var errMsg))
             {
-                MessageBox.Show(errMsg, Resources.TITLE + @" - Weight setting failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, errMsg, Resources.TITLE + @" - Weight setting failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            */
             _handler.SaveUserSettings();
             Close();
         }
@@ -153,13 +158,20 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void defaults_Click(object sender, EventArgs e)
         {
-            var res = MessageBox.Show(@"Are you sure?", @"Set defaults", MessageBoxButtons.YesNo,
+            var msg = @"Set New Format Defaults?" + Environment.NewLine + @"Yes for New format. No for old format.";
+            var res = MessageBox.Show(this, msg, @"Set Defaults", MessageBoxButtons.YesNoCancel,
                 MessageBoxIcon.Question);
             if (res.Equals(DialogResult.Yes))
             {
-                _handler.SetDefaults();
+                _handler.SetNewFormatDefaults();
                 LoadSettings();
             }
+            else if (res.Equals(DialogResult.No))
+            {
+                _handler.SetOldFormatDefaults();
+                LoadSettings();
+            }
+            
         }
 
         /// <summary>
@@ -190,7 +202,7 @@ namespace SyncMeasure
                 {
                     e.Value = dgv[1, e.RowIndex].Value;       // old value.
                     e.ParsingApplied = true;
-                    MessageBox.Show(@"Invalid weight value!", Resources.TITLE + @" - Invalid Weight",
+                    MessageBox.Show(this, @"Invalid weight value!", Resources.TITLE + @" - Invalid Weight",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }

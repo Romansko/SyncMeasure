@@ -16,27 +16,35 @@ namespace SyncMeasure
         public MainForm()
         {
             InitializeComponent();
+            Text += @" - v" + Resources.VERSION;
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
 
+
             /* BackgroundWorkers initialize */
-            loadingBackgroundWorker.WorkerReportsProgress      = true;
-            loadingBackgroundWorker.WorkerSupportsCancellation = true;
-            loadingBackgroundWorker.ProgressChanged           += backgroundWorker_ProgressChanged;
-            loadingBackgroundWorker.DoWork                    += loadingBackgroundWorker_DoWork;
-            loadingBackgroundWorker.RunWorkerCompleted        += loadingBackgroundWorker_RunWorkerCompleted;
-            calcBackgroundWorker.WorkerReportsProgress         = true;
-            calcBackgroundWorker.WorkerSupportsCancellation    = true;
-            calcBackgroundWorker.ProgressChanged              += backgroundWorker_ProgressChanged;
-            calcBackgroundWorker.DoWork                       += calcBackgroundWorker_DoWork;
-            calcBackgroundWorker.RunWorkerCompleted           += calcBackgroundWorker_RunWorkerCompleted;
+            loadingBackgroundWorker.WorkerReportsProgress         = true;
+            loadingBackgroundWorker.WorkerSupportsCancellation    = true;
+            loadingBackgroundWorker.ProgressChanged              += backgroundWorker_ProgressChanged;
+            loadingBackgroundWorker.DoWork                       += loadingBackgroundWorker_DoWork;
+            loadingBackgroundWorker.RunWorkerCompleted           += loadingBackgroundWorker_RunWorkerCompleted;
+            measureBackgroundWorker.WorkerReportsProgress         = true;
+            measureBackgroundWorker.WorkerSupportsCancellation    = true;
+            measureBackgroundWorker.ProgressChanged              += backgroundWorker_ProgressChanged;
+            measureBackgroundWorker.DoWork                       += MeasureBackgroundWorkerDoWork;
+            measureBackgroundWorker.RunWorkerCompleted           += measureBackgroundWorker_RunWorkerCompleted;
 
             _handler = new Handler(out var resultStatus);
             if (!resultStatus.Status)
             {
                 Shown += CloseOnStart;
-                MessageBox.Show(resultStatus.Message + ".\n Application will exit.", Resources.TITLE + @" - R packages are no installed!",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, resultStatus.Message + Environment.NewLine + @"Application will exit.",
+                    Resources.TITLE + @" - R packages are no installed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        public sealed override string Text
+        {
+            get => base.Text;
+            set => base.Text = value;
         }
 
         private void CloseOnStart(object sender, EventArgs e)
@@ -109,9 +117,9 @@ namespace SyncMeasure
             {
                 loadingBackgroundWorker.CancelAsync();
             }
-            if (calcBackgroundWorker.IsBusy && calcBackgroundWorker.WorkerSupportsCancellation)
+            if (measureBackgroundWorker.IsBusy && measureBackgroundWorker.WorkerSupportsCancellation)
             {
-                calcBackgroundWorker.CancelAsync();
+                measureBackgroundWorker.CancelAsync();
             }
         }
 
@@ -130,13 +138,13 @@ namespace SyncMeasure
         }
 
         /// <summary>
-        /// main work for calculation worker.
+        /// main work for sync measure worker.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void calcBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void MeasureBackgroundWorkerDoWork(object sender, DoWorkEventArgs e)
         {
-            e.Result = _handler.CalculateSynchronization(calcBackgroundWorker, e);
+            e.Result = _handler.MeasureSynchronization(measureBackgroundWorker, e);
         }
 
         /// <summary>
@@ -165,7 +173,7 @@ namespace SyncMeasure
                 {
                     Clear();
                     sumGroupBox.Hide();
-                    calculateToolStripMenuItem.Enabled = true;
+                    measureToolStripMenuItem.Enabled = true;
                     if (string.IsNullOrEmpty(status.Message))
                     {
                         msg = @"File successfully loaded.";
@@ -177,24 +185,28 @@ namespace SyncMeasure
                         title = Resources.TITLE + @" - File loaded.";
                         icon = MessageBoxIcon.Warning;
                     }
+                    if (measureOnLoad.Checked)
+                    {
+                        MeasureSync();
+                    }
                 }
                 else
                 {
-                    calculateToolStripMenuItem.Enabled = false;
+                    measureToolStripMenuItem.Enabled = false;
                     icon = MessageBoxIcon.Error;
                     title = Resources.TITLE + @" - File loading failed.";
                 }
             }
-            MessageBox.Show(msg, title, MessageBoxButtons.OK, icon);
+            MessageBox.Show(this, msg, title, MessageBoxButtons.OK, icon);
         }
 
-        private void calcBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void measureBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             progGroupBox.Hide();
             menuStrip.Enabled = true;
             if (e.Cancelled)
             {
-                MessageBox.Show(@"Calculation cancelled by user.", Resources.TITLE + @" - Calculation cancelled.",
+                MessageBox.Show(this, @"Sync Measurement cancelled by user.", Resources.TITLE + @" - Sync Measurement cancelled.",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
@@ -209,46 +221,28 @@ namespace SyncMeasure
                     armGraphBox.Image = System.Drawing.Image.FromFile(Path.GetFullPath(Resources.ARM_CVV_GRAPH));
                     elbowGraphBox.Image = System.Drawing.Image.FromFile(Path.GetFullPath(Resources.ELBOW_CVV_GRAPH));
 
-                    handsLabel.Text = $"{_handler.GetRSymbolAsVector("avg.hands.cvv")[0]:0.00}";
-                    armsLabel.Text = $"{_handler.GetRSymbolAsVector("avg.arms.cvv")[0]:0.00}";
-                    elbowsLabel.Text = $"{_handler.GetRSymbolAsVector("avg.elbows.cvv")[0]:0.00}";
-                    allLabel.Text = $"{_handler.GetRSymbolAsVector("avg.all.cvv")[0]:0.00}";
+                    handsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.hands.cvv")[0]:0.00}";
+                    armsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.arms.cvv")[0]:0.00}";
+                    elbowsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.elbows.cvv")[0]:0.00}";
+                    allLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.all.cvv")[0]:0.00}";
                     sumGroupBox.Show();
-                    calculateToolStripMenuItem.Enabled = false;
-                    MessageBox.Show(@"Successfully calculated.", Resources.TITLE + @" - Success.",
+                    measureToolStripMenuItem.Enabled = false;
+                    MessageBox.Show(this, @"Successfully measured sync.", Resources.TITLE + @" - Success.",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, ex.GetType().Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, ex.Message, ex.GetType().Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                calculateToolStripMenuItem.Enabled = true;
-                MessageBox.Show(status.Message, Resources.TITLE + @" - calculation failed failed.",
+                measureToolStripMenuItem.Enabled = true;
+                MessageBox.Show(this, status.Message, Resources.TITLE + @" - sync measurement failed.",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-
-        /// <summary>
-        /// Application exit.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            var tempGraph = Path.GetFullPath(Resources.HAND_CVV_GRAPH);
-            try
-            {
-                File.Delete(tempGraph);     // Delete temporary image.
-            }
-            catch (Exception)
-            {
-                // Don't care
-            }
-        }
 
         /// <summary>
         /// Load file by drag and drop.
@@ -275,15 +269,15 @@ namespace SyncMeasure
         }
 
         /// <summary>
-        /// If calculate is enabled and enter is pressed.
+        /// If sync measurement is enabled and enter is pressed.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter && calculateToolStripMenuItem.Enabled)
+            if (e.KeyCode == Keys.Enter && measureToolStripMenuItem.Enabled)
             {
-                calculateToolStripMenuItem_Click(sender, e);
+                MeasureSync();
             }
         }
 
@@ -305,7 +299,7 @@ namespace SyncMeasure
         private void LoadFile(string filePath)
         {
             menuStrip.Enabled = false;
-            circularProgressBar.Text = "Loading..\n0%";
+            circularProgressBar.Text = @"Loading.." + Environment.NewLine + @"0%";
             cancelButton.Enabled = true;
             progGroupBox.Show();
             if (!loadingBackgroundWorker.IsBusy)
@@ -314,23 +308,30 @@ namespace SyncMeasure
             }
         }
 
-
         /// <summary>
-        /// On calculate button click.
+        /// Measure Sync
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void calculateToolStripMenuItem_Click(object sender, EventArgs e)
+        private void MeasureSync()
         {
             menuStrip.Enabled = false;
-            circularProgressBar.Text = "Calculating\n0%";
+            circularProgressBar.Text = @"Measuring" + Environment.NewLine + @"0%";
             cancelButton.Enabled = true;
             progGroupBox.Show();
 
-            if (!calcBackgroundWorker.IsBusy)
+            if (!measureBackgroundWorker.IsBusy)
             {
-                calcBackgroundWorker.RunWorkerAsync();
+                measureBackgroundWorker.RunWorkerAsync();
             }
+        }
+
+        /// <summary>
+        /// On measure button click.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void measureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MeasureSync();
         }
 
         private void controlsToolStripMenuItem_Click(object sender, EventArgs e)

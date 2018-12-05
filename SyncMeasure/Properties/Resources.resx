@@ -232,8 +232,8 @@
   <data name="SETTINGS" xml:space="preserve">
     <value>.SyncMeasureSettings</value>
   </data>
-  <data name="SYNC_MODE" xml:space="preserve">
-    <value>SyncMode</value>
+  <data name="GRAB_ANGLE" xml:space="preserve">
+    <value>GrabAngle</value>
     <comment>csv column</comment>
   </data>
   <data name="TIMESTAMP" xml:space="preserve">
@@ -244,7 +244,7 @@
     <value>SyncMeasure</value>
   </data>
   <data name="VERSION" xml:space="preserve">
-    <value>1.0</value>
+    <value>1.1</value>
   </data>
   <data name="YAW" xml:space="preserve">
     <value>Yaw</value>
