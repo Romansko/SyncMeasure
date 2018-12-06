@@ -39,11 +39,13 @@ namespace SyncMeasure
             {
                 dataGridView.Rows.Add(w.Key, w.Value.ToString(CultureInfo.CurrentCulture));
                 row = dataGridView.Rows[dataGridView.Rows.Count - 1];
+                row.Cells[2] = new DataGridViewCheckBoxCell { Value = !row.Cells[1].Value.Equals("0") };
                 /* Temporary */
-                //row.Cells[2] = new DataGridViewCheckBoxCell {Value = !row.Cells[1].Value.Equals("0")};
+                row.Cells[2].Value = false;
                 row.Cells[2].ReadOnly = true;
+                row.Cells[2].Style.BackColor = row.Cells[2].Style.SelectionBackColor = Color.LightGray;
                 /**/
-                HandleWeightRow(row);
+                HandleWeightRow(row);     
             }
             var colNames = _handler.GetColNames();
             dataGridView.Rows.Add();
@@ -92,7 +94,7 @@ namespace SyncMeasure
             var grab = GetWeightValue(Resources.GRAB);
             var gesture = GetWeightValue(Resources.GESTURE);
 
-            /* Temporary disable
+            /* Temporary disable    //todo: enable
             if (!_handler.SetWeight(arm, elbow, hand, grab, gesture, out var errMsg))
             {
                 MessageBox.Show(this, errMsg, Resources.TITLE + @" - Weight setting failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -231,7 +233,7 @@ namespace SyncMeasure
                 return;
 
             DataGridView dgv = (DataGridView) sender;
-            HandleWeightRow(dgv.Rows[e.RowIndex]);
+            HandleWeightRow(dgv.Rows[e.RowIndex]);  
         }
 
         /// <summary>

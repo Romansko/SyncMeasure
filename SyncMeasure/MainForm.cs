@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -77,7 +78,8 @@ namespace SyncMeasure
                 Text = Resources.TITLE + @" - Graph Plot"
             };
             form.Controls.Add(imgBox);
-            form.ShowDialog();
+            form.ShowIcon = false;
+            form.Show();        // Allow multiple windows
         }
 
         private void Clear()
