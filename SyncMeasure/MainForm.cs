@@ -34,12 +34,13 @@ namespace SyncMeasure
             measureBackgroundWorker.RunWorkerCompleted           += measureBackgroundWorker_RunWorkerCompleted;
 
             _handler = new Handler(out var resultStatus);
-            if (!resultStatus.Status)
-            {
-                Shown += CloseOnStart;
-                MessageBox.Show(this, resultStatus.Message + Environment.NewLine + @"Application will exit.",
-                    Resources.TITLE + @" - R packages are no installed!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            if (resultStatus.Status) return;
+            var errMsg = resultStatus.Message.Equals(@"RENGINE")
+                ? @"Failed to initialize[R] Engine.Please make sure R v3.4.0 is installed."
+                : resultStatus.Message;
+            MessageBox.Show(this, errMsg + Environment.NewLine + @"Application will exit.",
+                Resources.TITLE + @" -Fatal Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Shown += CloseOnStart;
         }
 
         public sealed override string Text

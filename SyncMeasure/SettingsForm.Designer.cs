@@ -173,6 +173,6 @@
         private System.Windows.Forms.Button defaults;
         private System.Windows.Forms.DataGridViewTextBoxColumn key;
         private System.Windows.Forms.DataGridViewTextBoxColumn Value;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Enabled;
+        private new System.Windows.Forms.DataGridViewTextBoxColumn Enabled;
     }
 }

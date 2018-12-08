@@ -30,9 +30,16 @@ namespace SyncMeasure
         public Handler(out ResultStatus resultStatus)
         {
             /* [R] initialization */
-            _engine = REngine.GetInstance();
-            var loadedPackages = LoadRPackages(out var errMsg);
-            resultStatus = new ResultStatus(loadedPackages, errMsg);
+            try
+            {
+                REngine.SetEnvironmentVariables();
+                _engine = REngine.GetInstance();
+                resultStatus = LoadRPackages();         
+            }
+            catch (Exception)
+            {
+                resultStatus = new ResultStatus(false, @"RENGINE");
+            }
 
             /* .NET initialization */
             _weights = new Dictionary<string, double>
@@ -80,28 +87,38 @@ namespace SyncMeasure
             try { File.Delete(Resources.ELBOW_CVV_GRAPH); } catch (Exception) {/*ignored*/}
             try { File.Delete(Resources.HAND_CVV_GRAPH); } catch (Exception) {/*ignored*/}
             try { File.Delete(Resources.ALL_GRAPH); } catch (Exception) {/*ignored*/}
+
+            _engine.Dispose();
         }
-        public bool LoadRPackages(out string errorMessage)
+
+        private ResultStatus LoadRPackages()
         {
+            /* Load packages */
             if (_engine.Evaluate("require(cvv)").AsInteger()[0] == 0)
             {
-                errorMessage = @"Please install cvv package!";
-                return false;
+                return new ResultStatus(false, @"cvv package couldn't be found.");
             }
 
             if (_engine.Evaluate("require(data.table)").AsInteger()[0] == 0)
             {
-                errorMessage = @"Please install data.table package!";
-                return false;
+                return new ResultStatus(false, @"data.table package couldn't be found.");
             }
 
-            errorMessage = "";
-            return true;
+            return new ResultStatus(true, "");
         }
+
 
         private void RemoveFromR(string toRemove)
         {
             _engine.Evaluate("remove(" + toRemove + ")");
+        }
+
+        private void RemoveFromR(params string[] toRemove)
+        {
+            foreach (var r in toRemove)
+            {
+                RemoveFromR(r);
+            }
         }
 
         private void RemovePosFromR(string posName)
@@ -109,6 +126,14 @@ namespace SyncMeasure
             RemoveFromR(posName + ".pos.x");
             RemoveFromR(posName + ".pos.y");
             RemoveFromR(posName + ".pos.z");
+        }
+
+        private void RemovePosFromR(params string[] posNames)
+        {
+            foreach (var posName in posNames)
+            {
+                RemovePosFromR(posName);
+            }
         }
 
         public DynamicVector GetRSymbolAsVector(string symbol)
@@ -171,8 +196,7 @@ namespace SyncMeasure
                 _engine.Evaluate("diff <- tail(timestamps, 1) - head(timestamps, 1)");
                 _engine.Evaluate("func <- function(x) { return(x%%(diff+1)) }");
                 _engine.Evaluate("timestamps <- sapply(timestamps, func)");
-                RemoveFromR("diff");
-                RemoveFromR("func");
+                RemoveFromR("diff", "func");
 
                 for (var i = 0; i < 2; ++i)     // for both hands.
                 {
@@ -196,14 +220,12 @@ namespace SyncMeasure
                 }
 
                 /* Measure Arm, Elbow and Hand cvv */
-                // TODO: try to make parallel
 
                 // Hand
                 _engine.Evaluate("pos_1 <- cbind(hand0.pos.x, hand0.pos.y, hand0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(hand1.pos.x, hand1.pos.y, hand1.pos.z)");
                 _engine.Evaluate("hand.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
-                RemovePosFromR("hand0");
-                RemovePosFromR("hand1");
+                
                 bgWorker.ReportProgress(40);
                 if (bgWorker.CancellationPending)
                 {
@@ -215,8 +237,7 @@ namespace SyncMeasure
                 _engine.Evaluate("pos_1 <- cbind(arm0.pos.x, arm0.pos.y, arm0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(arm1.pos.x, arm1.pos.y, arm1.pos.z)");                
                 _engine.Evaluate("arm.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
-                RemovePosFromR("arm0");
-                RemovePosFromR("arm1");
+              
                 bgWorker.ReportProgress(60);
                 if (bgWorker.CancellationPending)
                 {
@@ -228,16 +249,13 @@ namespace SyncMeasure
                 _engine.Evaluate("pos_1 <- cbind(elbow0.pos.x, elbow0.pos.y, elbow0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(elbow1.pos.x, elbow1.pos.y, elbow1.pos.z)");
                 _engine.Evaluate("elbow.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
-                RemovePosFromR("elbow0");
-                RemovePosFromR("elbow1");
+                
                 bgWorker.ReportProgress(80);
                 if (bgWorker.CancellationPending)
                 {
                     args.Cancel = true;
                     return null;        // will be ignored.
                 }
-                _engine.Evaluate("remove(pos_1)");
-                _engine.Evaluate("remove(pos_2)");
 
                 //ToDo: switch between cvv^2 and cvv. (by abs).
                 _engine.Evaluate("hcvv <- abs(hand.cvv(timestamps))");
@@ -286,13 +304,8 @@ namespace SyncMeasure
                 _engine.Evaluate("dev.off()");
 
                 // release resources.
-                RemoveFromR("hcvv");
-                RemoveFromR("acvv");
-                RemoveFromR("ecvv");
-                RemoveFromR("ymin");
-                RemoveFromR("hand.cvv");
-                RemoveFromR("arm.cvv");
-                RemoveFromR("elbow.cvv");
+                RemovePosFromR("hand0, hand1, arm0, arm1, elbow0, elbow1");
+                RemoveFromR("pos_1", "pos_2" ,"hcvv" ,"acvv", "ecvv", "ymin", "hand.cvv", "arm.cvv", "elbow.cvv");
 
                 bgWorker.ReportProgress(100);
                 var errorMessage = "";

@@ -1,8 +1,0 @@
-cosfunc                 Create a function to compute lagged cosines of
-                        velocity vectors
-make.fd                 Processing of dyadic 3D motion data
-multilag                Compute and plot cosine of velocity vectors at
-                        each of a set of lags
-scat3d                  3D plotting of motion data
-sync.fd                 Synchronized 3D motion in "fd" object format
-syncsham                Synchronized 3D motion for a dyad
