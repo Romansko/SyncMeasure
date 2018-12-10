@@ -65,22 +65,35 @@ namespace SyncMeasure
             {
                 return;
             }
-            var imgBox = new ImageBox
+
+            try
             {
-                Image = ((ImageBox) sender).Image,
-                Dock = DockStyle.Fill,
-                Zoom = 90
-            };
-            var form = new Form
+                var imgBox = new ImageBox
+                {
+                    Image = ((ImageBox)sender).Image,
+                    Dock = DockStyle.Fill,
+                    Zoom = 90
+                };
+                var form = new Form
+                {
+                    FormBorderStyle = FormBorderStyle.FixedToolWindow,
+                    StartPosition = FormStartPosition.CenterParent,
+                    Size = imgBox.Image.Size,
+                    Text = Resources.TITLE + @" - Graph Plot"
+                };
+                var graphName = ((Control) sender).Name;
+                if (graphName.StartsWith("arm") || graphName.StartsWith("elbow") || graphName.StartsWith("hand"))
+                {
+                    form.Text += @" (" + _handler.GetCvvMethod() + @")";
+                }
+                form.Controls.Add(imgBox);
+                form.ShowIcon = false;
+                form.Show();        // Allow multiple windows
+            }
+            catch (Exception)
             {
-                FormBorderStyle = FormBorderStyle.FixedToolWindow,
-                StartPosition = FormStartPosition.CenterParent,
-                Size = imgBox.Image.Size,
-                Text = Resources.TITLE + @" - Graph Plot"
-            };
-            form.Controls.Add(imgBox);
-            form.ShowIcon = false;
-            form.Show();        // Allow multiple windows
+                // Don't care
+            }
         }
 
         private void Clear()
@@ -93,6 +106,10 @@ namespace SyncMeasure
             armGraphBox.Refresh();
             elbowGraphBox.Image?.Dispose();
             elbowGraphBox.Refresh();
+            grabStrBox.Image?.Dispose();
+            grabStrBox.Refresh();
+            pinchStrBox.Image?.Dispose();
+            pinchStrBox.Refresh();
         }
 
         /************************************** BackgroundWorker functions **********************/
@@ -207,6 +224,7 @@ namespace SyncMeasure
         {
             progGroupBox.Hide();
             menuStrip.Enabled = true;
+            graphicsGB.Enabled = true;
             if (e.Cancelled)
             {
                 MessageBox.Show(this, @"Sync Measurement cancelled by user.", Resources.TITLE + @" - Sync Measurement cancelled.",
@@ -219,17 +237,44 @@ namespace SyncMeasure
                 try
                 {
                     Clear();
-                    allGraphBox.Image = System.Drawing.Image.FromFile(Path.GetFullPath(Resources.ALL_GRAPH));
-                    handGraphBox.Image = System.Drawing.Image.FromFile(Path.GetFullPath(Resources.HAND_CVV_GRAPH));
-                    armGraphBox.Image = System.Drawing.Image.FromFile(Path.GetFullPath(Resources.ARM_CVV_GRAPH));
-                    elbowGraphBox.Image = System.Drawing.Image.FromFile(Path.GetFullPath(Resources.ELBOW_CVV_GRAPH));
+                    allGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ALL_GRAPH));
+                    handGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.HAND_CVV_GRAPH));
+                    armGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ARM_CVV_GRAPH));
+                    elbowGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ELBOW_CVV_GRAPH));
+                    grabStrBox.Image = Image.FromFile(Path.GetFullPath(Resources.GRAB_GRAPH));
+                    pinchStrBox.Image = Image.FromFile(Path.GetFullPath(Resources.PINCH_GRAPH));
 
+                    allLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.weighted")[0]:0.00}";
                     handsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.hands.cvv")[0]:0.00}";
                     armsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.arms.cvv")[0]:0.00}";
                     elbowsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.elbows.cvv")[0]:0.00}";
-                    allLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.all.cvv")[0]:0.00}";
+                    grabLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.grab")[0]:0.00}";
+                    pinchLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.pinch")[0]:0.00}";
+
+                    var cvv = _handler.GetCvvMethod();
+                    var handsText = @"Avg Hands CVV:";
+                    var elbowText = @"Avg Elbows CVV:";
+                    var armsText = @"Avg Arms CVV:";
+                    if (cvv == Handler.ECvv.SQUARE_CVV)
+                    {
+                        handsCvvText.Text = handsText.Replace("CVV", "CVV^2");
+                        elbowCvvText.Text = elbowText.Replace("CVV", "CVV^2");
+                        armsCvvText.Text = armsText.Replace("CVV", "CVV^2");
+                    }
+                    else if (cvv == Handler.ECvv.ABS_CVV)
+                    {
+                        handsCvvText.Text = handsText.Replace("CVV", "|CVV|");
+                        elbowCvvText.Text = elbowText.Replace("CVV", "|CVV|");
+                        armsCvvText.Text = armsText.Replace("CVV", "|CVV|");
+                    }
+                    else
+                    {
+                        handsCvvText.Text = handsText;
+                        elbowCvvText.Text = elbowText;
+                        armsCvvText.Text = armsText;
+                    }
+
                     sumGroupBox.Show();
-                    measureToolStripMenuItem.Enabled = false;
                     MessageBox.Show(this, @"Successfully measured sync.", Resources.TITLE + @" - Success.",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -260,6 +305,32 @@ namespace SyncMeasure
                 LoadFile(filePaths[0]);
             }
         }
+
+        private void LoadFile(string filePath)
+        {
+            if (loadingBackgroundWorker.IsBusy || measureBackgroundWorker.IsBusy) return;
+            menuStrip.Enabled = false;
+            circularProgressBar.Text = @"Loading.." + Environment.NewLine + @"0%";
+            cancelButton.Enabled = true;
+            progGroupBox.Show();
+            loadingBackgroundWorker.RunWorkerAsync(filePath);
+        }
+
+        /// <summary>
+        /// Measure Sync
+        /// </summary>
+        private void MeasureSync()
+        {
+            if (measureBackgroundWorker.IsBusy || loadingBackgroundWorker.IsBusy) return;
+            Clear();
+            menuStrip.Enabled = false;
+            graphicsGB.Enabled = false;
+            circularProgressBar.Text = @"Measuring" + Environment.NewLine + @"0%";
+            cancelButton.Enabled = true;
+            progGroupBox.Show();
+            measureBackgroundWorker.RunWorkerAsync();
+        }
+
 
         /// <summary>
         /// Allow the drag drop event
@@ -299,34 +370,6 @@ namespace SyncMeasure
             LoadFile(openFileDialog.FileName);
         }
 
-        private void LoadFile(string filePath)
-        {
-            menuStrip.Enabled = false;
-            circularProgressBar.Text = @"Loading.." + Environment.NewLine + @"0%";
-            cancelButton.Enabled = true;
-            progGroupBox.Show();
-            if (!loadingBackgroundWorker.IsBusy)
-            {
-                loadingBackgroundWorker.RunWorkerAsync(filePath);
-            }
-        }
-
-        /// <summary>
-        /// Measure Sync
-        /// </summary>
-        private void MeasureSync()
-        {
-            menuStrip.Enabled = false;
-            circularProgressBar.Text = @"Measuring" + Environment.NewLine + @"0%";
-            cancelButton.Enabled = true;
-            progGroupBox.Show();
-
-            if (!measureBackgroundWorker.IsBusy)
-            {
-                measureBackgroundWorker.RunWorkerAsync();
-            }
-        }
-
         /// <summary>
         /// On measure button click.
         /// </summary>
@@ -347,9 +390,27 @@ namespace SyncMeasure
             (new AboutForm()).ShowDialog();
         }
 
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void weightsColNamesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             (new SettingsForm(_handler)).ShowDialog();
+        }
+
+        private void cVVMethodToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            (new CvvSelector(_handler)).ShowDialog();
+        }
+
+ 
+        private void graphics_CheckedChanged(object sender, EventArgs e)
+        {
+            if (pointsRB.Checked)
+            {
+                _handler.SetGraphics(Handler.EGraphics.POINTS);
+            }
+            else if (linesRB.Checked)
+            {
+                _handler.SetGraphics(Handler.EGraphics.LINES);
+            }
         }
     }
 }

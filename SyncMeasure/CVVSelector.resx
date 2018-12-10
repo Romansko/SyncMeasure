@@ -117,150 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ALL_GRAPH" xml:space="preserve">
-    <value>./all.png</value>
-  </data>
-  <data name="ARM" xml:space="preserve">
-    <value>Arm</value>
-    <comment>weight</comment>
-  </data>
-  <data name="ARM_CVV_GRAPH" xml:space="preserve">
-    <value>./cvvArms.png</value>
-  </data>
-  <data name="ARM_POS_X" xml:space="preserve">
-    <value>ArmPosX</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="ARM_POS_Y" xml:space="preserve">
-    <value>ArmPosY</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="ARM_POS_Z" xml:space="preserve">
-    <value>ArmPosZ</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="ELBOW" xml:space="preserve">
-    <value>Elbow</value>
-    <comment>weight</comment>
-  </data>
-  <data name="ELBOW_CVV_GRAPH" xml:space="preserve">
-    <value>./cvvElbows.png</value>
-  </data>
-  <data name="ELBOW_POS_X" xml:space="preserve">
-    <value>ElbowPosX</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="ELBOW_POS_Y" xml:space="preserve">
-    <value>ElbowPosY</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="ELBOW_POS_Z" xml:space="preserve">
-    <value>ElbowPosZ</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="FRAME_ID" xml:space="preserve">
-    <value>FrameID</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="GESTURE" xml:space="preserve">
-    <value>Gesture</value>
-    <comment>weight</comment>
-  </data>
-  <data name="GRAB" xml:space="preserve">
-    <value>Grab</value>
-    <comment>weight</comment>
-  </data>
-  <data name="GRAB_STRENGTH" xml:space="preserve">
-    <value>GrabStrength</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND" xml:space="preserve">
-    <value>Hand</value>
-    <comment>weight</comment>
-  </data>
-  <data name="HANDS_IN_FRAME" xml:space="preserve">
-    <value>HandsInFrame</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND_CVV_GRAPH" xml:space="preserve">
-    <value>./cvvHands.png</value>
-  </data>
-  <data name="HAND_ID" xml:space="preserve">
-    <value>Hand_ID</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND_POS_X" xml:space="preserve">
-    <value>HandPosX</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND_POS_Y" xml:space="preserve">
-    <value>HandPosY</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND_POS_Z" xml:space="preserve">
-    <value>HandPosZ</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND_TYPE" xml:space="preserve">
-    <value>HandType</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND_VEL_X" xml:space="preserve">
-    <value>HandVelX</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND_VEL_Y" xml:space="preserve">
-    <value>HandVelY</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="HAND_VEL_Z" xml:space="preserve">
-    <value>HandVelZ</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="PINCH_STRENGTH" xml:space="preserve">
-    <value>PinchStrength</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="PITCH" xml:space="preserve">
-    <value>Pitch</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="ROLL" xml:space="preserve">
-    <value>Roll</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="SETTINGS" xml:space="preserve">
-    <value>.SyncMeasureSettings</value>
-  </data>
-  <data name="GRAB_ANGLE" xml:space="preserve">
-    <value>GrabAngle</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="TIMESTAMP" xml:space="preserve">
-    <value>Timestamp</value>
-    <comment>csv column</comment>
-  </data>
-  <data name="TITLE" xml:space="preserve">
-    <value>SyncMeasure</value>
-  </data>
-  <data name="VERSION" xml:space="preserve">
-    <value>1.2</value>
-  </data>
-  <data name="YAW" xml:space="preserve">
-    <value>Yaw</value>
-    <comment>csv column</comment>
-  </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="Controls" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\controls.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="GRAB_GRAPH" xml:space="preserve">
-    <value>./grabStrength.png</value>
-  </data>
-  <data name="PINCH_GRAPH" xml:space="preserve">
-    <value>./pinchStrength.png</value>
-  </data>
-  <data name="PINCH" xml:space="preserve">
-    <value>Pinch</value>
-  </data>
+  <metadata name="groupBox.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="squareSvv.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="absCvv.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="regularCvv.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="okButton.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="cancelButton.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="$this.Locked" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
 </root>

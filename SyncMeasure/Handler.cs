@@ -19,13 +19,30 @@ namespace SyncMeasure
         private readonly Dictionary<string, double> _weights;   // weight of sync properties.
         private readonly Dictionary<string, string> _colNames;  // csv file column names. (to be read with R).
         private List<Frame> _frames;                            // The parsed data.
-        public EFormat Format { get; private set; }                     // format being used.
+        private EFormat _format;                     // format being used.
+        private ECvv _cvvMethod;
+        private string _graphic;
+
+        public enum EGraphics
+        {
+            POINTS,
+            LINES
+        }
+
 
         public enum EFormat
         {
             OLD,
             NEW
         };
+
+        public enum ECvv
+        {
+            CVV,
+            ABS_CVV,
+            SQUARE_CVV
+        };
+
 
         public Handler(out ResultStatus resultStatus)
         {
@@ -44,11 +61,12 @@ namespace SyncMeasure
             /* .NET initialization */
             _weights = new Dictionary<string, double>
             {
-                {Resources.ARM, 0}, // Arm's CVV weight.
-                {Resources.ELBOW, 0}, // Elbow's CVV weight.
-                {Resources.HAND, 0}, // Hand's CVV weight.
-                {Resources.GRAB, 0}, // Grab and Pitch weight.
-                {Resources.GESTURE, 0} // Gesture's weight.
+                {Resources.ARM, 0.3}, // Arm's CVV weight.
+                {Resources.ELBOW, 0.3}, // Elbow's CVV weight.
+                {Resources.HAND, 0.3}, // Hand's CVV weight.
+                {Resources.GRAB, 0.05}, // Grab weight.
+                {Resources.PINCH, 0.05} // Pinch weight.
+                //{Resources.GESTURE, 0} // Gesture's weight.
             };
             _colNames = new Dictionary<string, string>
             {
@@ -76,6 +94,8 @@ namespace SyncMeasure
                 {Resources.ELBOW_POS_Z, ""},
                 {Resources.GRAB_ANGLE, ""}
             };
+            _cvvMethod = ECvv.CVV;
+            _graphic = "p";
             SetNewFormatDefaults();
             LoadUserSettings();
         }
@@ -86,10 +106,13 @@ namespace SyncMeasure
             try { File.Delete(Resources.ARM_CVV_GRAPH); } catch (Exception) {/*ignored*/}
             try { File.Delete(Resources.ELBOW_CVV_GRAPH); } catch (Exception) {/*ignored*/}
             try { File.Delete(Resources.HAND_CVV_GRAPH); } catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.GRAB_GRAPH); } catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.PINCH_GRAPH); } catch (Exception) {/*ignored*/}
             try { File.Delete(Resources.ALL_GRAPH); } catch (Exception) {/*ignored*/}
 
             _engine.Dispose();
         }
+
 
         private ResultStatus LoadRPackages()
         {
@@ -142,6 +165,56 @@ namespace SyncMeasure
         }
 
         /// <summary>
+        /// Report progress and tells if needs to cancel work.
+        /// </summary>
+        /// <param name="progress"></param>
+        /// <param name="bgWorker"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        private bool ReportProgress(int progress, BackgroundWorker bgWorker, DoWorkEventArgs args)
+        {
+            if (bgWorker.CancellationPending)
+            {
+                args.Cancel = true;
+                return true;
+            }
+            bgWorker.ReportProgress(progress);
+            return false;
+        }
+
+        /// <summary>
+        /// positions data.
+        /// index 0 = first hand.
+        /// index 1 = second hand.
+        /// each cell contains list of coordinates.
+        /// </summary>
+        /// <returns></returns>
+        private List<double>[][] GetSyncArray()
+        {
+            return new[]
+            {
+                new[] {new List<double>(), new List<double>(), new List<double>()},
+                new[] {new List<double>(), new List<double>(), new List<double>()}
+            };
+        }
+
+        /// <summary>
+        /// positions data.
+        /// index 0 = first hand.
+        /// index 1 = second hand.
+        /// each cell contains list of grab / pinch strength.
+        /// </summary>
+        /// <returns></returns>
+        private List<double>[] GetStrengthArray()
+        {
+            return new[]
+            {
+                new List<double>(),
+                new List<double>()
+            };
+        }
+
+        /// <summary>
         /// Measure Synchronization from loaded DataFrame.
         /// </summary>
         /// <param name="bgWorker"></param>
@@ -153,26 +226,12 @@ namespace SyncMeasure
             {
                 /* prepare objects for R parsing */
                 var timestamps = new List<int>();
+                var armsPos = GetSyncArray();
+                var handsPos = GetSyncArray();
+                var elbowsPos = GetSyncArray();
+                var grabStrength = GetStrengthArray();
+                var pinchStrength = GetStrengthArray();
 
-                // positions data.
-                // index 0 = first hand.
-                // index 1 = second hand.
-                // each cell contains list of coordinates.
-                var armsPos = new[]
-                {
-                    new[] {new List<double>(), new List<double>(), new List<double>()},
-                    new[] {new List<double>(), new List<double>(), new List<double>()}
-                };
-                var handsPos = new[]
-                {
-                    new[] {new List<double>(), new List<double>(), new List<double>()},
-                    new[] {new List<double>(), new List<double>(), new List<double>()}
-                };
-                var elbowsPos = new[]
-                {
-                    new[] {new List<double>(), new List<double>(), new List<double>()},
-                    new[] {new List<double>(), new List<double>(), new List<double>()}
-                };
                 foreach (var frame in _frames)
                 {
                     timestamps.Add((int) frame.Timestamp);
@@ -189,9 +248,12 @@ namespace SyncMeasure
                         handsPos[i][0].Add(frame.Hands[i].Arm.WristPosition.x);
                         handsPos[i][1].Add(frame.Hands[i].Arm.WristPosition.y);
                         handsPos[i][2].Add(frame.Hands[i].Arm.WristPosition.z);
+
+                        grabStrength[i].Add(frame.Hands[i].GrabStrength);
+                        pinchStrength[i].Add(frame.Hands[i].PinchStrength);
                     }
                 }
-
+                
                 _engine.SetSymbol("timestamps", _engine.CreateIntegerVector(timestamps));
                 _engine.Evaluate("diff <- tail(timestamps, 1) - head(timestamps, 1)");
                 _engine.Evaluate("func <- function(x) { return(x%%(diff+1)) }");
@@ -211,13 +273,16 @@ namespace SyncMeasure
                     _engine.SetSymbol("elbow" + i + ".pos.x", _engine.CreateNumericVector(elbowsPos[i][0]));
                     _engine.SetSymbol("elbow" + i + ".pos.y", _engine.CreateNumericVector(elbowsPos[i][1]));
                     _engine.SetSymbol("elbow" + i + ".pos.z", _engine.CreateNumericVector(elbowsPos[i][2]));
+
+                    _engine.SetSymbol("grab" + i, _engine.CreateNumericVector(grabStrength[i]));
+                    _engine.SetSymbol("pinch" + i, _engine.CreateNumericVector(pinchStrength[i]));
                 }
-                bgWorker.ReportProgress(20);
-                if (bgWorker.CancellationPending)
-                {
-                    args.Cancel = true;
-                    return null;        // will be ignored.
-                }
+
+                // ToDo: Filter 0 value?
+                _engine.Evaluate("grab <- 1-abs(grab1 - grab0)");
+                _engine.Evaluate("pinch <- 1-abs(pinch1 - pinch0)");
+
+                if (ReportProgress(20, bgWorker, args)) return null;
 
                 /* Measure Arm, Elbow and Hand cvv */
 
@@ -225,89 +290,115 @@ namespace SyncMeasure
                 _engine.Evaluate("pos_1 <- cbind(hand0.pos.x, hand0.pos.y, hand0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(hand1.pos.x, hand1.pos.y, hand1.pos.z)");
                 _engine.Evaluate("hand.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
-                
-                bgWorker.ReportProgress(40);
-                if (bgWorker.CancellationPending)
-                {
-                    args.Cancel = true;
-                    return null;        // will be ignored.
-                }
+
+                if (ReportProgress(40, bgWorker, args)) return null;
 
                 // Arm
                 _engine.Evaluate("pos_1 <- cbind(arm0.pos.x, arm0.pos.y, arm0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(arm1.pos.x, arm1.pos.y, arm1.pos.z)");                
                 _engine.Evaluate("arm.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
-              
-                bgWorker.ReportProgress(60);
-                if (bgWorker.CancellationPending)
-                {
-                    args.Cancel = true;
-                    return null;        // will be ignored.
-                }
+
+                if (ReportProgress(60, bgWorker, args)) return null;
 
                 // Elbow
                 _engine.Evaluate("pos_1 <- cbind(elbow0.pos.x, elbow0.pos.y, elbow0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(elbow1.pos.x, elbow1.pos.y, elbow1.pos.z)");
                 _engine.Evaluate("elbow.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
-                
-                bgWorker.ReportProgress(80);
-                if (bgWorker.CancellationPending)
+
+                if (ReportProgress(80, bgWorker, args)) return null;
+
+                _engine.Evaluate("hcvv <- hand.cvv(timestamps)");
+                _engine.Evaluate("acvv <- arm.cvv(timestamps)");
+                _engine.Evaluate("ecvv <- elbow.cvv(timestamps)");
+                if (_cvvMethod == ECvv.ABS_CVV)
                 {
-                    args.Cancel = true;
-                    return null;        // will be ignored.
+                    _engine.Evaluate("hcvv <- abs(hcvv)");
+                    _engine.Evaluate("acvv <- abs(acvv)");
+                    _engine.Evaluate("ecvv <- abs(ecvv)");
+                }
+                else if (_cvvMethod == ECvv.SQUARE_CVV)
+                {
+                    _engine.Evaluate("hcvv <- '^'(hcvv, 2)");
+                    _engine.Evaluate("acvv <- '^'(acvv, 2)");
+                    _engine.Evaluate("ecvv <- '^'(ecvv, 2)");
                 }
 
-                //ToDo: switch between cvv^2 and cvv. (by abs).
-                _engine.Evaluate("hcvv <- abs(hand.cvv(timestamps))");
-                _engine.Evaluate("acvv <- abs(arm.cvv(timestamps))");
-                _engine.Evaluate("ecvv <- abs(elbow.cvv(timestamps))");
                 _engine.Evaluate("ymin <- min(hcvv, acvv, ecvv)");
                 _engine.Evaluate("ymax <- max(hcvv, acvv, ecvv)");
+                _engine.Evaluate("weight.func <- function(h,a,e,g,p) { " +
+                                 "return(h*" + _weights[Resources.HAND] +
+                                 " + a*" + _weights[Resources.ARM] +
+                                 " + e*" + _weights[Resources.ELBOW] +
+                                 " + g*" + _weights[Resources.GRAB] +
+                                 " + p*" + _weights[Resources.PINCH] + ") }");
+                _engine.Evaluate("weighted <- weight.func(hcvv, acvv, ecvv, grab, pinch)");
+                _engine.Evaluate("avg.weighted <- mean(weighted)");
                 _engine.Evaluate("avg.hands.cvv <- mean(hcvv)");
                 _engine.Evaluate("avg.arms.cvv <- mean(acvv)");
                 _engine.Evaluate("avg.elbows.cvv <- mean(ecvv)");
-                _engine.Evaluate("avg.all.cvv <- (avg.hands.cvv + avg.arms.cvv + avg.elbows.cvv)/3");
-                bgWorker.ReportProgress(90);
+                _engine.Evaluate("avg.grab <- mean(grab)");
+                _engine.Evaluate("avg.pinch <- mean(pinch)");
 
+
+                if (ReportProgress(90, bgWorker, args)) return null;
                 /* Plot all cvv in one graph */
                 var allGraph = Path.GetFullPath(Resources.ALL_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("allGraph", _engine.CreateCharacterVector(new[] { allGraph }));
                 _engine.Evaluate("png(filename=allGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = hand.cvv(timestamps), type = 'l', main = 'CVV = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'cvv', col = 'red', ylim=c(ymin,ymax))");
-                _engine.Evaluate("lines(x = timestamps, y = arm.cvv(timestamps), col='green')");
-                _engine.Evaluate("lines(x = timestamps, y = elbow.cvv(timestamps), col='blue')");
+                _engine.Evaluate("plot(x = timestamps, y = weighted, type = '" + _graphic + "', main = 'Average', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'Avg', ylim=c(ymin,1), pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot hand cvv */
                 var handsGraph = Path.GetFullPath(Resources.HAND_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("handsGraph", _engine.CreateCharacterVector(new[] { handsGraph }));
                 _engine.Evaluate("png(filename=handsGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = hand.cvv(timestamps), type = 'l', main = 'Hands cvv = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'hands cvv', col = 'red', ylim=c(ymin,ymax))");
+                _engine.Evaluate("plot(x = timestamps, y = hcvv, type = '" + _graphic + "', main = 'Hands cvv = f(Timestamp)', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'hands cvv', col = 'red', ylim=c(ymin,ymax), pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot arm cvv */
                 var armsGraph = Path.GetFullPath(Resources.ARM_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("armsGraph", _engine.CreateCharacterVector(new[] { armsGraph }));
                 _engine.Evaluate("png(filename=armsGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = arm.cvv(timestamps), type = 'l', main = 'arm cvv = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'arms cvv', col = 'green', ylim=c(ymin,ymax))");
+                _engine.Evaluate("plot(x = timestamps, y = acvv, type = '" + _graphic + "', main = 'arm cvv = f(Timestamp)', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'arms cvv', col = 'green', ylim=c(ymin,ymax), pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot elbow cvv */
                 var elbowGraph = Path.GetFullPath(Resources.ELBOW_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("elbowsGraph", _engine.CreateCharacterVector(new[] { elbowGraph }));
                 _engine.Evaluate("png(filename=elbowsGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = hand.cvv(timestamps), type = 'l', main = 'elbow cvv = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'elbows cvv', col = 'blue', ylim=c(ymin,ymax))");
+                _engine.Evaluate("plot(x = timestamps, y = ecvv, type = '" + _graphic + "', main = 'elbow cvv = f(Timestamp)', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'elbows cvv', col = 'blue', ylim=c(ymin,ymax), pch = 20)");
                 _engine.Evaluate("dev.off()");
 
-                // release resources.
-                RemovePosFromR("hand0, hand1, arm0, arm1, elbow0, elbow1");
-                RemoveFromR("pos_1", "pos_2" ,"hcvv" ,"acvv", "ecvv", "ymin", "hand.cvv", "arm.cvv", "elbow.cvv");
+                /* Plot Grab Strength */
+                var grabGraph = Path.GetFullPath(Resources.GRAB_GRAPH).Replace("\\", "/");
+                _engine.SetSymbol("grabGraph", _engine.CreateCharacterVector(new[] {grabGraph }));
+                _engine.Evaluate("png(filename=grabGraph)");
+                _engine.Evaluate("plot(x = timestamps, y = grab, type = '" + _graphic + "', main = 'Grab Strength Difference = f(Timestamp)', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'grab strength diff', ylim=c(0,1), pch = 20)");
+                _engine.Evaluate("dev.off()");
 
-                bgWorker.ReportProgress(100);
+                /* Plot Pinch Strength */
+                var pinchGraph = Path.GetFullPath(Resources.PINCH_GRAPH).Replace("\\", "/");
+                _engine.SetSymbol("pinchGraph", _engine.CreateCharacterVector(new[] { pinchGraph }));
+                _engine.Evaluate("png(filename=pinchGraph)");
+                _engine.Evaluate("plot(x = timestamps, y = pinch, type = '" + _graphic + "', main = 'Pinch Strength Difference = f(Timestamp)', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'pinch strength diff', ylim=c(0,1), pch = 20)");
+                _engine.Evaluate("dev.off()");
+
+
+                _engine.Evaluate("grab <- mean(grab)");
+                _engine.Evaluate("pinch <- mean(pinch)");
+
+                // release resources.
+                RemovePosFromR("hand0", "hand1", "arm0", "arm1", "elbow0", "elbow1");
+                RemoveFromR("pos_1", "pos_2", "hcvv", "acvv", "ecvv", "ymin", "hand.cvv", "arm.cvv", "elbow.cvv",
+                    "grab0", "grab1", "pinch0", "pinch1", "weighted", "weight.func");
+
+                if (ReportProgress(100, bgWorker, args)) return null;
                 var errorMessage = "";
                 return new ResultStatus(true, errorMessage);
             }
@@ -317,6 +408,7 @@ namespace SyncMeasure
             }
         }
 
+        
 
         /// <summary>
         /// Parse leapmotion output file.
@@ -349,7 +441,7 @@ namespace SyncMeasure
                     if (!colNames.Contains(cName))
                     {
                         errorMessage = @"Provided file doesn't contain column name: " + cName + Environment.NewLine +
-                                       @"Try changing Default Format in settings or rename column name.";
+                                       @"Try changing Default _format in settings or rename column name.";
                         return new ResultStatus(false, errorMessage);
                     }
                 }
@@ -377,15 +469,9 @@ namespace SyncMeasure
                 var secondHandId = -1;
                 for (var i = 0; i < dataFrame.RowCount - 1; i = i + 2)
                 {
-                    if (bgWorker.CancellationPending)
-                    {
-                        args.Cancel = true;
-                        return null;        // will be ignored.
-                    }
-
                     var percent = (double) i / dataFrame.RowCount * 100;
-                    bgWorker.ReportProgress((int) percent);
-                    
+                    if (ReportProgress((int)percent, bgWorker, args)) return null;
+
                     var hand1 = GetHand(dataFrame, i, out errorMessage);
                     var hand2 = GetHand(dataFrame, i + 1, out errorMessage);
                     if (hand1 == null || hand2 == null)
@@ -439,7 +525,7 @@ namespace SyncMeasure
                     }
 
                     int timestamp, ts1, ts2;
-                    if (Format.Equals(EFormat.OLD))
+                    if (_format.Equals(EFormat.OLD))
                     {
                         ts1 = (int)dataFrame[i, _colNames[Resources.TIMESTAMP]];
                         ts2 = (int)dataFrame[i + 1, _colNames[Resources.TIMESTAMP]];
@@ -468,7 +554,8 @@ namespace SyncMeasure
                     };
                     frames.Add(frame);
                 }
-                bgWorker.ReportProgress(99);
+
+                if (ReportProgress(99, bgWorker, args)) return null;
                 _frames = frames;
                 RemoveFromR("dataset");
                 return new ResultStatus(true, errorMessage);
@@ -498,11 +585,11 @@ namespace SyncMeasure
                     IsLeft = dataFrame[index, _colNames[Resources.HAND_TYPE]].ToString().ToLower().Contains("left")
                 };
 
-                if (Format.Equals(EFormat.NEW))
+                if (_format.Equals(EFormat.NEW))
                 {
                     hand.Id = hand.IsLeft ? 0 : 1;
                 }
-                else if (Format.Equals(EFormat.OLD))
+                else if (_format.Equals(EFormat.OLD))
                 {
                     hand.Id = (int)dataFrame[index, _colNames[Resources.HAND_ID]];
                 }
@@ -581,15 +668,14 @@ namespace SyncMeasure
         /// <param name="arm">Arm cvv weight</param>
         /// <param name="elbow">Elbow cvv weight</param>
         /// <param name="hand">Hand cvv weight</param>
-        /// <param name="grab">grab and pitch weight</param>
-        /// <param name="gesture">gesture weight</param>
+        /// <param name="grab">grab and pinch weight</param>
+        /// <param name="pinch"></param>
         /// <param name="errorMessage"></param>
         /// <returns></returns>
-        public bool SetWeight(double arm, double elbow, double hand, double grab, double gesture,
-            out string errorMessage)
+        public bool SetWeight(double arm, double elbow, double hand, double grab, double pinch, out string errorMessage)
         {
-            var weightSum = arm + elbow + hand + grab + gesture;
-            if (Math.Abs(weightSum - 1.0) > 0)  // for not losing precision.
+            var weightSum = arm + elbow + hand + grab + pinch;
+            if (Math.Abs(weightSum - 1.0) > 0.0001)  // for not losing precision.
             {
                 errorMessage = @"Invalid weights sum: Must be equal to 1.";
                 return false;
@@ -600,7 +686,8 @@ namespace SyncMeasure
             _weights[Resources.ELBOW] = elbow;
             _weights[Resources.HAND] = hand;
             _weights[Resources.GRAB] = grab;
-            _weights[Resources.GESTURE] = gesture;
+            _weights[Resources.GRAB] = grab;
+            _weights[Resources.PINCH] = pinch;
             return true;
         }
 
@@ -639,8 +726,8 @@ namespace SyncMeasure
         /// </summary>
         public void SetOldFormatDefaults()
         {
-        //    SetWeight(0.15, 0.15, 0.5, 0.1, 0.1, out _);      // Default weight initialization 
-            Format = EFormat.OLD;
+            SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
+            _format = EFormat.OLD;
             if (!_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Add(Resources.HAND_ID, "");
 
             /* Set column names as appear in R env. */
@@ -674,8 +761,8 @@ namespace SyncMeasure
         /// </summary>
         public void SetNewFormatDefaults()
         {
-     //       SetWeight(0.15, 0.15, 0.5, 0.1, 0.1, out _);      // Default weight initialization 
-            Format = EFormat.NEW;
+            SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
+            _format = EFormat.NEW;
             if (_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Remove(Resources.HAND_ID);
 
             /* Set column names as appear in R env. */
@@ -703,6 +790,28 @@ namespace SyncMeasure
             _colNames[Resources.ELBOW_POS_Z] = "Elbow.Pos.Z"; 
         }
 
+        public void SetGraphics(EGraphics graphics)
+        {
+            if (graphics == EGraphics.POINTS)
+            {
+                _graphic = "p";
+            }
+            else if (graphics == EGraphics.LINES)
+            {
+                _graphic = "l";
+            }
+        }
+
+        public void SetCvvMethod(ECvv cvvMethod)
+        {
+            _cvvMethod = cvvMethod;
+        }
+
+        public ECvv GetCvvMethod()
+        {
+            return _cvvMethod;
+        }
+
         /// <summary>
         /// Load previously saved user settings.
         /// </summary>
@@ -716,6 +825,12 @@ namespace SyncMeasure
             var rootElement = xmlSettings.DocumentElement;
             if (rootElement == null || !Resources.TITLE.Equals(rootElement.Name) || !(rootElement.Attributes["Version"].Value.Equals(Resources.VERSION)))
                 return;
+
+            var cvv = rootElement.SelectSingleNode("CVV");
+            if (cvv?.Attributes?["Method"] != null)
+            {
+                Enum.TryParse(cvv.Attributes["Method"].Value, out _cvvMethod);
+            }
 
             var names = rootElement.SelectSingleNode("Names");
             XmlNode node;
@@ -758,6 +873,11 @@ namespace SyncMeasure
             writer.WriteStartDocument();
             writer.WriteStartElement(Resources.TITLE);
             writer.WriteAttributeString("Version", Resources.VERSION);
+
+
+            writer.WriteStartElement("CVV");
+            writer.WriteAttributeString("Method", _cvvMethod.ToString());
+            writer.WriteEndElement();
 
             writer.WriteStartElement("Names");      // Column Names
             foreach (var colName in _colNames)

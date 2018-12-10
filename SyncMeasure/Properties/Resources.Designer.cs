@@ -120,7 +120,7 @@ namespace SyncMeasure.Properties {
         ///\line\line
         ///- Loading cvs can be done by dragging csv file to SyncMeasure or by clicking Load button (ctrl+L).
         ///\line\line
-        ///- Sync Measure can be done by clicking Enter or by clicking Measure button.
+        ///- Sync Measurement can be done by clicking Enter or by clicking Measure button.
         ///\line\line
         ///- After parsing data, you can double click the graphs to expand. Use mouse wheel to zoom in / out.
         ///\line\line
@@ -215,6 +215,15 @@ namespace SyncMeasure.Properties {
         internal static string GRAB_ANGLE {
             get {
                 return ResourceManager.GetString("GRAB_ANGLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ./grabStrength.png.
+        /// </summary>
+        internal static string GRAB_GRAPH {
+            get {
+                return ResourceManager.GetString("GRAB_GRAPH", resourceCulture);
             }
         }
         
@@ -327,6 +336,24 @@ namespace SyncMeasure.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pinch.
+        /// </summary>
+        internal static string PINCH {
+            get {
+                return ResourceManager.GetString("PINCH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ./pinchStrength.png.
+        /// </summary>
+        internal static string PINCH_GRAPH {
+            get {
+                return ResourceManager.GetString("PINCH_GRAPH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to PinchStrength.
         /// </summary>
         internal static string PINCH_STRENGTH {
@@ -381,7 +408,7 @@ namespace SyncMeasure.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 1.1.
+        ///   Looks up a localized string similar to 1.2.
         /// </summary>
         internal static string VERSION {
             get {

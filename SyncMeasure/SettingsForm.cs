@@ -30,7 +30,7 @@ namespace SyncMeasure
             var row = dataGridView.Rows[0];
             row.Cells[0].Value = @"Weight Name";
             row.Cells[1].Value = @"Weight Value";
-            //row.Cells[2].Value = @"Enabled";
+            row.Cells[2].Value = @"Enabled";
             row.ReadOnly = true;
             row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = row.Cells[2].Style.BackColor = Color.Gray;
             row.Cells[1].Style.SelectionForeColor = Color.Black;
@@ -40,11 +40,6 @@ namespace SyncMeasure
                 dataGridView.Rows.Add(w.Key, w.Value.ToString(CultureInfo.CurrentCulture));
                 row = dataGridView.Rows[dataGridView.Rows.Count - 1];
                 row.Cells[2] = new DataGridViewCheckBoxCell { Value = !row.Cells[1].Value.Equals("0") };
-                /* Temporary */
-                row.Cells[2].Value = false;
-                row.Cells[2].ReadOnly = true;
-                row.Cells[2].Style.BackColor = row.Cells[2].Style.SelectionBackColor = Color.LightGray;
-                /**/
                 HandleWeightRow(row);     
             }
             var colNames = _handler.GetColNames();
@@ -92,15 +87,14 @@ namespace SyncMeasure
             var elbow = GetWeightValue(Resources.ELBOW);
             var hand = GetWeightValue(Resources.HAND);
             var grab = GetWeightValue(Resources.GRAB);
+            var pinch = GetWeightValue(Resources.PINCH);
             var gesture = GetWeightValue(Resources.GESTURE);
 
-            /* Temporary disable    //todo: enable
-            if (!_handler.SetWeight(arm, elbow, hand, grab, gesture, out var errMsg))
+            if (!_handler.SetWeight(arm, elbow, hand, grab, pinch, out var errMsg))
             {
                 MessageBox.Show(this, errMsg, Resources.TITLE + @" - Weight setting failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            */
             _handler.SaveUserSettings();
             Close();
         }
@@ -173,7 +167,6 @@ namespace SyncMeasure
                 _handler.SetOldFormatDefaults();
                 LoadSettings();
             }
-            
         }
 
         /// <summary>
