@@ -477,6 +477,7 @@
             this.label6.Size = new System.Drawing.Size(102, 13);
             this.label6.TabIndex = 9;
             this.label6.Text = "Avg Pinch Strength:";
+            this.toolTip.SetToolTip(this.label6, "(1 - Pinch Difference)");
             // 
             // label5
             // 
@@ -487,6 +488,7 @@
             this.label5.Size = new System.Drawing.Size(98, 13);
             this.label5.TabIndex = 8;
             this.label5.Text = "Avg Grab Strength:";
+            this.toolTip.SetToolTip(this.label5, "(1 - Grab Difference)");
             // 
             // elbowsLabel
             // 
@@ -565,6 +567,7 @@
             this.averageText.Size = new System.Drawing.Size(50, 13);
             this.averageText.TabIndex = 0;
             this.averageText.Text = "Average:";
+            this.toolTip.SetToolTip(this.averageText, "Weighted calculation");
             // 
             // measureOnLoad
             // 
