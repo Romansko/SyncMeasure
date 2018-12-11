@@ -14,18 +14,25 @@ Run [SyncMeasureSetup.exe](https://github.com/Romansko/SyncMeasure/raw/master/Re
 If setup asks you to install .NET 4.5.2 Frame work, you can get it from here: [.NET v4.5.2](https://download.microsoft.com/download/B/4/1/B4119C11-0423-477B-80EE-7A474314B347/NDP452-KB2901954-Web.exe)
 
 Install within R Console:
-```
+`
 install.packages("devtools")
 library(devtools)
 install_github("reissphil/cvv")
 install.packages("data.table")
-```
+`
 Ignore warning about packages that was built under R version 3.4.4 because cvv package require R v3.4.0 and won't work otherwise.
 
 
 
+**Synchronization Parameters**
 
-**Packages & DLLs**
+- "Average" - Calculation of all parameters considering weights as defined by the user.
+- CVV: As described in [CVV package](https://github.com/reissphil/cvv). Can be a negative value.
+- Grab and Pinch strength: The measurement is `1 - difference between hands`.
+
+
+
+**Packages & DLLs used**
 
 - [LeapMotion SDK](https://developer.leapmotion.com/get-started/). LeapCSharp v4.5, LeapC.dll v4.
 
