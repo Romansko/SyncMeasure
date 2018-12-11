@@ -19,7 +19,7 @@ namespace SyncMeasure
         private readonly Dictionary<string, double> _weights;   // weight of sync properties.
         private readonly Dictionary<string, string> _colNames;  // csv file column names. (to be read with R).
         private List<Frame> _frames;                            // The parsed data.
-        private EFormat _format;                     // format being used.
+        private EFormat _format;                                // format being used.
         private ECvv _cvvMethod;
         private string _graphic;
 
@@ -119,14 +119,29 @@ namespace SyncMeasure
             /* Load packages */
             if (_engine.Evaluate("require(cvv)").AsInteger()[0] == 0)
             {
-                return new ResultStatus(false, @"cvv package couldn't be found.");
+                return new ResultStatus(false,
+                    @"cvv package couldn't be found. Please install by running the following commands in R:" +
+                    Environment.NewLine + @"install.packages('devtools')" +
+                    Environment.NewLine +
+                    @"library(devtools)" + Environment.NewLine +
+                    @"install_github('reissphil/cvv')");
             }
 
             if (_engine.Evaluate("require(data.table)").AsInteger()[0] == 0)
             {
-                return new ResultStatus(false, @"data.table package couldn't be found.");
+                return new ResultStatus(false,
+                    @"data.table package couldn't be found. Please install by running the following commands in R:" +
+                    Environment.NewLine + @"install.packages('data.table')");
             }
 
+            /*  ToDO: Enable parallel calculations?
+            if (_engine.Evaluate("require(future)").AsInteger()[0] == 0)
+            {
+                return new ResultStatus(false,
+                    @"future package couldn't be found. Please install by running the following commands in R:" +
+                    Environment.NewLine + @"install.packages('future')");
+            }
+            */
             return new ResultStatus(true, "");
         }
 
@@ -284,26 +299,30 @@ namespace SyncMeasure
 
                 if (ReportProgress(20, bgWorker, args)) return null;
 
+                string assign = "<-";
+                // ToDo: Enable parallel calculations?
+                // _engine.Evaluate("plan(multiprocess)");
+                // assign = "%<-%";        // parallel assign.  
                 /* Measure Arm, Elbow and Hand cvv */
 
                 // Hand
                 _engine.Evaluate("pos_1 <- cbind(hand0.pos.x, hand0.pos.y, hand0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(hand1.pos.x, hand1.pos.y, hand1.pos.z)");
-                _engine.Evaluate("hand.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
+                _engine.Evaluate("hand.cvv " + assign + " cosfunc(make.fd(timestamps, pos_1, pos_2))");
 
                 if (ReportProgress(40, bgWorker, args)) return null;
 
                 // Arm
                 _engine.Evaluate("pos_1 <- cbind(arm0.pos.x, arm0.pos.y, arm0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(arm1.pos.x, arm1.pos.y, arm1.pos.z)");                
-                _engine.Evaluate("arm.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
+                _engine.Evaluate("arm.cvv " + assign + " cosfunc(make.fd(timestamps, pos_1, pos_2))");
 
                 if (ReportProgress(60, bgWorker, args)) return null;
 
                 // Elbow
                 _engine.Evaluate("pos_1 <- cbind(elbow0.pos.x, elbow0.pos.y, elbow0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(elbow1.pos.x, elbow1.pos.y, elbow1.pos.z)");
-                _engine.Evaluate("elbow.cvv <- cosfunc(make.fd(timestamps, pos_1, pos_2))");
+                _engine.Evaluate("elbow.cvv " + assign + " cosfunc(make.fd(timestamps, pos_1, pos_2))");
 
                 if (ReportProgress(80, bgWorker, args)) return null;
 
@@ -735,7 +754,7 @@ namespace SyncMeasure
         {
             SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             _format = EFormat.OLD;
-            if (!_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Add(Resources.HAND_ID, "");
+            AmendColumnsByFormat();
 
             /* Set column names as appear in R env. */
             _colNames[Resources.TIMESTAMP] =      "Utc.Time";
@@ -760,7 +779,6 @@ namespace SyncMeasure
             _colNames[Resources.ELBOW_POS_X] =    "elbow.pos.x";
             _colNames[Resources.ELBOW_POS_Y] =    "elbow.pos.y";
             _colNames[Resources.ELBOW_POS_Z] =    "elbow.pos.z";
-            _colNames[Resources.GRAB_ANGLE] =      "Sync.Mode";
         }
 
         /// <summary>
@@ -770,7 +788,7 @@ namespace SyncMeasure
         {
             SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             _format = EFormat.NEW;
-            if (_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Remove(Resources.HAND_ID);
+            AmendColumnsByFormat();
 
             /* Set column names as appear in R env. */
             _colNames[Resources.TIMESTAMP] = "Time";
@@ -819,6 +837,20 @@ namespace SyncMeasure
             return _cvvMethod;
         }
 
+        public void AmendColumnsByFormat()
+        {
+            if (_format == EFormat.OLD)
+            {
+                if (!_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Add(Resources.HAND_ID, "");
+                if (_colNames.ContainsKey(Resources.GRAB_ANGLE)) _colNames.Remove(Resources.GRAB_ANGLE);
+            }
+            else        // NEW
+            {
+                if (_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Remove(Resources.HAND_ID);
+                if (!_colNames.ContainsKey(Resources.GRAB_ANGLE)) _colNames.Add(Resources.GRAB_ANGLE, "");
+            }
+        }
+
         /// <summary>
         /// Load previously saved user settings.
         /// </summary>
@@ -840,9 +872,15 @@ namespace SyncMeasure
             }
 
             var names = rootElement.SelectSingleNode("Names");
+
             XmlNode node;
             if (names != null)
             {
+                if (names.Attributes?["Format"] != null)
+                {
+                    Enum.TryParse(names.Attributes["Format"].Value, out _format);
+                    AmendColumnsByFormat();
+                }
                 foreach (var key in _colNames.Keys.ToList())
                 {
                     node = names.SelectSingleNode(key);
@@ -887,6 +925,7 @@ namespace SyncMeasure
             writer.WriteEndElement();
 
             writer.WriteStartElement("Names");      // Column Names
+            writer.WriteAttributeString("Format", _format.ToString());
             foreach (var colName in _colNames)
             {
                 writer.WriteElementString(colName.Key, colName.Value);
