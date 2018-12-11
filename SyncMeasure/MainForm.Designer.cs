@@ -63,6 +63,9 @@
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.pinchStrBox = new Cyotek.Windows.Forms.ImageBox();
             this.sumGroupBox = new System.Windows.Forms.GroupBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.pinchLabel = new System.Windows.Forms.Label();
             this.grabLabel = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
@@ -89,6 +92,7 @@
             this.tabPage5.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.sumGroupBox.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.graphicsGB.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -140,7 +144,7 @@
             this.allGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.allGraphBox.Location = new System.Drawing.Point(3, 3);
             this.allGraphBox.Name = "allGraphBox";
-            this.allGraphBox.Size = new System.Drawing.Size(481, 374);
+            this.allGraphBox.Size = new System.Drawing.Size(481, 459);
             this.allGraphBox.TabIndex = 5;
             this.allGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -243,7 +247,7 @@
             this.progGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.progGroupBox.Controls.Add(this.cancelButton);
             this.progGroupBox.Controls.Add(this.circularProgressBar);
-            this.progGroupBox.Location = new System.Drawing.Point(519, 293);
+            this.progGroupBox.Location = new System.Drawing.Point(519, 378);
             this.progGroupBox.Name = "progGroupBox";
             this.progGroupBox.Size = new System.Drawing.Size(171, 154);
             this.progGroupBox.TabIndex = 7;
@@ -277,7 +281,7 @@
             this.tabControl.Location = new System.Drawing.Point(12, 41);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(495, 406);
+            this.tabControl.Size = new System.Drawing.Size(495, 491);
             this.tabControl.TabIndex = 8;
             // 
             // tabPage1
@@ -286,7 +290,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(487, 380);
+            this.tabPage1.Size = new System.Drawing.Size(487, 465);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "All";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -297,7 +301,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(487, 380);
+            this.tabPage2.Size = new System.Drawing.Size(487, 465);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Hands CVV";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -308,7 +312,7 @@
             this.handGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.handGraphBox.Location = new System.Drawing.Point(3, 3);
             this.handGraphBox.Name = "handGraphBox";
-            this.handGraphBox.Size = new System.Drawing.Size(481, 374);
+            this.handGraphBox.Size = new System.Drawing.Size(481, 459);
             this.handGraphBox.TabIndex = 6;
             this.handGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -317,7 +321,7 @@
             this.tabPage3.Controls.Add(this.armGraphBox);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(487, 380);
+            this.tabPage3.Size = new System.Drawing.Size(487, 465);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Arm CVV";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -328,7 +332,7 @@
             this.armGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.armGraphBox.Location = new System.Drawing.Point(0, 0);
             this.armGraphBox.Name = "armGraphBox";
-            this.armGraphBox.Size = new System.Drawing.Size(487, 380);
+            this.armGraphBox.Size = new System.Drawing.Size(487, 465);
             this.armGraphBox.TabIndex = 7;
             this.armGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -337,7 +341,7 @@
             this.tabPage4.Controls.Add(this.elbowGraphBox);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(487, 380);
+            this.tabPage4.Size = new System.Drawing.Size(487, 465);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Elbow CVV";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -348,7 +352,7 @@
             this.elbowGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elbowGraphBox.Location = new System.Drawing.Point(0, 0);
             this.elbowGraphBox.Name = "elbowGraphBox";
-            this.elbowGraphBox.Size = new System.Drawing.Size(487, 380);
+            this.elbowGraphBox.Size = new System.Drawing.Size(487, 465);
             this.elbowGraphBox.TabIndex = 7;
             this.elbowGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -358,7 +362,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(487, 380);
+            this.tabPage5.Size = new System.Drawing.Size(487, 465);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Grab Strength";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -369,7 +373,7 @@
             this.grabStrBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grabStrBox.Location = new System.Drawing.Point(3, 3);
             this.grabStrBox.Name = "grabStrBox";
-            this.grabStrBox.Size = new System.Drawing.Size(481, 374);
+            this.grabStrBox.Size = new System.Drawing.Size(481, 459);
             this.grabStrBox.TabIndex = 8;
             this.grabStrBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -379,7 +383,7 @@
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage6.Size = new System.Drawing.Size(487, 380);
+            this.tabPage6.Size = new System.Drawing.Size(487, 465);
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "Pinch Strength";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -390,13 +394,14 @@
             this.pinchStrBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pinchStrBox.Location = new System.Drawing.Point(3, 3);
             this.pinchStrBox.Name = "pinchStrBox";
-            this.pinchStrBox.Size = new System.Drawing.Size(481, 374);
+            this.pinchStrBox.Size = new System.Drawing.Size(481, 459);
             this.pinchStrBox.TabIndex = 8;
             this.pinchStrBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
             // sumGroupBox
             // 
             this.sumGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.sumGroupBox.Controls.Add(this.groupBox1);
             this.sumGroupBox.Controls.Add(this.pinchLabel);
             this.sumGroupBox.Controls.Add(this.grabLabel);
             this.sumGroupBox.Controls.Add(this.label6);
@@ -411,11 +416,40 @@
             this.sumGroupBox.Controls.Add(this.averageText);
             this.sumGroupBox.Location = new System.Drawing.Point(519, 127);
             this.sumGroupBox.Name = "sumGroupBox";
-            this.sumGroupBox.Size = new System.Drawing.Size(171, 161);
+            this.sumGroupBox.Size = new System.Drawing.Size(171, 247);
             this.sumGroupBox.TabIndex = 9;
             this.sumGroupBox.TabStop = false;
-            this.sumGroupBox.Text = "Summary";
+            this.sumGroupBox.Text = "Synchronization Summary";
             this.sumGroupBox.Visible = false;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Location = new System.Drawing.Point(12, 159);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(147, 74);
+            this.groupBox1.TabIndex = 12;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Legend";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 47);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(86, 13);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "1 - Synchronized";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 25);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(104, 13);
+            this.label1.TabIndex = 12;
+            this.label1.Text = "0 - Not synchronized";
             // 
             // pinchLabel
             // 
@@ -447,6 +481,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
+            this.label5.ForeColor = System.Drawing.Color.Black;
             this.label5.Location = new System.Drawing.Point(9, 113);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(98, 13);
@@ -584,7 +619,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightBlue;
-            this.ClientSize = new System.Drawing.Size(696, 459);
+            this.ClientSize = new System.Drawing.Size(696, 544);
             this.Controls.Add(this.graphicsGB);
             this.Controls.Add(this.measureOnLoad);
             this.Controls.Add(this.sumGroupBox);
@@ -594,7 +629,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
-            this.MinimumSize = new System.Drawing.Size(712, 498);
+            this.MinimumSize = new System.Drawing.Size(712, 583);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SyncMeasure";
@@ -613,6 +648,8 @@
             this.tabPage6.ResumeLayout(false);
             this.sumGroupBox.ResumeLayout(false);
             this.sumGroupBox.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.graphicsGB.ResumeLayout(false);
             this.graphicsGB.PerformLayout();
             this.ResumeLayout(false);
@@ -670,6 +707,9 @@
         private System.Windows.Forms.GroupBox graphicsGB;
         private System.Windows.Forms.RadioButton linesRB;
         private System.Windows.Forms.RadioButton pointsRB;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
     }
 }
 

@@ -341,12 +341,19 @@ namespace SyncMeasure
 
 
                 if (ReportProgress(90, bgWorker, args)) return null;
+
+                string ylim = "ylim=c(0,1)";
+                if (_cvvMethod == ECvv.CVV)
+                {
+                    ylim = "ylim=c(-1,1)";
+                }
+
                 /* Plot all cvv in one graph */
                 var allGraph = Path.GetFullPath(Resources.ALL_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("allGraph", _engine.CreateCharacterVector(new[] { allGraph }));
                 _engine.Evaluate("png(filename=allGraph)");
                 _engine.Evaluate("plot(x = timestamps, y = weighted, type = '" + _graphic + "', main = 'Average', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'Avg', ylim=c(ymin,1), pch = 20)");
+                                 "xlab = 'Timestamp [ms]', ylab = 'Avg'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot hand cvv */
@@ -354,7 +361,7 @@ namespace SyncMeasure
                 _engine.SetSymbol("handsGraph", _engine.CreateCharacterVector(new[] { handsGraph }));
                 _engine.Evaluate("png(filename=handsGraph)");
                 _engine.Evaluate("plot(x = timestamps, y = hcvv, type = '" + _graphic + "', main = 'Hands cvv = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'hands cvv', col = 'red', ylim=c(ymin,ymax), pch = 20)");
+                                 "xlab = 'Timestamp [ms]', ylab = 'hands cvv', col = 'red'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot arm cvv */
@@ -362,7 +369,7 @@ namespace SyncMeasure
                 _engine.SetSymbol("armsGraph", _engine.CreateCharacterVector(new[] { armsGraph }));
                 _engine.Evaluate("png(filename=armsGraph)");
                 _engine.Evaluate("plot(x = timestamps, y = acvv, type = '" + _graphic + "', main = 'arm cvv = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'arms cvv', col = 'green', ylim=c(ymin,ymax), pch = 20)");
+                                 "xlab = 'Timestamp [ms]', ylab = 'arms cvv', col = 'green'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot elbow cvv */
@@ -377,16 +384,16 @@ namespace SyncMeasure
                 var grabGraph = Path.GetFullPath(Resources.GRAB_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("grabGraph", _engine.CreateCharacterVector(new[] {grabGraph }));
                 _engine.Evaluate("png(filename=grabGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = grab, type = '" + _graphic + "', main = 'Grab Strength Difference = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'grab strength diff', ylim=c(0,1), pch = 20)");
+                _engine.Evaluate("plot(x = timestamps, y = grab, type = '" + _graphic + "', main = 'Grab Strength synchrony', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'grab strength diff',ylim=c(0,1), pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot Pinch Strength */
                 var pinchGraph = Path.GetFullPath(Resources.PINCH_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("pinchGraph", _engine.CreateCharacterVector(new[] { pinchGraph }));
                 _engine.Evaluate("png(filename=pinchGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = pinch, type = '" + _graphic + "', main = 'Pinch Strength Difference = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'pinch strength diff', ylim=c(0,1), pch = 20)");
+                _engine.Evaluate("plot(x = timestamps, y = pinch, type = '" + _graphic + "', main = 'Pinch Strength synchrony', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'pinch strength diff',ylim=c(0,1), pch = 20)");
                 _engine.Evaluate("dev.off()");
 
 
