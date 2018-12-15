@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Cyotek.Windows.Forms;
@@ -19,7 +18,6 @@ namespace SyncMeasure
             InitializeComponent();
             Text += @" - v" + Resources.VERSION;
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
-
 
             /* BackgroundWorkers initialize */
             loadingBackgroundWorker.WorkerReportsProgress         = true;
@@ -220,6 +218,11 @@ namespace SyncMeasure
             MessageBox.Show(this, msg, title, MessageBoxButtons.OK, icon);
         }
 
+        /// <summary>
+        /// Measure end
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void measureBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             progGroupBox.Hide();
@@ -237,6 +240,8 @@ namespace SyncMeasure
                 try
                 {
                     Clear();
+
+                    /* Loaded graphs images */
                     allGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ALL_GRAPH));
                     handGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.HAND_CVV_GRAPH));
                     armGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ARM_CVV_GRAPH));
@@ -244,6 +249,7 @@ namespace SyncMeasure
                     grabStrBox.Image = Image.FromFile(Path.GetFullPath(Resources.GRAB_GRAPH));
                     pinchStrBox.Image = Image.FromFile(Path.GetFullPath(Resources.PINCH_GRAPH));
 
+                    /* Loaded avg sync measurements */
                     allLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.weighted")[0]:0.00}";
                     handsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.hands.cvv")[0]:0.00}";
                     armsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.arms.cvv")[0]:0.00}";
@@ -291,21 +297,6 @@ namespace SyncMeasure
             }
         }
 
-
-        /// <summary>
-        /// Load file by drag and drop.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MainForm_DragDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                var filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
-                LoadFile(filePaths[0]);
-            }
-        }
-
         private void LoadFile(string filePath)
         {
             if (loadingBackgroundWorker.IsBusy || measureBackgroundWorker.IsBusy) return;
@@ -331,6 +322,19 @@ namespace SyncMeasure
             measureBackgroundWorker.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Load file by drag and drop.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainForm_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
+                LoadFile(filePaths[0]);
+            }
+        }
 
         /// <summary>
         /// Allow the drag drop event
@@ -401,6 +405,11 @@ namespace SyncMeasure
         }
 
  
+        /// <summary>
+        /// User's radio box selection changed. lines / points graph representation.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void graphics_CheckedChanged(object sender, EventArgs e)
         {
             if (pointsRB.Checked)
@@ -411,6 +420,20 @@ namespace SyncMeasure
             {
                 _handler.SetGraphics(Handler.EGraphics.LINES);
             }
+            else if (bothRB.Checked)
+            {
+                _handler.SetGraphics(Handler.EGraphics.BOTH);
+            }
+        }
+
+        /// <summary>
+        /// Open "Alone" files combiner dialog.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void combineToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            (new Combiner(_handler)).ShowDialog();
         }
     }
 }

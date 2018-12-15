@@ -36,6 +36,7 @@
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.measureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.combineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cVVMethodToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -46,6 +47,9 @@
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.averageText = new System.Windows.Forms.Label();
             this.loadingBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.progGroupBox = new System.Windows.Forms.GroupBox();
             this.cancelButton = new System.Windows.Forms.Button();
@@ -68,8 +72,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.pinchLabel = new System.Windows.Forms.Label();
             this.grabLabel = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
             this.elbowsLabel = new System.Windows.Forms.Label();
             this.armsLabel = new System.Windows.Forms.Label();
             this.handsLabel = new System.Windows.Forms.Label();
@@ -77,11 +79,11 @@
             this.elbowCvvText = new System.Windows.Forms.Label();
             this.armsCvvText = new System.Windows.Forms.Label();
             this.handsCvvText = new System.Windows.Forms.Label();
-            this.averageText = new System.Windows.Forms.Label();
             this.measureOnLoad = new System.Windows.Forms.CheckBox();
             this.graphicsGB = new System.Windows.Forms.GroupBox();
             this.linesRB = new System.Windows.Forms.RadioButton();
             this.pointsRB = new System.Windows.Forms.RadioButton();
+            this.bothRB = new System.Windows.Forms.RadioButton();
             this.menuStrip.SuspendLayout();
             this.progGroupBox.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -113,7 +115,7 @@
             this.circularProgressBar.InnerColor = System.Drawing.Color.PowderBlue;
             this.circularProgressBar.InnerMargin = 1;
             this.circularProgressBar.InnerWidth = 1;
-            this.circularProgressBar.Location = new System.Drawing.Point(32, 16);
+            this.circularProgressBar.Location = new System.Drawing.Point(38, 16);
             this.circularProgressBar.Margin = new System.Windows.Forms.Padding(0);
             this.circularProgressBar.MarqueeAnimationSpeed = 1000;
             this.circularProgressBar.Name = "circularProgressBar";
@@ -144,7 +146,7 @@
             this.allGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.allGraphBox.Location = new System.Drawing.Point(3, 3);
             this.allGraphBox.Name = "allGraphBox";
-            this.allGraphBox.Size = new System.Drawing.Size(481, 459);
+            this.allGraphBox.Size = new System.Drawing.Size(462, 450);
             this.allGraphBox.TabIndex = 5;
             this.allGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -155,6 +157,7 @@
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadToolStripMenuItem,
             this.measureToolStripMenuItem,
+            this.combineToolStripMenuItem,
             this.settingsToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.menuStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
@@ -181,6 +184,14 @@
             this.measureToolStripMenuItem.Text = "&Measure Sync";
             this.measureToolStripMenuItem.ToolTipText = "Measure the synchrony. (Enter).";
             this.measureToolStripMenuItem.Click += new System.EventHandler(this.measureToolStripMenuItem_Click);
+            // 
+            // combineToolStripMenuItem
+            // 
+            this.combineToolStripMenuItem.Name = "combineToolStripMenuItem";
+            this.combineToolStripMenuItem.Size = new System.Drawing.Size(76, 23);
+            this.combineToolStripMenuItem.Text = "&Combine";
+            this.combineToolStripMenuItem.ToolTipText = "Combine alone files to single file.";
+            this.combineToolStripMenuItem.Click += new System.EventHandler(this.combineToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
@@ -242,14 +253,45 @@
             this.aboutToolStripMenuItem1.Text = "&About";
             this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(9, 135);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(102, 13);
+            this.label6.TabIndex = 9;
+            this.label6.Text = "Avg Pinch Strength:";
+            this.toolTip.SetToolTip(this.label6, "(1 - Pinch Difference)");
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.ForeColor = System.Drawing.Color.Black;
+            this.label5.Location = new System.Drawing.Point(9, 113);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(98, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Avg Grab Strength:";
+            this.toolTip.SetToolTip(this.label5, "(1 - Grab Difference)");
+            // 
+            // averageText
+            // 
+            this.averageText.AutoSize = true;
+            this.averageText.Location = new System.Drawing.Point(9, 25);
+            this.averageText.Name = "averageText";
+            this.averageText.Size = new System.Drawing.Size(50, 13);
+            this.averageText.TabIndex = 0;
+            this.averageText.Text = "Average:";
+            this.toolTip.SetToolTip(this.averageText, "Weighted calculation");
+            // 
             // progGroupBox
             // 
             this.progGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.progGroupBox.Controls.Add(this.cancelButton);
             this.progGroupBox.Controls.Add(this.circularProgressBar);
-            this.progGroupBox.Location = new System.Drawing.Point(519, 378);
+            this.progGroupBox.Location = new System.Drawing.Point(501, 369);
             this.progGroupBox.Name = "progGroupBox";
-            this.progGroupBox.Size = new System.Drawing.Size(171, 154);
+            this.progGroupBox.Size = new System.Drawing.Size(183, 154);
             this.progGroupBox.TabIndex = 7;
             this.progGroupBox.TabStop = false;
             this.progGroupBox.Visible = false;
@@ -259,7 +301,7 @@
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancelButton.Location = new System.Drawing.Point(32, 119);
+            this.cancelButton.Location = new System.Drawing.Point(38, 119);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(100, 23);
             this.cancelButton.TabIndex = 4;
@@ -281,7 +323,7 @@
             this.tabControl.Location = new System.Drawing.Point(12, 41);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(495, 491);
+            this.tabControl.Size = new System.Drawing.Size(476, 482);
             this.tabControl.TabIndex = 8;
             // 
             // tabPage1
@@ -290,7 +332,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(487, 465);
+            this.tabPage1.Size = new System.Drawing.Size(468, 456);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "All";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -414,9 +456,9 @@
             this.sumGroupBox.Controls.Add(this.armsCvvText);
             this.sumGroupBox.Controls.Add(this.handsCvvText);
             this.sumGroupBox.Controls.Add(this.averageText);
-            this.sumGroupBox.Location = new System.Drawing.Point(519, 127);
+            this.sumGroupBox.Location = new System.Drawing.Point(501, 112);
             this.sumGroupBox.Name = "sumGroupBox";
-            this.sumGroupBox.Size = new System.Drawing.Size(171, 247);
+            this.sumGroupBox.Size = new System.Drawing.Size(183, 247);
             this.sumGroupBox.TabIndex = 9;
             this.sumGroupBox.TabStop = false;
             this.sumGroupBox.Text = "Synchronization Summary";
@@ -468,27 +510,6 @@
             this.grabLabel.Size = new System.Drawing.Size(29, 13);
             this.grabLabel.TabIndex = 10;
             this.grabLabel.Text = "label";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(9, 135);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(102, 13);
-            this.label6.TabIndex = 9;
-            this.label6.Text = "Avg Pinch Strength:";
-            this.toolTip.SetToolTip(this.label6, "(1 - Pinch Difference)");
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.ForeColor = System.Drawing.Color.Black;
-            this.label5.Location = new System.Drawing.Point(9, 113);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(98, 13);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "Avg Grab Strength:";
-            this.toolTip.SetToolTip(this.label5, "(1 - Grab Difference)");
             // 
             // elbowsLabel
             // 
@@ -559,21 +580,11 @@
             this.handsCvvText.TabIndex = 1;
             this.handsCvvText.Text = "Avg Hands CVV:";
             // 
-            // averageText
-            // 
-            this.averageText.AutoSize = true;
-            this.averageText.Location = new System.Drawing.Point(9, 25);
-            this.averageText.Name = "averageText";
-            this.averageText.Size = new System.Drawing.Size(50, 13);
-            this.averageText.TabIndex = 0;
-            this.averageText.Text = "Average:";
-            this.toolTip.SetToolTip(this.averageText, "Weighted calculation");
-            // 
             // measureOnLoad
             // 
             this.measureOnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.measureOnLoad.AutoSize = true;
-            this.measureOnLoad.Location = new System.Drawing.Point(519, 38);
+            this.measureOnLoad.Location = new System.Drawing.Point(507, 38);
             this.measureOnLoad.Name = "measureOnLoad";
             this.measureOnLoad.Size = new System.Drawing.Size(132, 17);
             this.measureOnLoad.TabIndex = 10;
@@ -583,19 +594,22 @@
             // graphicsGB
             // 
             this.graphicsGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.graphicsGB.Controls.Add(this.bothRB);
             this.graphicsGB.Controls.Add(this.linesRB);
             this.graphicsGB.Controls.Add(this.pointsRB);
-            this.graphicsGB.Location = new System.Drawing.Point(519, 61);
+            this.graphicsGB.Location = new System.Drawing.Point(501, 61);
             this.graphicsGB.Name = "graphicsGB";
-            this.graphicsGB.Size = new System.Drawing.Size(171, 60);
+            this.graphicsGB.Size = new System.Drawing.Size(183, 45);
             this.graphicsGB.TabIndex = 11;
             this.graphicsGB.TabStop = false;
             this.graphicsGB.Text = "Graph Graphics";
             // 
             // linesRB
             // 
+            this.linesRB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.linesRB.AutoSize = true;
-            this.linesRB.Location = new System.Drawing.Point(115, 28);
+            this.linesRB.Location = new System.Drawing.Point(127, 19);
             this.linesRB.Name = "linesRB";
             this.linesRB.Size = new System.Drawing.Size(50, 17);
             this.linesRB.TabIndex = 1;
@@ -605,16 +619,31 @@
             // 
             // pointsRB
             // 
+            this.pointsRB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.pointsRB.AutoSize = true;
-            this.pointsRB.Checked = true;
-            this.pointsRB.Location = new System.Drawing.Point(6, 28);
+            this.pointsRB.Location = new System.Drawing.Point(14, 19);
             this.pointsRB.Name = "pointsRB";
             this.pointsRB.Size = new System.Drawing.Size(54, 17);
             this.pointsRB.TabIndex = 0;
-            this.pointsRB.TabStop = true;
             this.pointsRB.Text = "Points";
             this.pointsRB.UseVisualStyleBackColor = true;
             this.pointsRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
+            // 
+            // bothRB
+            // 
+            this.bothRB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.bothRB.AutoSize = true;
+            this.bothRB.Checked = true;
+            this.bothRB.Location = new System.Drawing.Point(74, 19);
+            this.bothRB.Name = "bothRB";
+            this.bothRB.Size = new System.Drawing.Size(47, 17);
+            this.bothRB.TabIndex = 2;
+            this.bothRB.Text = "Both";
+            this.bothRB.UseVisualStyleBackColor = true;
+            this.bothRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
             // 
             // MainForm
             // 
@@ -622,7 +651,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightBlue;
-            this.ClientSize = new System.Drawing.Size(696, 544);
+            this.ClientSize = new System.Drawing.Size(696, 535);
             this.Controls.Add(this.graphicsGB);
             this.Controls.Add(this.measureOnLoad);
             this.Controls.Add(this.sumGroupBox);
@@ -632,7 +661,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
-            this.MinimumSize = new System.Drawing.Size(712, 583);
+            this.MinimumSize = new System.Drawing.Size(712, 574);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SyncMeasure";
@@ -713,6 +742,8 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripMenuItem combineToolStripMenuItem;
+        private System.Windows.Forms.RadioButton bothRB;
     }
 }
 

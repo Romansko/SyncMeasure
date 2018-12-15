@@ -26,9 +26,9 @@ namespace SyncMeasure
         public enum EGraphics
         {
             POINTS,
+            BOTH,
             LINES
         }
-
 
         public enum EFormat
         {
@@ -42,7 +42,6 @@ namespace SyncMeasure
             ABS_CVV,
             SQUARE_CVV
         };
-
 
         public Handler(out ResultStatus resultStatus)
         {
@@ -95,7 +94,7 @@ namespace SyncMeasure
                 {Resources.GRAB_ANGLE, ""}
             };
             _cvvMethod = ECvv.CVV;
-            _graphic = "p";
+            _graphic = "b";
             SetNewFormatDefaults();
             LoadUserSettings();
         }
@@ -112,7 +111,6 @@ namespace SyncMeasure
 
             _engine.Dispose();
         }
-
 
         private ResultStatus LoadRPackages()
         {
@@ -145,13 +143,19 @@ namespace SyncMeasure
             return new ResultStatus(true, "");
         }
 
-
-        private void RemoveFromR(string toRemove)
+        public void RemoveFromR(string toRemove)
         {
-            _engine.Evaluate("remove(" + toRemove + ")");
+            try
+            {
+                _engine.Evaluate("remove(" + toRemove + ")");
+            }
+            catch (Exception)
+            {
+                // Don't care
+            }
         }
 
-        private void RemoveFromR(params string[] toRemove)
+        public void RemoveFromR(params string[] toRemove)
         {
             foreach (var r in toRemove)
             {
@@ -270,10 +274,6 @@ namespace SyncMeasure
                 }
                 
                 _engine.SetSymbol("timestamps", _engine.CreateIntegerVector(timestamps));
-                _engine.Evaluate("diff <- tail(timestamps, 1) - head(timestamps, 1)");
-                _engine.Evaluate("func <- function(x) { return(x%%(diff+1)) }");
-                _engine.Evaluate("timestamps <- sapply(timestamps, func)");
-                RemoveFromR("diff", "func");
 
                 for (var i = 0; i < 2; ++i)     // for both hands.
                 {
@@ -395,8 +395,8 @@ namespace SyncMeasure
                 var elbowGraph = Path.GetFullPath(Resources.ELBOW_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("elbowsGraph", _engine.CreateCharacterVector(new[] { elbowGraph }));
                 _engine.Evaluate("png(filename=elbowsGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = ecvv, type = '" + _graphic + "', main = 'elbow cvv = f(Timestamp)', " +
-                                 "xlab = 'Timestamp [ms]', ylab = 'elbows cvv', col = 'blue', ylim=c(ymin,ymax), pch = 20)");
+                _engine.Evaluate("plot(x = timestamps, y = ecvv, type = '" + _graphic +   "', main = 'elbow cvv = f(Timestamp)', " +
+                                 "xlab = 'Timestamp [ms]', ylab = 'elbows cvv', col = 'blue'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot Grab Strength */
@@ -434,7 +434,76 @@ namespace SyncMeasure
             }
         }
 
-        
+        /// <summary>
+        /// Load a file to R Environment.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        private ResultStatus LoadFileToR(string name, string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                return new ResultStatus(false, @"File doesn't exists!");
+            }
+
+            try
+            {
+                /* Load csv file to memory. */
+                filePath = filePath.Replace("\\", "/"); // fix for [R].
+                var cmd = name + " <- fread(file=file.path('" + filePath + "'), " +
+                          "header = T, sep = ',', dec='.', stringsAsFactors = F, verbose = F, " +
+                          "check.names = T, blank.lines.skip = T,  encoding = 'UTF-8')";
+                _engine.Evaluate(cmd);
+
+                /* Validate column names */
+                var colNames = _engine.Evaluate("colnames(" + name + ")").AsVector();
+
+                foreach (var cName in (GeMandatoryColumnNames()))
+                {
+                    if (!colNames.Contains(cName))
+                    {
+                        var errorMessage = @"Provided file doesn't contain column name: " + cName +
+                                           Environment.NewLine +
+                                           @"Try changing Default _format in settings or rename column name.";
+                        return new ResultStatus(false, errorMessage);
+                    }
+                }
+
+                /* Align timestamps - timestamp(i) = timestamp(i) - timestamp(0) */
+                _engine.Evaluate(name + "[," + _colNames[Resources.TIMESTAMP] + " := " + name + "[," +
+                                 _colNames[Resources.TIMESTAMP] + "] - " + name + "[1," +
+                                 _colNames[Resources.TIMESTAMP] + "]]");
+
+                return new ResultStatus(true, "");
+            }
+            catch (Exception)
+            {
+                return new ResultStatus(false, @"Failed to load file " + Path.GetFileNameWithoutExtension(filePath));
+            }
+        }
+
+        /// <summary>
+        /// Load an "Alone" file to R Environment.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public ResultStatus LoadAloneFileToR(string name, string filePath)
+        {
+            var res = LoadFileToR(name, filePath);
+            if (!res.Status) return res;
+
+            /* Filter non single hand frames */
+            _engine.Evaluate(name + " <- " + name + "[" + name + "$" + _colNames[Resources.HANDS_IN_FRAME] + " == 1,]");
+            var size = _engine.Evaluate("nrow(" + name + ")").AsInteger()[0];
+            if (size <= 0)
+            {
+                RemoveFromR(name);
+                return new ResultStatus(false, @"File loaded doesn't contain frames with single hand!");
+            }
+            return new ResultStatus(true, "");
+        }
 
         /// <summary>
         /// Parse leapmotion output file.
@@ -445,33 +514,11 @@ namespace SyncMeasure
         /// <returns></returns>
         public ResultStatus LoadLeapMotionOutputFile(string filePath, BackgroundWorker bgWorker, DoWorkEventArgs args)
         {
-            if (!File.Exists(filePath))
-            {
-                return new ResultStatus(false, @"Invalid file path!");
-            }
+            var resultStatus = LoadFileToR("dataset", filePath);
+            if (!resultStatus.Status) return resultStatus;      // if loading to R failed.
 
-            var errorMessage = "";
             try
             {
-                /* Load csv file to memory. */
-                filePath = filePath.Replace("\\", "/");   // fix for [R].
-                _engine.Evaluate("dataset <- fread(file=file.path('" + filePath + "'), " +
-                                 "header = T, sep = ',', dec='.', stringsAsFactors = F, verbose = F, " +
-                                 "check.names = T, blank.lines.skip = T,  encoding = 'UTF-8')");
-
-                /* Validate column names */
-                var colNames = _engine.Evaluate("colnames(dataset)").AsVector();
-                
-                foreach (var cName in (GeMandatoryColumnNames()))
-                {
-                    if (!colNames.Contains(cName))
-                    {
-                        errorMessage = @"Provided file doesn't contain column name: " + cName + Environment.NewLine +
-                                       @"Try changing Default _format in settings or rename column name.";
-                        return new ResultStatus(false, errorMessage);
-                    }
-                }
-
                 /* filter only the frames with two hands */
                 _engine.Evaluate("dataset <- dataset[dataset$" + _colNames[Resources.HANDS_IN_FRAME] + " == 2,]");
 
@@ -483,6 +530,7 @@ namespace SyncMeasure
                     return new ResultStatus(false, @"Failed to load '" + Path.GetFileName(filePath));
                 }
 
+                string errorMessage;
                 if (dataFrame.RowCount == 0)
                 {
                     errorMessage = @"Only one hand detected in frames. File might be representing 'Alone Mode'.";
@@ -528,8 +576,6 @@ namespace SyncMeasure
                             var secondHandLeft = frames[frames.Count - 1].Hands[1].IsLeft;
                             if (firstHandLeft == secondHandLeft)
                             {
-                                errorMessage =
-                                    @"Both hands went out of frame at the same time, SyncMeasure tried to re-map the hand and therefore hands might be swapped.";
                                 hand1.Id = firstHandId;
                                 hand2.Id = secondHandId;
                             }
@@ -551,15 +597,15 @@ namespace SyncMeasure
                     }
 
                     int timestamp, ts1, ts2;
-                    if (_format.Equals(EFormat.OLD))
+                    if (_format.Equals(EFormat.NEW))
+                    {
+                        ts1 = (int)(1000 * (double)dataFrame[i, _colNames[Resources.TIMESTAMP]]);
+                        ts2 = (int)(1000 * (double)dataFrame[i + 1, _colNames[Resources.TIMESTAMP]]);
+                    } 
+                    else 
                     {
                         ts1 = (int)dataFrame[i, _colNames[Resources.TIMESTAMP]];
                         ts2 = (int)dataFrame[i + 1, _colNames[Resources.TIMESTAMP]];
-                    }
-                    else
-                    {
-                        ts1 = (int) (1000 * (double) dataFrame[i, _colNames[Resources.TIMESTAMP]]);
-                        ts2 = (int) (1000 * (double) dataFrame[i + 1, _colNames[Resources.TIMESTAMP]]);
                     }
                     
                     var diff = ts2 - ts1;
@@ -576,7 +622,7 @@ namespace SyncMeasure
                     {
                         Hands = new List<Hand> { hand1, hand2 },
                         Timestamp = timestamp,
-                        Id = fid1
+                        Id = fid1       
                     };
                     frames.Add(frame);
                 }
@@ -584,7 +630,7 @@ namespace SyncMeasure
                 if (ReportProgress(99, bgWorker, args)) return null;
                 _frames = frames;
                 RemoveFromR("dataset");
-                return new ResultStatus(true, errorMessage);
+                return new ResultStatus(true, "");
             }
             catch (Exception e)
             {
@@ -651,6 +697,70 @@ namespace SyncMeasure
             }
         }
 
+        /// <summary>
+        /// Combine two alone files.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="firstFrameId"></param>
+        /// <param name="secondFrameId"></param>
+        /// <returns></returns>
+        public ResultStatus CombineAloneFiles(string filePath, int firstFrameId, int secondFrameId)
+        {
+            var file1Exists = _engine.Evaluate("exists('file1')").AsLogical()[0];
+            var file2Exists = _engine.Evaluate("exists('file2')").AsLogical()[0];
+            if (!file1Exists || !file2Exists)
+            {
+                return new ResultStatus(false, @"Alone files are not loaded.");
+            }
+
+            try
+            {
+                /* Save reference to loaded files */
+                _engine.Evaluate("dt1 <- file1");
+                _engine.Evaluate("dt2 <- file2");
+
+                /* Filter initial Frame Ids by the user */
+                if (firstFrameId > 0)
+                {
+                    _engine.Evaluate("dt1 <- dt1[dt1$" + _colNames[Resources.FRAME_ID] + " >= " + firstFrameId + ",]");
+                }
+
+                if (secondFrameId > 0)
+                {
+                    _engine.Evaluate("dt2 <- dt2[dt2$" + _colNames[Resources.FRAME_ID] + " >= " + secondFrameId + ",]");
+                }
+
+                /* Make data frames same row size */
+                _engine.Evaluate("size <- min(nrow(dt1), nrow(dt2))");
+                var size = _engine.GetSymbol("size").AsInteger()[0];
+                if (size == 0)
+                {
+                    return new ResultStatus(false,
+                        "Failed to merge. A given file might be not 'Alone' or the initial frame id is invalid.");
+                }
+
+                /* Align rows */
+                _engine.Evaluate("dt1 <- dt1[1:" + size + ",]");
+                _engine.Evaluate("dt2 <- dt2[1:" + size + ",]");
+
+                /* Combine rows alternately */
+                _engine.Evaluate("combined <- rbind(dt1,dt2)[rep(seq_len(size),each=2)+c(0,size),]");
+
+                /* Update number of hands */
+                _engine.Evaluate("combined[, " + _colNames[Resources.HANDS_IN_FRAME] + ":= 2]");
+
+                /* Build frame ids */
+                _engine.Evaluate("for (i in 1:nrow(combined)) combined[i, Frame.. := i / 2 + i %% 2]");
+
+                filePath = filePath.Replace("\\", "/"); // fix for [R].
+                _engine.Evaluate("fwrite(combined, file=file.path('" + filePath + "'), sep=',', quote = F, verbose = F)");
+                return new ResultStatus(true, "");
+            }
+            catch (Exception e)
+            {
+                return new ResultStatus(false, @"Failed to save merged file:" + Environment.NewLine + e.Message);
+            }
+        }
 
         /************************************* USER SETTINGS ***************************************/
         public Dictionary<string, double> GetWeights()
@@ -824,6 +934,10 @@ namespace SyncMeasure
             else if (graphics == EGraphics.LINES)
             {
                 _graphic = "l";
+            }
+            else
+            {
+                _graphic = "b";
             }
         }
 

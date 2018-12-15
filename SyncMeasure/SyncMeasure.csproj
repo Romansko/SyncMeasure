@@ -161,6 +161,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Combiner.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Combiner.Designer.cs">
+      <DependentUpon>Combiner.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -200,6 +206,9 @@
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Combiner.resx">
+      <DependentUpon>Combiner.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ControlsForm.resx">
       <DependentUpon>ControlsForm.cs</DependentUpon>
     </EmbeddedResource>
