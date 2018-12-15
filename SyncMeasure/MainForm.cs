@@ -12,11 +12,16 @@ namespace SyncMeasure
     public partial class MainForm : Form
     {
         private readonly Handler _handler;
+        private readonly string _title;
+        private string _loadedFile;
+        private string _prevLoadedFile;
 
         public MainForm()
         {
             InitializeComponent();
             Text += @" - v" + Resources.VERSION;
+            _loadedFile = _prevLoadedFile = "";
+            _title = Text;
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
 
             /* BackgroundWorkers initialize */
@@ -156,22 +161,13 @@ namespace SyncMeasure
         }
 
         /// <summary>
-        /// main work for sync measure worker.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void MeasureBackgroundWorkerDoWork(object sender, DoWorkEventArgs e)
-        {
-            e.Result = _handler.MeasureSynchronization(measureBackgroundWorker, e);
-        }
-
-        /// <summary>
         /// Loading worker completed.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void loadingBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            Text = _title;  // main program title
             progGroupBox.Hide();
             menuStrip.Enabled = true;
             string msg;
@@ -192,17 +188,10 @@ namespace SyncMeasure
                     Clear();
                     sumGroupBox.Hide();
                     measureToolStripMenuItem.Enabled = true;
-                    if (string.IsNullOrEmpty(status.Message))
-                    {
-                        msg = @"File successfully loaded.";
-                        title = Resources.TITLE + @" - File loaded.";
-                        icon = MessageBoxIcon.Information;
-                    }
-                    else
-                    {
-                        title = Resources.TITLE + @" - File loaded.";
-                        icon = MessageBoxIcon.Warning;
-                    }
+                    msg = @"File successfully loaded.";
+                    title = Resources.TITLE + @" - File loaded.";
+                    icon = MessageBoxIcon.Information;
+                    _prevLoadedFile = _loadedFile;
                     if (measureOnLoad.Checked)
                     {
                         MeasureSync();
@@ -215,7 +204,31 @@ namespace SyncMeasure
                     title = Resources.TITLE + @" - File loading failed.";
                 }
             }
+            if (!string.IsNullOrEmpty(_prevLoadedFile))
+                Text += @" - Loaded file: " + _prevLoadedFile;
             MessageBox.Show(this, msg, title, MessageBoxButtons.OK, icon);
+        }
+
+        private void LoadFile(string filePath)
+        {
+            if (loadingBackgroundWorker.IsBusy || measureBackgroundWorker.IsBusy) return;
+            menuStrip.Enabled = false;
+            circularProgressBar.Text = @"Loading.." + Environment.NewLine + @"0%";
+            cancelButton.Enabled = true;
+            progGroupBox.Show();
+            _prevLoadedFile = _loadedFile;
+            _loadedFile = Path.GetFileNameWithoutExtension(filePath);
+            loadingBackgroundWorker.RunWorkerAsync(filePath);
+        }
+
+        /// <summary>
+        /// main work for sync measure worker.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MeasureBackgroundWorkerDoWork(object sender, DoWorkEventArgs e)
+        {
+            e.Result = _handler.MeasureSynchronization(measureBackgroundWorker, e);
         }
 
         /// <summary>
@@ -295,16 +308,6 @@ namespace SyncMeasure
                 MessageBox.Show(this, status.Message, Resources.TITLE + @" - sync measurement failed.",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void LoadFile(string filePath)
-        {
-            if (loadingBackgroundWorker.IsBusy || measureBackgroundWorker.IsBusy) return;
-            menuStrip.Enabled = false;
-            circularProgressBar.Text = @"Loading.." + Environment.NewLine + @"0%";
-            cancelButton.Enabled = true;
-            progGroupBox.Show();
-            loadingBackgroundWorker.RunWorkerAsync(filePath);
         }
 
         /// <summary>
