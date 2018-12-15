@@ -317,6 +317,7 @@ namespace SyncMeasure
         {
             if (measureBackgroundWorker.IsBusy || loadingBackgroundWorker.IsBusy) return;
             Clear();
+            sumGroupBox.Hide();
             menuStrip.Enabled = false;
             graphicsGB.Enabled = false;
             circularProgressBar.Text = @"Measuring" + Environment.NewLine + @"0%";
