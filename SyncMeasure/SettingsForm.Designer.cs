@@ -33,12 +33,12 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             this.dataGridView = new System.Windows.Forms.DataGridView();
-            this.applyButton = new System.Windows.Forms.Button();
-            this.cancelButton = new System.Windows.Forms.Button();
-            this.defaults = new System.Windows.Forms.Button();
             this.key = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Enabled = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.applyButton = new System.Windows.Forms.Button();
+            this.cancelButton = new System.Windows.Forms.Button();
+            this.defaultsButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -67,39 +67,6 @@
             this.dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentClick);
             this.dataGridView.CellParsing += new System.Windows.Forms.DataGridViewCellParsingEventHandler(this.dataGridView_CellParsing);
             this.dataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellValueChanged);
-            // 
-            // applyButton
-            // 
-            this.applyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.applyButton.Location = new System.Drawing.Point(12, 234);
-            this.applyButton.Name = "applyButton";
-            this.applyButton.Size = new System.Drawing.Size(75, 35);
-            this.applyButton.TabIndex = 1;
-            this.applyButton.Text = "Apply";
-            this.applyButton.UseVisualStyleBackColor = true;
-            this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
-            // 
-            // cancelButton
-            // 
-            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cancelButton.Location = new System.Drawing.Point(205, 234);
-            this.cancelButton.Name = "cancelButton";
-            this.cancelButton.Size = new System.Drawing.Size(75, 35);
-            this.cancelButton.TabIndex = 2;
-            this.cancelButton.Text = "Cancel";
-            this.cancelButton.UseVisualStyleBackColor = true;
-            // 
-            // defaults
-            // 
-            this.defaults.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.defaults.Location = new System.Drawing.Point(109, 234);
-            this.defaults.Name = "defaults";
-            this.defaults.Size = new System.Drawing.Size(75, 35);
-            this.defaults.TabIndex = 3;
-            this.defaults.Text = "Set Defaults";
-            this.defaults.UseVisualStyleBackColor = true;
-            this.defaults.Click += new System.EventHandler(this.defaults_Click);
             // 
             // key
             // 
@@ -141,6 +108,39 @@
             this.Enabled.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.Enabled.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
+            // applyButton
+            // 
+            this.applyButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.applyButton.Location = new System.Drawing.Point(12, 234);
+            this.applyButton.Name = "applyButton";
+            this.applyButton.Size = new System.Drawing.Size(75, 35);
+            this.applyButton.TabIndex = 1;
+            this.applyButton.Text = "Apply";
+            this.applyButton.UseVisualStyleBackColor = true;
+            this.applyButton.Click += new System.EventHandler(this.applyButton_Click);
+            // 
+            // cancelButton
+            // 
+            this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.cancelButton.Location = new System.Drawing.Point(205, 234);
+            this.cancelButton.Name = "cancelButton";
+            this.cancelButton.Size = new System.Drawing.Size(75, 35);
+            this.cancelButton.TabIndex = 2;
+            this.cancelButton.Text = "Cancel";
+            this.cancelButton.UseVisualStyleBackColor = true;
+            // 
+            // defaultsButton
+            // 
+            this.defaultsButton.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.defaultsButton.Location = new System.Drawing.Point(109, 234);
+            this.defaultsButton.Name = "defaultsButton";
+            this.defaultsButton.Size = new System.Drawing.Size(75, 35);
+            this.defaultsButton.TabIndex = 3;
+            this.defaultsButton.Text = "Set Defaults";
+            this.defaultsButton.UseVisualStyleBackColor = true;
+            this.defaultsButton.Click += new System.EventHandler(this.defaultsButton_Click);
+            // 
             // SettingsForm
             // 
             this.AcceptButton = this.applyButton;
@@ -148,7 +148,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(292, 281);
-            this.Controls.Add(this.defaults);
+            this.Controls.Add(this.defaultsButton);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.applyButton);
             this.Controls.Add(this.dataGridView);
@@ -170,7 +170,7 @@
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.Button applyButton;
         private System.Windows.Forms.Button cancelButton;
-        private System.Windows.Forms.Button defaults;
+        private System.Windows.Forms.Button defaultsButton;
         private System.Windows.Forms.DataGridViewTextBoxColumn key;
         private System.Windows.Forms.DataGridViewTextBoxColumn Value;
         private new System.Windows.Forms.DataGridViewTextBoxColumn Enabled;

@@ -396,7 +396,12 @@ namespace SyncMeasure
 
         private void weightsColNamesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new SettingsForm(_handler)).ShowDialog();
+            (new SettingsForm(_handler, SettingsForm.ESettings.WEIGHTS)).ShowDialog();
+        }
+
+        private void cSVFileColumnNamesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            (new SettingsForm(_handler, SettingsForm.ESettings.NAMES)).ShowDialog();
         }
 
         private void cVVMethodToolStripMenuItem_Click(object sender, EventArgs e)
@@ -435,6 +440,7 @@ namespace SyncMeasure
         {
             (new Combiner(_handler)).ShowDialog();
         }
+
     }
 }
 

@@ -81,9 +81,10 @@
             this.handsCvvText = new System.Windows.Forms.Label();
             this.measureOnLoad = new System.Windows.Forms.CheckBox();
             this.graphicsGB = new System.Windows.Forms.GroupBox();
+            this.bothRB = new System.Windows.Forms.RadioButton();
             this.linesRB = new System.Windows.Forms.RadioButton();
             this.pointsRB = new System.Windows.Forms.RadioButton();
-            this.bothRB = new System.Windows.Forms.RadioButton();
+            this.cSVFileColumnNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.progGroupBox.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -198,7 +199,8 @@
             this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cVVMethodToolStripMenuItem,
             this.toolStripSeparator2,
-            this.weightsColNamesToolStripMenuItem});
+            this.weightsColNamesToolStripMenuItem,
+            this.cSVFileColumnNamesToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(70, 23);
@@ -208,20 +210,20 @@
             // cVVMethodToolStripMenuItem
             // 
             this.cVVMethodToolStripMenuItem.Name = "cVVMethodToolStripMenuItem";
-            this.cVVMethodToolStripMenuItem.Size = new System.Drawing.Size(200, 24);
+            this.cVVMethodToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
             this.cVVMethodToolStripMenuItem.Text = "CVV Method";
             this.cVVMethodToolStripMenuItem.Click += new System.EventHandler(this.cVVMethodToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(197, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(217, 6);
             // 
             // weightsColNamesToolStripMenuItem
             // 
             this.weightsColNamesToolStripMenuItem.Name = "weightsColNamesToolStripMenuItem";
-            this.weightsColNamesToolStripMenuItem.Size = new System.Drawing.Size(200, 24);
-            this.weightsColNamesToolStripMenuItem.Text = "Weights and Names";
+            this.weightsColNamesToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
+            this.weightsColNamesToolStripMenuItem.Text = "Sync Weights";
             this.weightsColNamesToolStripMenuItem.Click += new System.EventHandler(this.weightsColNamesToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
@@ -343,7 +345,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(487, 465);
+            this.tabPage2.Size = new System.Drawing.Size(468, 456);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Hands CVV";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -354,7 +356,7 @@
             this.handGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.handGraphBox.Location = new System.Drawing.Point(3, 3);
             this.handGraphBox.Name = "handGraphBox";
-            this.handGraphBox.Size = new System.Drawing.Size(481, 459);
+            this.handGraphBox.Size = new System.Drawing.Size(462, 450);
             this.handGraphBox.TabIndex = 6;
             this.handGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -363,7 +365,7 @@
             this.tabPage3.Controls.Add(this.armGraphBox);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(487, 465);
+            this.tabPage3.Size = new System.Drawing.Size(468, 456);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Arm CVV";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -374,7 +376,7 @@
             this.armGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.armGraphBox.Location = new System.Drawing.Point(0, 0);
             this.armGraphBox.Name = "armGraphBox";
-            this.armGraphBox.Size = new System.Drawing.Size(487, 465);
+            this.armGraphBox.Size = new System.Drawing.Size(468, 456);
             this.armGraphBox.TabIndex = 7;
             this.armGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -383,7 +385,7 @@
             this.tabPage4.Controls.Add(this.elbowGraphBox);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(487, 465);
+            this.tabPage4.Size = new System.Drawing.Size(468, 456);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Elbow CVV";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -394,7 +396,7 @@
             this.elbowGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elbowGraphBox.Location = new System.Drawing.Point(0, 0);
             this.elbowGraphBox.Name = "elbowGraphBox";
-            this.elbowGraphBox.Size = new System.Drawing.Size(487, 465);
+            this.elbowGraphBox.Size = new System.Drawing.Size(468, 456);
             this.elbowGraphBox.TabIndex = 7;
             this.elbowGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -404,7 +406,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(487, 465);
+            this.tabPage5.Size = new System.Drawing.Size(468, 456);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Grab Strength";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -415,7 +417,7 @@
             this.grabStrBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grabStrBox.Location = new System.Drawing.Point(3, 3);
             this.grabStrBox.Name = "grabStrBox";
-            this.grabStrBox.Size = new System.Drawing.Size(481, 459);
+            this.grabStrBox.Size = new System.Drawing.Size(462, 450);
             this.grabStrBox.TabIndex = 8;
             this.grabStrBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -425,7 +427,7 @@
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage6.Size = new System.Drawing.Size(487, 465);
+            this.tabPage6.Size = new System.Drawing.Size(468, 456);
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "Pinch Strength";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -436,7 +438,7 @@
             this.pinchStrBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pinchStrBox.Location = new System.Drawing.Point(3, 3);
             this.pinchStrBox.Name = "pinchStrBox";
-            this.pinchStrBox.Size = new System.Drawing.Size(481, 459);
+            this.pinchStrBox.Size = new System.Drawing.Size(462, 450);
             this.pinchStrBox.TabIndex = 8;
             this.pinchStrBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -604,6 +606,22 @@
             this.graphicsGB.TabStop = false;
             this.graphicsGB.Text = "Graph Graphics";
             // 
+            // bothRB
+            // 
+            this.bothRB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.bothRB.AutoSize = true;
+            this.bothRB.Checked = true;
+            this.bothRB.Location = new System.Drawing.Point(74, 19);
+            this.bothRB.Name = "bothRB";
+            this.bothRB.Size = new System.Drawing.Size(47, 17);
+            this.bothRB.TabIndex = 2;
+            this.bothRB.TabStop = true;
+            this.bothRB.Text = "Both";
+            this.bothRB.UseVisualStyleBackColor = true;
+            this.bothRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
+            // 
             // linesRB
             // 
             this.linesRB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -630,20 +648,12 @@
             this.pointsRB.UseVisualStyleBackColor = true;
             this.pointsRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
             // 
-            // bothRB
+            // cSVFileColumnNamesToolStripMenuItem
             // 
-            this.bothRB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.bothRB.AutoSize = true;
-            this.bothRB.Checked = true;
-            this.bothRB.Location = new System.Drawing.Point(74, 19);
-            this.bothRB.Name = "bothRB";
-            this.bothRB.Size = new System.Drawing.Size(47, 17);
-            this.bothRB.TabIndex = 2;
-            this.bothRB.Text = "Both";
-            this.bothRB.UseVisualStyleBackColor = true;
-            this.bothRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
+            this.cSVFileColumnNamesToolStripMenuItem.Name = "cSVFileColumnNamesToolStripMenuItem";
+            this.cSVFileColumnNamesToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
+            this.cSVFileColumnNamesToolStripMenuItem.Text = "CSV File column names";
+            this.cSVFileColumnNamesToolStripMenuItem.Click += new System.EventHandler(this.cSVFileColumnNamesToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -744,6 +754,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripMenuItem combineToolStripMenuItem;
         private System.Windows.Forms.RadioButton bothRB;
+        private System.Windows.Forms.ToolStripMenuItem cSVFileColumnNamesToolStripMenuItem;
     }
 }
 

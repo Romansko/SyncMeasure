@@ -10,12 +10,30 @@ namespace SyncMeasure
 {
     public partial class SettingsForm : Form
     {
+        public enum ESettings
+        {
+            WEIGHTS,
+            NAMES
+        }
+
         private readonly Handler _handler;
-        public SettingsForm(Handler handler)
+        private readonly ESettings _settings;
+        
+        public SettingsForm(Handler handler, ESettings settings)
         {
             InitializeComponent();
-            Text = Resources.TITLE + @" - Settings";
+            Text = Resources.TITLE;
+            if (settings.Equals(ESettings.NAMES))
+            {
+                Text += @" - CSV File column names. (R Format).";
+            }
+            else
+            {
+                Text += @" - Sync Weights";
+            }
             _handler = handler;
+            _settings = settings;
+            defaultsButton.Visible = settings.Equals(ESettings.NAMES);
             LoadSettings();
         }
 
@@ -25,39 +43,46 @@ namespace SyncMeasure
         private void LoadSettings()
         {
             dataGridView.Rows.Clear();
-            var weights = _handler.GetWeights();
+
+            /* Build Header Row */
             dataGridView.Rows.Add();
             var row = dataGridView.Rows[0];
-            row.Cells[0].Value = @"Weight Name";
-            row.Cells[1].Value = @"Weight Value";
-            row.Cells[2].Value = @"Enabled";
             row.ReadOnly = true;
             row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = row.Cells[2].Style.BackColor = Color.Gray;
             row.Cells[1].Style.SelectionForeColor = Color.Black;
             row.Cells[0].Style.SelectionBackColor = row.Cells[1].Style.SelectionBackColor = row.Cells[2].Style.SelectionBackColor = Color.Gray;
-            foreach (var w in weights)
+
+            if (_settings.Equals(ESettings.NAMES))
             {
-                dataGridView.Rows.Add(w.Key, w.Value.ToString(CultureInfo.CurrentCulture));
-                row = dataGridView.Rows[dataGridView.Rows.Count - 1];
-                row.Cells[2] = new DataGridViewCheckBoxCell { Value = !row.Cells[1].Value.Equals("0") };
-                HandleWeightRow(row);     
+                var colNames = _handler.GetColNames();        
+                row.Cells[0].Value = @"Column Name";
+                row.Cells[1].Value = @"Column R Name";
+
+                foreach (var n in colNames)
+                {
+                    dataGridView.Rows.Add(n.Key, n.Value);
+                    var thisRow = dataGridView.Rows[dataGridView.Rows.Count - 1];
+                    thisRow.Cells[0].Style.BackColor = Color.AliceBlue;
+                    thisRow.Cells[2].ReadOnly = true;
+                }
             }
-            var colNames = _handler.GetColNames();
-            dataGridView.Rows.Add();
-            row = dataGridView.Rows[dataGridView.Rows.Count - 1];
-            row.Cells[0].Value = @"Column Name";
-            row.Cells[1].Value = @"Column R Name";
-            row.ReadOnly = true;
-            row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = row.Cells[2].Style.BackColor = Color.Gray;
-            row.Cells[1].Style.SelectionForeColor = Color.Black;
-            row.Cells[0].Style.SelectionBackColor = row.Cells[1].Style.SelectionBackColor = row.Cells[2].Style.SelectionBackColor = Color.Gray;
-            foreach (var n in colNames)
+            else    // Weights
             {
-                dataGridView.Rows.Add(n.Key, n.Value);
-                var thisRow = dataGridView.Rows[dataGridView.Rows.Count - 1];
-                thisRow.Cells[0].Style.BackColor = Color.AliceBlue;
-                thisRow.Cells[2].ReadOnly = true;
+                var weights = _handler.GetWeights();
+                row.Cells[0].Value = @"Weight Name";
+                row.Cells[1].Value = @"Weight Value";
+                row.Cells[2].Value = @"Enabled";               
+
+                foreach (var w in weights)
+                {
+                    dataGridView.Rows.Add(w.Key, w.Value.ToString(CultureInfo.CurrentCulture));
+                    row = dataGridView.Rows[dataGridView.Rows.Count - 1];
+                    row.Cells[2] = new DataGridViewCheckBoxCell { Value = !row.Cells[1].Value.Equals("0") };
+                    HandleWeightRow(row);
+                }
             }
+
+
         }
 
         public sealed override string Text
@@ -73,28 +98,35 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void applyButton_Click(object sender, EventArgs e)
         {
-            var colNames = _handler.GetColNames().Keys.ToList();
-            foreach (var col in colNames)
+            if (_settings.Equals(ESettings.NAMES))
             {
-                var colValue = GetColName(col);
-                if (!_handler.SetColName(col, colValue))
+                var colNames = _handler.GetColNames().Keys.ToList();
+                foreach (var col in colNames)
                 {
-                    MessageBox.Show(this, @"Failed changing column name.", Resources.TITLE + @" - Column name changing failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var colValue = GetColName(col);
+                    if (!_handler.SetColName(col, colValue))
+                    {
+                        MessageBox.Show(this, @"Failed changing column name.", Resources.TITLE + @" - Column name changing failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+            }
+            else    // Weights
+            {
+                var arm = GetWeightValue(Resources.ARM);
+                var elbow = GetWeightValue(Resources.ELBOW);
+                var hand = GetWeightValue(Resources.HAND);
+                var grab = GetWeightValue(Resources.GRAB);
+                var pinch = GetWeightValue(Resources.PINCH);
+                var gesture = GetWeightValue(Resources.GESTURE);
+
+                if (!_handler.SetWeight(arm, elbow, hand, grab, pinch, out var errMsg))
+                {
+                    MessageBox.Show(this, errMsg, Resources.TITLE + @" - Weight setting failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
-            var arm = GetWeightValue(Resources.ARM);
-            var elbow = GetWeightValue(Resources.ELBOW);
-            var hand = GetWeightValue(Resources.HAND);
-            var grab = GetWeightValue(Resources.GRAB);
-            var pinch = GetWeightValue(Resources.PINCH);
-            var gesture = GetWeightValue(Resources.GESTURE);
 
-            if (!_handler.SetWeight(arm, elbow, hand, grab, pinch, out var errMsg))
-            {
-                MessageBox.Show(this, errMsg, Resources.TITLE + @" - Weight setting failed.", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
             _handler.SaveUserSettings();
             Close();
         }
@@ -152,21 +184,20 @@ namespace SyncMeasure
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void defaults_Click(object sender, EventArgs e)
+        private void defaultsButton_Click(object sender, EventArgs e)
         {
-            var msg = @"Set New Format Defaults?" + Environment.NewLine + @"Yes for New format. No for old format.";
+            var msg = @"Set New Format Column Names?" + Environment.NewLine + @"Yes for New format. No for old format.";
             var res = MessageBox.Show(this, msg, @"Set Defaults", MessageBoxButtons.YesNoCancel,
                 MessageBoxIcon.Question);
             if (res.Equals(DialogResult.Yes))
             {
                 _handler.SetNewFormatDefaults();
-                LoadSettings();
             }
             else if (res.Equals(DialogResult.No))
             {
                 _handler.SetOldFormatDefaults();
-                LoadSettings();
             }
+            LoadSettings();
         }
 
         /// <summary>
@@ -225,8 +256,9 @@ namespace SyncMeasure
             if (e.ColumnIndex != 2 || e.RowIndex < 0 || !(sender is DataGridView))
                 return;
 
-            DataGridView dgv = (DataGridView) sender;
-            HandleWeightRow(dgv.Rows[e.RowIndex]);  
+            var dgv = (DataGridView) sender;
+            if (_settings.Equals(ESettings.WEIGHTS))
+                HandleWeightRow(dgv.Rows[e.RowIndex]);
         }
 
         /// <summary>

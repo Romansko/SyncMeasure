@@ -95,6 +95,7 @@ namespace SyncMeasure
             };
             _cvvMethod = ECvv.CVV;
             _graphic = "b";
+            SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             SetNewFormatDefaults();
             LoadUserSettings();
         }
@@ -862,7 +863,6 @@ namespace SyncMeasure
         /// </summary>
         public void SetOldFormatDefaults()
         {
-            SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             _format = EFormat.OLD;
             AmendColumnsByFormat();
 
@@ -896,7 +896,6 @@ namespace SyncMeasure
         /// </summary>
         public void SetNewFormatDefaults()
         {
-            SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             _format = EFormat.NEW;
             AmendColumnsByFormat();
 

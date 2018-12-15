@@ -58,6 +58,7 @@ namespace SyncMeasure
         private void LoadFile(Label label, string filePath, string fileName)
         {
             label.Text = Path.GetFileNameWithoutExtension(filePath);
+            toolTip.SetToolTip(label, label.Text);
             var res = _handler.LoadAloneFileToR(fileName, filePath);
             if (!res.Status)
             {
