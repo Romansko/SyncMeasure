@@ -22,14 +22,13 @@ namespace SyncMeasure
         public SettingsForm(Handler handler, ESettings settings)
         {
             InitializeComponent();
-            Text = Resources.TITLE;
             if (settings.Equals(ESettings.NAMES))
             {
-                Text += @" - CSV File column names. (R Format).";
+                Text = @"CSV File column names. (R Format).";
             }
             else
             {
-                Text += @" - Sync Weights";
+                Text = @"Sync Weights";
             }
             _handler = handler;
             _settings = settings;
