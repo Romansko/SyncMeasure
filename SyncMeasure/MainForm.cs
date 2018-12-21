@@ -156,7 +156,7 @@ namespace SyncMeasure
             if (sender is BackgroundWorker worker)
             {
                 var filePath = (string) e.Argument;
-                e.Result = _handler.LoadLeapMotionOutputFile(filePath, worker, e);
+                e.Result = _handler.LoadCsvFile(filePath, worker, e);
             }
         }
 

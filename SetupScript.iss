@@ -34,8 +34,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "D:\Projects\SyncMeasure\SyncMeasure\bin\x86\Release\SyncMeasure.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\SyncMeasure\resources\x86\LeapC.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\SyncMeasure\resources\LeapCSharp.NET4.5.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Projects\SyncMeasure\SyncMeasure\resources\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Projects\SyncMeasure\packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\CircularProgressBar.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\Projects\SyncMeasure\packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\WinFormAnimation.dll"; DestDir: "{app}"; Flags: ignoreversion

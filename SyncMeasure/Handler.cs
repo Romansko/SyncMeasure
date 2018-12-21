@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Leap;
 using RDotNet;
 using SyncMeasure.Properties;
 
@@ -254,20 +253,20 @@ namespace SyncMeasure
 
                 foreach (var frame in _frames)
                 {
-                    timestamps.Add((int) frame.Timestamp);
+                    timestamps.Add(frame.Timestamp);
                     for (var i = 0; i < 2; ++i) // do for both hands.
                     {
-                        armsPos[i][0].Add(frame.Hands[i].Arm.Center.x);
-                        armsPos[i][1].Add(frame.Hands[i].Arm.Center.y);
-                        armsPos[i][2].Add(frame.Hands[i].Arm.Center.z);
+                        armsPos[i][0].Add(frame.Hands[i].ArmPosition.X);
+                        armsPos[i][1].Add(frame.Hands[i].ArmPosition.Y);
+                        armsPos[i][2].Add(frame.Hands[i].ArmPosition.Z);
 
-                        elbowsPos[i][0].Add(frame.Hands[i].Arm.ElbowPosition.x);
-                        elbowsPos[i][1].Add(frame.Hands[i].Arm.ElbowPosition.y);
-                        elbowsPos[i][2].Add(frame.Hands[i].Arm.ElbowPosition.z);
+                        elbowsPos[i][0].Add(frame.Hands[i].ElbowPosition.X);
+                        elbowsPos[i][1].Add(frame.Hands[i].ElbowPosition.Y);
+                        elbowsPos[i][2].Add(frame.Hands[i].ElbowPosition.Z);
 
-                        handsPos[i][0].Add(frame.Hands[i].Arm.WristPosition.x);
-                        handsPos[i][1].Add(frame.Hands[i].Arm.WristPosition.y);
-                        handsPos[i][2].Add(frame.Hands[i].Arm.WristPosition.z);
+                        handsPos[i][0].Add(frame.Hands[i].Position.X);
+                        handsPos[i][1].Add(frame.Hands[i].Position.Y);
+                        handsPos[i][2].Add(frame.Hands[i].Position.Z);
 
                         grabStrength[i].Add(frame.Hands[i].GrabStrength);
                         pinchStrength[i].Add(frame.Hands[i].PinchStrength);
@@ -507,13 +506,13 @@ namespace SyncMeasure
         }
 
         /// <summary>
-        /// Parse leapmotion output file.
+        /// Parse csv output file.
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="bgWorker"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public ResultStatus LoadLeapMotionOutputFile(string filePath, BackgroundWorker bgWorker, DoWorkEventArgs args)
+        public ResultStatus LoadCsvFile(string filePath, BackgroundWorker bgWorker, DoWorkEventArgs args)
         {
             var resultStatus = LoadFileToR("dataset", filePath);
             if (!resultStatus.Status) return resultStatus;      // if loading to R failed.
@@ -540,8 +539,8 @@ namespace SyncMeasure
                 }
 
                 var frames = new List<Frame>();
-                var firstHandId = -1;
-                var secondHandId = -1;
+                int firstHandId = -1;
+                int secondHandId = -1;
                 for (var i = 0; i < dataFrame.RowCount - 1; i = i + 2)
                 {
                     var percent = (double) i / dataFrame.RowCount * 100;
@@ -619,12 +618,7 @@ namespace SyncMeasure
                         timestamp = ts1 + diff / 2;
                     }
 
-                    var frame = new Frame
-                    {
-                        Hands = new List<Hand> { hand1, hand2 },
-                        Timestamp = timestamp,
-                        Id = fid1       
-                    };
+                    var frame = new Frame(fid1, new List<Hand> {hand1, hand2}, timestamp);
                     frames.Add(frame);
                 }
 
@@ -653,41 +647,41 @@ namespace SyncMeasure
                 var hand = new Hand
                 {
                     FrameId = (int) dataFrame[index, _colNames[Resources.FRAME_ID]],
-                    PinchStrength = (float) (double) dataFrame[index, _colNames[Resources.PINCH_STRENGTH]],
-                    GrabStrength = (float) (double) dataFrame[index, _colNames[Resources.GRAB_STRENGTH]],
+                    PinchStrength = (double) dataFrame[index, _colNames[Resources.PINCH_STRENGTH]],
+                    GrabStrength = (double) dataFrame[index, _colNames[Resources.GRAB_STRENGTH]],
                     IsLeft = dataFrame[index, _colNames[Resources.HAND_TYPE]].ToString().ToLower().Contains("left")
                 };
 
-                if (_format.Equals(EFormat.NEW))
+                switch (_format)
                 {
-                    hand.Id = hand.IsLeft ? 0 : 1;
-                }
-                else if (_format.Equals(EFormat.OLD))
-                {
-                    hand.Id = (int)dataFrame[index, _colNames[Resources.HAND_ID]];
+                    case EFormat.NEW:
+                        hand.Id = hand.IsLeft ? 0 : 1;
+                        break;
+                    case EFormat.OLD:
+                        hand.Id = (int) dataFrame[index, _colNames[Resources.HAND_ID]];
+                        break;
                 }
 
-                float x, y, z;
-                // unbox double and cast to float.
-                x = (float) (double) dataFrame[index, _colNames[Resources.ELBOW_POS_X]];
-                y = (float) (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Y]];
-                z = (float) (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Z]];
+                double x, y, z;
+                x = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_X]];
+                y = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Y]];
+                z = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Z]];
                 var elbowPos = new Vector(x, y, z);
 
-                // unbox double and cast to float.
-                x = (float) (double) dataFrame[index, _colNames[Resources.ARM_POS_X]];
-                y = (float) (double) dataFrame[index, _colNames[Resources.ARM_POS_Y]];
-                z = (float) (double) dataFrame[index, _colNames[Resources.ARM_POS_Z]];
+                x = (double) dataFrame[index, _colNames[Resources.ARM_POS_X]];
+                y = (double) dataFrame[index, _colNames[Resources.ARM_POS_Y]];
+                z = (double) dataFrame[index, _colNames[Resources.ARM_POS_Z]];
                 var armPos = new Vector(x, y, z);
 
-                // unbox double and cast to float.
-                x = (float) (double) dataFrame[index, _colNames[Resources.HAND_POS_X]];
-                y = (float) (double) dataFrame[index, _colNames[Resources.HAND_POS_Y]];
-                z = (float) (double) dataFrame[index, _colNames[Resources.HAND_POS_Z]];
+                x = (double) dataFrame[index, _colNames[Resources.HAND_POS_X]];
+                y = (double) dataFrame[index, _colNames[Resources.HAND_POS_Y]];
+                z = (double) dataFrame[index, _colNames[Resources.HAND_POS_Z]];
                 var handPos = new Vector(x, y, z);
 
-                var dummy = new Vector();
-                hand.Arm = new Arm(elbowPos, handPos, armPos, dummy, 0, 0, LeapQuaternion.Identity);
+                hand.ElbowPosition = elbowPos;
+                hand.Position = handPos;
+                hand.ArmPosition = armPos;
+
                 errMsg = "";
                 return hand;
             }
