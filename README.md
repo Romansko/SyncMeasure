@@ -34,8 +34,6 @@ install.packages("data.table")
 
 **Packages & DLLs used**
 
-- [LeapMotion SDK](https://developer.leapmotion.com/get-started/). LeapCSharp v4.5, LeapC.dll v4.
-
 - [R.NET](https://www.nuget.org/packages/R.NET/) for integrating R language in .NET enviorment.
 
 - [CVV package](https://github.com/reissphil/cvv) for computing cosine of velocity vectors (CVV), a measure of synchrony for 3D motion in dyads.
