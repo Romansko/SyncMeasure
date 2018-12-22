@@ -32,7 +32,7 @@ install.packages("data.table")
 
 ===============================================================================
 
-**Packages & DLLs used**
+**Packages used**
 
 - [R.NET](https://www.nuget.org/packages/R.NET/) for integrating R language in .NET enviorment.
 
