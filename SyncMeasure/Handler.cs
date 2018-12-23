@@ -276,12 +276,12 @@ namespace SyncMeasure
                 }
                 
                 _engine.SetSymbol("timestamps", _engine.CreateIntegerVector(timestamps));
-                /* Lagged TS to be used with cvv functions after build */
                 _engine.Evaluate("minTime <- timestamps[1]");
                 _engine.Evaluate("maxTime <- timestamps[length(timestamps)]");
-                _engine.Evaluate("laggedTs <- timestamps + " + _timeLag);
-                _engine.Evaluate("laggedTs <- replace(laggedTs, laggedTs < minTime, minTime)");
-                _engine.Evaluate("laggedTs <- replace(laggedTs, laggedTs > maxTime, maxTime)");
+                _engine.Evaluate("laggedTs <- timestamps + " + _timeLag);           // to be used with grab/pinch
+                _engine.Evaluate("laggedTs <- replace(laggedTs, laggedTs < minTime, NA)");
+                _engine.Evaluate("laggedTs <- replace(laggedTs, laggedTs > maxTime, NA)");
+                _engine.Evaluate("omittedTs <- as.integer(na.omit(laggedTs))");     // to be used with cvv
                 RemoveFromR("minTime", "maxTime");
 
                 for (var i = 0; i < 2; ++i)     // for both hands.
@@ -302,9 +302,9 @@ namespace SyncMeasure
                     _engine.SetSymbol("pinch" + i, _engine.CreateNumericVector(pinchStrength[i]));
                 }
 
-                // ToDo: Filter 0 value?
-                _engine.Evaluate("grab <- 1-abs(grab1 - grab0)");
-                _engine.Evaluate("pinch <- 1-abs(pinch1 - pinch0)");
+                /* Build grab and pinch */
+                _engine.Evaluate("grab <- 1 - abs(grab1 - grab0)");
+                _engine.Evaluate("pinch <- 1 - abs(pinch1 - pinch0)");
 
                 if (ReportProgress(20, bgWorker, args)) return null;
 
@@ -336,9 +336,9 @@ namespace SyncMeasure
 
                 if (ReportProgress(80, bgWorker, args)) return null;
 
-                _engine.Evaluate("hcvv <- hand.cvv(laggedTs)");
-                _engine.Evaluate("acvv <- arm.cvv(laggedTs)");
-                _engine.Evaluate("ecvv <- elbow.cvv(laggedTs)");
+                _engine.Evaluate("hcvv <- hand.cvv(omittedTs)");
+                _engine.Evaluate("acvv <- arm.cvv(omittedTs)");
+                _engine.Evaluate("ecvv <- elbow.cvv(omittedTs)");
                 if (_cvvMethod == ECvv.ABS_CVV)
                 {
                     _engine.Evaluate("hcvv <- abs(hcvv)");
@@ -379,7 +379,7 @@ namespace SyncMeasure
 
                 /* Plot all cvv in one graph */
                 var allGraph = Path.GetFullPath(Resources.ALL_GRAPH).Replace("\\", "/");
-                _engine.SetSymbol("allGraph", _engine.CreateCharacterVector(new[] { allGraph }));
+                _engine.SetSymbol("allGraph", _engine.CreateCharacterVector(new[] {allGraph}));
                 _engine.Evaluate("png(filename=allGraph)");
                 _engine.Evaluate("plot(x = laggedTs, y = weighted, type = '" + _graphic + "', main = 'Average', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'Avg'," + ylim + ", pch = 20)");
@@ -387,31 +387,31 @@ namespace SyncMeasure
 
                 /* Plot hand cvv */
                 var handsGraph = Path.GetFullPath(Resources.HAND_CVV_GRAPH).Replace("\\", "/");
-                _engine.SetSymbol("handsGraph", _engine.CreateCharacterVector(new[] { handsGraph }));
+                _engine.SetSymbol("handsGraph", _engine.CreateCharacterVector(new[] {handsGraph}));
                 _engine.Evaluate("png(filename=handsGraph)");
-                _engine.Evaluate("plot(x = laggedTs, y = hcvv, type = '" + _graphic + "', main = 'Hands cvv = f(Timestamp)', " +
+                _engine.Evaluate("plot(x = omittedTs, y = hcvv, type = '" + _graphic + "', main = 'Hands cvv = f(Timestamp)', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'hands cvv', col = 'red'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot arm cvv */
                 var armsGraph = Path.GetFullPath(Resources.ARM_CVV_GRAPH).Replace("\\", "/");
-                _engine.SetSymbol("armsGraph", _engine.CreateCharacterVector(new[] { armsGraph }));
+                _engine.SetSymbol("armsGraph", _engine.CreateCharacterVector(new[] {armsGraph}));
                 _engine.Evaluate("png(filename=armsGraph)");
-                _engine.Evaluate("plot(x = laggedTs, y = acvv, type = '" + _graphic + "', main = 'arm cvv = f(Timestamp)', " +
+                _engine.Evaluate("plot(x = omittedTs, y = acvv, type = '" + _graphic + "', main = 'arm cvv = f(Timestamp)', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'arms cvv', col = 'green'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot elbow cvv */
                 var elbowGraph = Path.GetFullPath(Resources.ELBOW_CVV_GRAPH).Replace("\\", "/");
-                _engine.SetSymbol("elbowsGraph", _engine.CreateCharacterVector(new[] { elbowGraph }));
+                _engine.SetSymbol("elbowsGraph", _engine.CreateCharacterVector(new[] {elbowGraph}));
                 _engine.Evaluate("png(filename=elbowsGraph)");
-                _engine.Evaluate("plot(x = laggedTs, y = ecvv, type = '" + _graphic +   "', main = 'elbow cvv = f(Timestamp)', " +
+                _engine.Evaluate("plot(x = omittedTs, y = ecvv, type = '" + _graphic +   "', main = 'elbow cvv = f(Timestamp)', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'elbows cvv', col = 'blue'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
                 /* Plot Grab Strength */
                 var grabGraph = Path.GetFullPath(Resources.GRAB_GRAPH).Replace("\\", "/");
-                _engine.SetSymbol("grabGraph", _engine.CreateCharacterVector(new[] {grabGraph }));
+                _engine.SetSymbol("grabGraph", _engine.CreateCharacterVector(new[] {grabGraph}));
                 _engine.Evaluate("png(filename=grabGraph)");
                 _engine.Evaluate("plot(x = laggedTs, y = grab, type = '" + _graphic + "', main = 'Grab Strength synchrony', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'grab strength diff',ylim=c(0,1), pch = 20)");
@@ -419,7 +419,7 @@ namespace SyncMeasure
 
                 /* Plot Pinch Strength */
                 var pinchGraph = Path.GetFullPath(Resources.PINCH_GRAPH).Replace("\\", "/");
-                _engine.SetSymbol("pinchGraph", _engine.CreateCharacterVector(new[] { pinchGraph }));
+                _engine.SetSymbol("pinchGraph", _engine.CreateCharacterVector(new[] {pinchGraph}));
                 _engine.Evaluate("png(filename=pinchGraph)");
                 _engine.Evaluate("plot(x = laggedTs, y = pinch, type = '" + _graphic + "', main = 'Pinch Strength synchrony', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'pinch strength diff',ylim=c(0,1), pch = 20)");
@@ -432,7 +432,7 @@ namespace SyncMeasure
                 // release resources.
                 RemovePosFromR("hand0", "hand1", "arm0", "arm1", "elbow0", "elbow1");
                 RemoveFromR("pos_1", "pos_2", "hcvv", "acvv", "ecvv", "ymin", "hand.cvv", "arm.cvv", "elbow.cvv",
-                    "grab0", "grab1", "pinch0", "pinch1", "weighted", "weight.func");
+                    "grab0", "grab1", "pinch0", "pinch1", "weighted", "weight.func", "laggedTs", "timestamps", "omittedTs");
 
                 if (ReportProgress(100, bgWorker, args)) return null;
                 var errorMessage = "";
