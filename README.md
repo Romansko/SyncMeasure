@@ -17,6 +17,7 @@ install_github("reissphil/cvv")
 install.packages("data.table")
 ```
 *Ignore warnings about packages that was built under R version 3.4.4. CVV package require R v3.4.0 and won't work otherwise.*
+*Right click, save-as to download [script](https://raw.githubusercontent.com/Romansko/SyncMeasure/master/SyncMeasure/resources/lib.R)*
 
 4. Install [SyncMeasureSetup.exe](https://github.com/Romansko/SyncMeasure/raw/master/Releases/SyncMeasureSetup.exe)
 
