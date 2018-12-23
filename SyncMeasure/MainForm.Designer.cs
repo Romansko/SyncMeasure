@@ -41,6 +41,7 @@
             this.cVVMethodToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.weightsColNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cSVFileColumnNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.controlsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -84,7 +85,6 @@
             this.bothRB = new System.Windows.Forms.RadioButton();
             this.linesRB = new System.Windows.Forms.RadioButton();
             this.pointsRB = new System.Windows.Forms.RadioButton();
-            this.cSVFileColumnNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.progGroupBox.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -225,6 +225,13 @@
             this.weightsColNamesToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
             this.weightsColNamesToolStripMenuItem.Text = "Sync Weights";
             this.weightsColNamesToolStripMenuItem.Click += new System.EventHandler(this.weightsColNamesToolStripMenuItem_Click);
+            // 
+            // cSVFileColumnNamesToolStripMenuItem
+            // 
+            this.cSVFileColumnNamesToolStripMenuItem.Name = "cSVFileColumnNamesToolStripMenuItem";
+            this.cSVFileColumnNamesToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
+            this.cSVFileColumnNamesToolStripMenuItem.Text = "CSV File column names";
+            this.cSVFileColumnNamesToolStripMenuItem.Click += new System.EventHandler(this.cSVFileColumnNamesToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -470,6 +477,7 @@
             // 
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.groupBox1.Location = new System.Drawing.Point(12, 159);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(147, 74);
@@ -647,13 +655,6 @@
             this.pointsRB.Text = "Points";
             this.pointsRB.UseVisualStyleBackColor = true;
             this.pointsRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
-            // 
-            // cSVFileColumnNamesToolStripMenuItem
-            // 
-            this.cSVFileColumnNamesToolStripMenuItem.Name = "cSVFileColumnNamesToolStripMenuItem";
-            this.cSVFileColumnNamesToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
-            this.cSVFileColumnNamesToolStripMenuItem.Text = "CSV File column names";
-            this.cSVFileColumnNamesToolStripMenuItem.Click += new System.EventHandler(this.cSVFileColumnNamesToolStripMenuItem_Click);
             // 
             // MainForm
             // 

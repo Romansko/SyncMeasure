@@ -745,10 +745,12 @@ namespace SyncMeasure
                 _engine.Evaluate("combined[, " + _colNames[Resources.HANDS_IN_FRAME] + ":= 2]");
 
                 /* Build frame ids */
-                _engine.Evaluate("for (i in 1:nrow(combined)) combined[i, Frame.. := i / 2 + i %% 2]");
+                _engine.Evaluate("for (i in 1:nrow(combined)) combined[i, " + _colNames[Resources.FRAME_ID] +
+                                 " := i / 2 + i %% 2]");
 
                 filePath = filePath.Replace("\\", "/"); // fix for [R].
                 _engine.Evaluate("fwrite(combined, file=file.path('" + filePath + "'), sep=',', quote = F, verbose = F)");
+                RemoveFromR("dt1", "dt2", "size");
                 return new ResultStatus(true, "");
             }
             catch (Exception e)

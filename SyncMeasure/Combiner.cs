@@ -19,11 +19,6 @@ namespace SyncMeasure
             groupBox1.AllowDrop = groupBox2.AllowDrop = true;
         }
 
-        ~Combiner()
-        {
-            _handler.RemoveFromR("file1", "file2", "dt1", "dt2", "size", "combined");
-        }
-
         /// <summary>
         /// Select all text upon NumericUpDown enter.
         /// </summary>
@@ -137,6 +132,10 @@ namespace SyncMeasure
             Close();
         }
 
+        private void Combiner_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _handler.RemoveFromR("file1", "file2", "dt1", "dt2", "size", "combined");
+        }
     }
 }
 
