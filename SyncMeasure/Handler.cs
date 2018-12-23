@@ -21,6 +21,7 @@ namespace SyncMeasure
         private EFormat _format;                                // format being used.
         private ECvv _cvvMethod;
         private string _graphic;
+        private int _timeLag;                                   // Time lag [ms] for person 1 with respect to person 0. 
 
         public enum EGraphics
         {
@@ -94,6 +95,7 @@ namespace SyncMeasure
             };
             _cvvMethod = ECvv.CVV;
             _graphic = "b";
+            _timeLag = 0;
             SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             SetNewFormatDefaults();
             LoadUserSettings();
@@ -274,6 +276,13 @@ namespace SyncMeasure
                 }
                 
                 _engine.SetSymbol("timestamps", _engine.CreateIntegerVector(timestamps));
+                /* Lagged TS to be used with cvv functions after build */
+                _engine.Evaluate("minTime <- timestamps[1]");
+                _engine.Evaluate("maxTime <- timestamps[length(timestamps)]");
+                _engine.Evaluate("laggedTs <- timestamps + " + _timeLag);
+                _engine.Evaluate("laggedTs <- replace(laggedTs, laggedTs < minTime, minTime)");
+                _engine.Evaluate("laggedTs <- replace(laggedTs, laggedTs > maxTime, maxTime)");
+                RemoveFromR("minTime", "maxTime");
 
                 for (var i = 0; i < 2; ++i)     // for both hands.
                 {
@@ -299,7 +308,8 @@ namespace SyncMeasure
 
                 if (ReportProgress(20, bgWorker, args)) return null;
 
-                string assign = "<-";
+                var cvvCommand = " cosfunc(make.fd(timestamps, pos_1, pos_2), lag = " + (_timeLag / 1000.0) + ")";
+                string assign = " <- ";
                 // ToDo: Enable parallel calculations?
                 // _engine.Evaluate("plan(multiprocess)");
                 // assign = "%<-%";        // parallel assign.  
@@ -308,27 +318,27 @@ namespace SyncMeasure
                 // Hand
                 _engine.Evaluate("pos_1 <- cbind(hand0.pos.x, hand0.pos.y, hand0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(hand1.pos.x, hand1.pos.y, hand1.pos.z)");
-                _engine.Evaluate("hand.cvv " + assign + " cosfunc(make.fd(timestamps, pos_1, pos_2))");
+                _engine.Evaluate("hand.cvv" + assign + cvvCommand);
 
                 if (ReportProgress(40, bgWorker, args)) return null;
 
                 // Arm
                 _engine.Evaluate("pos_1 <- cbind(arm0.pos.x, arm0.pos.y, arm0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(arm1.pos.x, arm1.pos.y, arm1.pos.z)");                
-                _engine.Evaluate("arm.cvv " + assign + " cosfunc(make.fd(timestamps, pos_1, pos_2))");
+                _engine.Evaluate("arm.cvv" + assign + cvvCommand);
 
                 if (ReportProgress(60, bgWorker, args)) return null;
 
                 // Elbow
                 _engine.Evaluate("pos_1 <- cbind(elbow0.pos.x, elbow0.pos.y, elbow0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(elbow1.pos.x, elbow1.pos.y, elbow1.pos.z)");
-                _engine.Evaluate("elbow.cvv " + assign + " cosfunc(make.fd(timestamps, pos_1, pos_2))");
+                _engine.Evaluate("elbow.cvv" + assign + cvvCommand);
 
                 if (ReportProgress(80, bgWorker, args)) return null;
 
-                _engine.Evaluate("hcvv <- hand.cvv(timestamps)");
-                _engine.Evaluate("acvv <- arm.cvv(timestamps)");
-                _engine.Evaluate("ecvv <- elbow.cvv(timestamps)");
+                _engine.Evaluate("hcvv <- hand.cvv(laggedTs)");
+                _engine.Evaluate("acvv <- arm.cvv(laggedTs)");
+                _engine.Evaluate("ecvv <- elbow.cvv(laggedTs)");
                 if (_cvvMethod == ECvv.ABS_CVV)
                 {
                     _engine.Evaluate("hcvv <- abs(hcvv)");
@@ -371,7 +381,7 @@ namespace SyncMeasure
                 var allGraph = Path.GetFullPath(Resources.ALL_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("allGraph", _engine.CreateCharacterVector(new[] { allGraph }));
                 _engine.Evaluate("png(filename=allGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = weighted, type = '" + _graphic + "', main = 'Average', " +
+                _engine.Evaluate("plot(x = laggedTs, y = weighted, type = '" + _graphic + "', main = 'Average', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'Avg'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
@@ -379,7 +389,7 @@ namespace SyncMeasure
                 var handsGraph = Path.GetFullPath(Resources.HAND_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("handsGraph", _engine.CreateCharacterVector(new[] { handsGraph }));
                 _engine.Evaluate("png(filename=handsGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = hcvv, type = '" + _graphic + "', main = 'Hands cvv = f(Timestamp)', " +
+                _engine.Evaluate("plot(x = laggedTs, y = hcvv, type = '" + _graphic + "', main = 'Hands cvv = f(Timestamp)', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'hands cvv', col = 'red'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
@@ -387,7 +397,7 @@ namespace SyncMeasure
                 var armsGraph = Path.GetFullPath(Resources.ARM_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("armsGraph", _engine.CreateCharacterVector(new[] { armsGraph }));
                 _engine.Evaluate("png(filename=armsGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = acvv, type = '" + _graphic + "', main = 'arm cvv = f(Timestamp)', " +
+                _engine.Evaluate("plot(x = laggedTs, y = acvv, type = '" + _graphic + "', main = 'arm cvv = f(Timestamp)', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'arms cvv', col = 'green'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
@@ -395,7 +405,7 @@ namespace SyncMeasure
                 var elbowGraph = Path.GetFullPath(Resources.ELBOW_CVV_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("elbowsGraph", _engine.CreateCharacterVector(new[] { elbowGraph }));
                 _engine.Evaluate("png(filename=elbowsGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = ecvv, type = '" + _graphic +   "', main = 'elbow cvv = f(Timestamp)', " +
+                _engine.Evaluate("plot(x = laggedTs, y = ecvv, type = '" + _graphic +   "', main = 'elbow cvv = f(Timestamp)', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'elbows cvv', col = 'blue'," + ylim + ", pch = 20)");
                 _engine.Evaluate("dev.off()");
 
@@ -403,7 +413,7 @@ namespace SyncMeasure
                 var grabGraph = Path.GetFullPath(Resources.GRAB_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("grabGraph", _engine.CreateCharacterVector(new[] {grabGraph }));
                 _engine.Evaluate("png(filename=grabGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = grab, type = '" + _graphic + "', main = 'Grab Strength synchrony', " +
+                _engine.Evaluate("plot(x = laggedTs, y = grab, type = '" + _graphic + "', main = 'Grab Strength synchrony', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'grab strength diff',ylim=c(0,1), pch = 20)");
                 _engine.Evaluate("dev.off()");
 
@@ -411,7 +421,7 @@ namespace SyncMeasure
                 var pinchGraph = Path.GetFullPath(Resources.PINCH_GRAPH).Replace("\\", "/");
                 _engine.SetSymbol("pinchGraph", _engine.CreateCharacterVector(new[] { pinchGraph }));
                 _engine.Evaluate("png(filename=pinchGraph)");
-                _engine.Evaluate("plot(x = timestamps, y = pinch, type = '" + _graphic + "', main = 'Pinch Strength synchrony', " +
+                _engine.Evaluate("plot(x = laggedTs, y = pinch, type = '" + _graphic + "', main = 'Pinch Strength synchrony', " +
                                  "xlab = 'Timestamp [ms]', ylab = 'pinch strength diff',ylim=c(0,1), pch = 20)");
                 _engine.Evaluate("dev.off()");
 
@@ -742,7 +752,7 @@ namespace SyncMeasure
                 _engine.Evaluate("combined <- rbind(dt1,dt2)[rep(seq_len(size),each=2)+c(0,size),]");
 
                 /* Update number of hands */
-                _engine.Evaluate("combined[, " + _colNames[Resources.HANDS_IN_FRAME] + ":= 2]");
+                _engine.Evaluate("combined[, " + _colNames[Resources.HANDS_IN_FRAME] + " := 2]");
 
                 /* Build frame ids */
                 _engine.Evaluate("for (i in 1:nrow(combined)) combined[i, " + _colNames[Resources.FRAME_ID] +
@@ -936,6 +946,15 @@ namespace SyncMeasure
             }
         }
 
+        /// <summary>
+        /// Set time lag [ms] for person 1 with respect to person 0. 
+        /// </summary>
+        /// <param name="timeLag"></param>
+        public void SetTimeLag(int timeLag)
+        {
+            _timeLag = timeLag;
+        }
+
         public void SetCvvMethod(ECvv cvvMethod)
         {
             _cvvMethod = cvvMethod;
@@ -971,7 +990,7 @@ namespace SyncMeasure
             var xmlSettings = new XmlDocument();
             xmlSettings.Load(Resources.SETTINGS);
             var rootElement = xmlSettings.DocumentElement;
-            if (rootElement == null || !Resources.TITLE.Equals(rootElement.Name) || !(rootElement.Attributes["Version"].Value.Equals(Resources.VERSION)))
+            if (rootElement == null || !Resources.TITLE.Equals(rootElement.Name) || !(rootElement.Attributes["Version"].Value.Equals(Resources._VERSION)))
                 return;
 
             var cvv = rootElement.SelectSingleNode("CVV");
@@ -1026,7 +1045,7 @@ namespace SyncMeasure
             var writer = XmlWriter.Create(Resources.SETTINGS, set);
             writer.WriteStartDocument();
             writer.WriteStartElement(Resources.TITLE);
-            writer.WriteAttributeString("Version", Resources.VERSION);
+            writer.WriteAttributeString("Version", Resources._VERSION);
 
 
             writer.WriteStartElement("CVV");

@@ -85,6 +85,10 @@
             this.bothRB = new System.Windows.Forms.RadioButton();
             this.linesRB = new System.Windows.Forms.RadioButton();
             this.pointsRB = new System.Windows.Forms.RadioButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.setTimeLagToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.timeLagLabel = new System.Windows.Forms.Label();
             this.menuStrip.SuspendLayout();
             this.progGroupBox.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -97,6 +101,7 @@
             this.sumGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.graphicsGB.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog
@@ -147,7 +152,7 @@
             this.allGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.allGraphBox.Location = new System.Drawing.Point(3, 3);
             this.allGraphBox.Name = "allGraphBox";
-            this.allGraphBox.Size = new System.Drawing.Size(462, 450);
+            this.allGraphBox.Size = new System.Drawing.Size(462, 504);
             this.allGraphBox.TabIndex = 5;
             this.allGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -200,7 +205,9 @@
             this.cVVMethodToolStripMenuItem,
             this.toolStripSeparator2,
             this.weightsColNamesToolStripMenuItem,
-            this.cSVFileColumnNamesToolStripMenuItem});
+            this.cSVFileColumnNamesToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.setTimeLagToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(70, 23);
@@ -298,7 +305,7 @@
             this.progGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.progGroupBox.Controls.Add(this.cancelButton);
             this.progGroupBox.Controls.Add(this.circularProgressBar);
-            this.progGroupBox.Location = new System.Drawing.Point(501, 369);
+            this.progGroupBox.Location = new System.Drawing.Point(501, 423);
             this.progGroupBox.Name = "progGroupBox";
             this.progGroupBox.Size = new System.Drawing.Size(183, 154);
             this.progGroupBox.TabIndex = 7;
@@ -332,7 +339,7 @@
             this.tabControl.Location = new System.Drawing.Point(12, 41);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(476, 482);
+            this.tabControl.Size = new System.Drawing.Size(476, 536);
             this.tabControl.TabIndex = 8;
             // 
             // tabPage1
@@ -341,7 +348,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(468, 456);
+            this.tabPage1.Size = new System.Drawing.Size(468, 510);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "All";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -451,7 +458,7 @@
             // 
             // sumGroupBox
             // 
-            this.sumGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.sumGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.sumGroupBox.Controls.Add(this.groupBox1);
             this.sumGroupBox.Controls.Add(this.pinchLabel);
             this.sumGroupBox.Controls.Add(this.grabLabel);
@@ -465,7 +472,7 @@
             this.sumGroupBox.Controls.Add(this.armsCvvText);
             this.sumGroupBox.Controls.Add(this.handsCvvText);
             this.sumGroupBox.Controls.Add(this.averageText);
-            this.sumGroupBox.Location = new System.Drawing.Point(501, 112);
+            this.sumGroupBox.Location = new System.Drawing.Point(501, 170);
             this.sumGroupBox.Name = "sumGroupBox";
             this.sumGroupBox.Size = new System.Drawing.Size(183, 247);
             this.sumGroupBox.TabIndex = 9;
@@ -607,7 +614,7 @@
             this.graphicsGB.Controls.Add(this.bothRB);
             this.graphicsGB.Controls.Add(this.linesRB);
             this.graphicsGB.Controls.Add(this.pointsRB);
-            this.graphicsGB.Location = new System.Drawing.Point(501, 61);
+            this.graphicsGB.Location = new System.Drawing.Point(501, 66);
             this.graphicsGB.Name = "graphicsGB";
             this.graphicsGB.Size = new System.Drawing.Size(183, 45);
             this.graphicsGB.TabIndex = 11;
@@ -656,13 +663,49 @@
             this.pointsRB.UseVisualStyleBackColor = true;
             this.pointsRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(217, 6);
+            // 
+            // setTimeLagToolStripMenuItem
+            // 
+            this.setTimeLagToolStripMenuItem.Name = "setTimeLagToolStripMenuItem";
+            this.setTimeLagToolStripMenuItem.Size = new System.Drawing.Size(220, 24);
+            this.setTimeLagToolStripMenuItem.Text = "Set Time Lag";
+            this.setTimeLagToolStripMenuItem.Click += new System.EventHandler(this.setTimeLagToolStripMenuItem_Click);
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Controls.Add(this.timeLagLabel);
+            this.groupBox2.Location = new System.Drawing.Point(501, 117);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(183, 45);
+            this.groupBox2.TabIndex = 12;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Current Time Lag [ms]";
+            this.toolTip.SetToolTip(this.groupBox2, "Current time lag [ms] for person 1 with respect to person 0.");
+            // 
+            // timeLagLabel
+            // 
+            this.timeLagLabel.AutoSize = true;
+            this.timeLagLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.timeLagLabel.ForeColor = System.Drawing.Color.Black;
+            this.timeLagLabel.Location = new System.Drawing.Point(7, 20);
+            this.timeLagLabel.Name = "timeLagLabel";
+            this.timeLagLabel.Size = new System.Drawing.Size(41, 13);
+            this.timeLagLabel.TabIndex = 0;
+            this.timeLagLabel.Text = "0 [ms]";
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightBlue;
-            this.ClientSize = new System.Drawing.Size(696, 535);
+            this.ClientSize = new System.Drawing.Size(696, 589);
+            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.graphicsGB);
             this.Controls.Add(this.measureOnLoad);
             this.Controls.Add(this.sumGroupBox);
@@ -672,7 +715,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
-            this.MinimumSize = new System.Drawing.Size(712, 574);
+            this.MinimumSize = new System.Drawing.Size(712, 628);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SyncMeasure";
@@ -695,6 +738,8 @@
             this.groupBox1.PerformLayout();
             this.graphicsGB.ResumeLayout(false);
             this.graphicsGB.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -756,6 +801,10 @@
         private System.Windows.Forms.ToolStripMenuItem combineToolStripMenuItem;
         private System.Windows.Forms.RadioButton bothRB;
         private System.Windows.Forms.ToolStripMenuItem cSVFileColumnNamesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem setTimeLagToolStripMenuItem;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Label timeLagLabel;
     }
 }
 

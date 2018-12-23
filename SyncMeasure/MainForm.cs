@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Cyotek.Windows.Forms;
+using Microsoft.VisualBasic;
 using SyncMeasure.Properties;
 using Path = System.IO.Path;
 
@@ -19,7 +20,7 @@ namespace SyncMeasure
         public MainForm()
         {
             InitializeComponent();
-            Text += @" - v" + Resources.VERSION;
+            Text += @" - v" + Resources._VERSION;
             _loadedFile = _prevLoadedFile = "";
             _title = Text;
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
@@ -445,6 +446,26 @@ namespace SyncMeasure
             (new Combiner(_handler)).ShowDialog();
         }
 
+        /// <summary>
+        /// Set time lag [ms]
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void setTimeLagToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var res = Interaction.InputBox(@"Enter Time Lag [ms] for person 1 with respect to person 0:", "@Time Lag");
+            if (string.IsNullOrEmpty(res))
+            {
+                return;
+            }
+            if (!int.TryParse(res, out var lag))
+            {
+                MessageBox.Show(this, @"Invalid input", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            _handler.SetTimeLag(lag);
+            timeLagLabel.Text = lag + @" [ms]";
+        }
     }
 }
 
