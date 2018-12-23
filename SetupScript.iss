@@ -21,7 +21,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
-OutputDir=D:\Projects\SyncMeasure\Releases
+OutputDir=Releases
 OutputBaseFilename=SyncMeasureSetup
 Compression=lzma
 SolidCompression=yes
@@ -33,15 +33,15 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\Projects\SyncMeasure\SyncMeasure\bin\x86\Release\SyncMeasure.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\SyncMeasure\resources\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\CircularProgressBar.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\WinFormAnimation.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\packages\CyotekImageBox.1.2.1\lib\net20\Cyotek.Windows.Forms.ImageBox.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\packages\DynamicInterop.0.8.1\lib\netstandard1.2\DynamicInterop.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\packages\R.NET.1.7.0\lib\net40\RDotNet.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\packages\R.NET.1.7.0\lib\net40\RDotNet.NativeLibrary.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\Projects\SyncMeasure\packages\WinFormAnimation.1.5.6298.3372\lib\net35-client\WinFormAnimation.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "SyncMeasure\bin\x86\Release\SyncMeasure.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "SyncMeasure\resources\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\CircularProgressBar.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\WinFormAnimation.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\CyotekImageBox.1.2.1\lib\net20\Cyotek.Windows.Forms.ImageBox.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\DynamicInterop.0.8.1\lib\netstandard1.2\DynamicInterop.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.NativeLibrary.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\WinFormAnimation.1.5.6298.3372\lib\net35-client\WinFormAnimation.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
