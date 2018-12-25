@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Cyotek.Windows.Forms;
@@ -10,17 +12,21 @@ using Path = System.IO.Path;
 
 namespace SyncMeasure
 {
-    public partial class MainForm : Form
+    public partial class SyncMeasureForm : Form
     {
         private readonly Handler _handler;
         private readonly string _title;
         private string _loadedFile;
         private string _prevLoadedFile;
+        public static string Version;
 
-        public MainForm()
+        public SyncMeasureForm()
         {
             InitializeComponent();
-            Text += @" - v" + Resources._VERSION;
+            timeLagGB.Click += SetTimeLag;
+            timeLagLabel.Click += SetTimeLag;
+            Version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+            Text += @" - v" + Version;
             _loadedFile = _prevLoadedFile = "";
             _title = Text;
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
@@ -38,13 +44,28 @@ namespace SyncMeasure
             measureBackgroundWorker.RunWorkerCompleted           += measureBackgroundWorker_RunWorkerCompleted;
 
             _handler = new Handler(out var resultStatus);
-            if (resultStatus.Status) return;
-            var errMsg = resultStatus.Message.Equals(@"RENGINE")
-                ? @"Failed to initialize[R] Engine.Please make sure R v3.4.0 is installed."
-                : resultStatus.Message;
-            MessageBox.Show(this, errMsg + Environment.NewLine + @"Application will exit.",
-                Resources.TITLE + @" -Fatal Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            Shown += CloseOnStart;
+            if (!resultStatus.Status)
+            {
+                var errMsg = resultStatus.Message.Equals(@"RENGINE")
+                    ? @"Failed to initialize[R] Engine.Please make sure R v3.4.0 is installed."
+                    : resultStatus.Message;
+                MessageBox.Show(this, errMsg + Environment.NewLine + @"Application will exit.",
+                    Resources.TITLE + @" -Fatal Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Shown += CloseOnStart;
+            }
+
+            switch (_handler.GetCvvMethod())
+            {
+                case Handler.ECvv.CVV:
+                    cvvButton.Checked = true;
+                    break;
+                case Handler.ECvv.ABS_CVV:
+                    absCvvButton.Checked = true;
+                    break;
+                case Handler.ECvv.SQUARE_CVV:
+                    squareCvvButton.Checked = true;
+                    break;
+            }
         }
 
         public sealed override string Text
@@ -365,6 +386,66 @@ namespace SyncMeasure
         }
 
 
+        /// <summary>
+        /// Set time lag [ms]
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SetTimeLag(object sender, EventArgs e)
+        {
+            var res = Interaction.InputBox(@"Enter Time Lag (milliseconds) for person 1 with respect to person 0:", @"Set Time Lag [ms]");
+            if (string.IsNullOrEmpty(res))
+            {
+                return;
+            }
+            if (!int.TryParse(res, out var lag))
+            {
+                MessageBox.Show(this, @"Invalid input", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            _handler.SetTimeLag(lag);
+            timeLagLabel.Text = lag + @" [ms]";
+        }
+
+
+        /// <summary>
+        /// User's radio box selection changed. lines / points graph representation.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void graphics_CheckedChanged(object sender, EventArgs e)
+        {
+            if (pointsRB.Checked)
+            {
+                _handler.SetGraphics(Handler.EGraphics.POINTS);
+            }
+            else if (linesRB.Checked)
+            {
+                _handler.SetGraphics(Handler.EGraphics.LINES);
+            }
+            else if (bothRB.Checked)
+            {
+                _handler.SetGraphics(Handler.EGraphics.BOTH);
+            }
+        }
+
+
+        private void cvvMethod_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cvvButton.Checked)
+            {
+                _handler.SetCvvMethod(Handler.ECvv.CVV);
+            }
+            else if (absCvvButton.Checked)
+            {
+                _handler.SetCvvMethod(Handler.ECvv.ABS_CVV);
+            }
+            else if(squareCvvButton.Checked)
+            {
+                _handler.SetCvvMethod(Handler.ECvv.SQUARE_CVV);
+            }
+            _handler.SaveUserSettings();
+        }
 
         /******************************* menu strip buttons ******************************/
 
@@ -409,32 +490,6 @@ namespace SyncMeasure
             (new SettingsForm(_handler, SettingsForm.ESettings.NAMES)).ShowDialog();
         }
 
-        private void cVVMethodToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            (new CvvSelector(_handler)).ShowDialog();
-        }
-
- 
-        /// <summary>
-        /// User's radio box selection changed. lines / points graph representation.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void graphics_CheckedChanged(object sender, EventArgs e)
-        {
-            if (pointsRB.Checked)
-            {
-                _handler.SetGraphics(Handler.EGraphics.POINTS);
-            }
-            else if (linesRB.Checked)
-            {
-                _handler.SetGraphics(Handler.EGraphics.LINES);
-            }
-            else if (bothRB.Checked)
-            {
-                _handler.SetGraphics(Handler.EGraphics.BOTH);
-            }
-        }
 
         /// <summary>
         /// Open "Alone" files combiner dialog.
@@ -446,26 +501,7 @@ namespace SyncMeasure
             (new Combiner(_handler)).ShowDialog();
         }
 
-        /// <summary>
-        /// Set time lag [ms]
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void setTimeLagToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var res = Interaction.InputBox(@"Enter Time Lag [ms] for person 1 with respect to person 0:", "@Time Lag");
-            if (string.IsNullOrEmpty(res))
-            {
-                return;
-            }
-            if (!int.TryParse(res, out var lag))
-            {
-                MessageBox.Show(this, @"Invalid input", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            _handler.SetTimeLag(lag);
-            timeLagLabel.Text = lag + @" [ms]";
-        }
+
     }
 }
 

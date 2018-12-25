@@ -990,7 +990,7 @@ namespace SyncMeasure
             var xmlSettings = new XmlDocument();
             xmlSettings.Load(Resources.SETTINGS);
             var rootElement = xmlSettings.DocumentElement;
-            if (rootElement == null || !Resources.TITLE.Equals(rootElement.Name) || !(rootElement.Attributes["Version"].Value.Equals(Resources._VERSION)))
+            if (rootElement == null || !Resources.TITLE.Equals(rootElement.Name) || !(rootElement.Attributes["Version"].Value.Equals(SyncMeasureForm.Version)))
                 return;
 
             var cvv = rootElement.SelectSingleNode("CVV");
@@ -1045,7 +1045,7 @@ namespace SyncMeasure
             var writer = XmlWriter.Create(Resources.SETTINGS, set);
             writer.WriteStartDocument();
             writer.WriteStartElement(Resources.TITLE);
-            writer.WriteAttributeString("Version", Resources._VERSION);
+            writer.WriteAttributeString("Version", SyncMeasureForm.Version);
 
 
             writer.WriteStartElement("CVV");

@@ -61,15 +61,6 @@ namespace SyncMeasure.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 1.4.
-        /// </summary>
-        internal static string _VERSION {
-            get {
-                return ResourceManager.GetString("_VERSION", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to ./all.png.
         /// </summary>
         internal static string ALL_GRAPH {

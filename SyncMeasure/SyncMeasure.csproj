@@ -177,20 +177,14 @@
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="CvvSelector.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CvvSelector.Designer.cs">
-      <DependentUpon>CvvSelector.cs</DependentUpon>
-    </Compile>
     <Compile Include="Frame.cs" />
     <Compile Include="Hand.cs" />
     <Compile Include="Handler.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="SyncMeasureForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <Compile Include="SyncMeasureForm.Designer.cs">
+      <DependentUpon>SyncMeasureForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -216,11 +210,8 @@
     <EmbeddedResource Include="AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CvvSelector.resx">
-      <DependentUpon>CvvSelector.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <EmbeddedResource Include="SyncMeasureForm.resx">
+      <DependentUpon>SyncMeasureForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

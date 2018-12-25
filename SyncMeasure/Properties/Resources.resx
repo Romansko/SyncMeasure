@@ -243,9 +243,6 @@
   <data name="TITLE" xml:space="preserve">
     <value>SyncMeasure</value>
   </data>
-  <data name="_VERSION" xml:space="preserve">
-    <value>1.4</value>
-  </data>
   <data name="YAW" xml:space="preserve">
     <value>Yaw</value>
     <comment>csv column</comment>
