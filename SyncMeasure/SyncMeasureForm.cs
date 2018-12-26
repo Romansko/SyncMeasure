@@ -32,16 +32,16 @@ namespace SyncMeasure
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
 
             /* BackgroundWorkers initialize */
-            loadingBackgroundWorker.WorkerReportsProgress         = true;
-            loadingBackgroundWorker.WorkerSupportsCancellation    = true;
-            loadingBackgroundWorker.ProgressChanged              += backgroundWorker_ProgressChanged;
-            loadingBackgroundWorker.DoWork                       += loadingBackgroundWorker_DoWork;
-            loadingBackgroundWorker.RunWorkerCompleted           += loadingBackgroundWorker_RunWorkerCompleted;
-            measureBackgroundWorker.WorkerReportsProgress         = true;
-            measureBackgroundWorker.WorkerSupportsCancellation    = true;
-            measureBackgroundWorker.ProgressChanged              += backgroundWorker_ProgressChanged;
-            measureBackgroundWorker.DoWork                       += MeasureBackgroundWorkerDoWork;
-            measureBackgroundWorker.RunWorkerCompleted           += measureBackgroundWorker_RunWorkerCompleted;
+            loadingBackgroundWorker.WorkerReportsProgress = true;
+            loadingBackgroundWorker.WorkerSupportsCancellation = true;
+            loadingBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            loadingBackgroundWorker.DoWork += loadingBackgroundWorker_DoWork;
+            loadingBackgroundWorker.RunWorkerCompleted += loadingBackgroundWorker_RunWorkerCompleted;
+            measureBackgroundWorker.WorkerReportsProgress = true;
+            measureBackgroundWorker.WorkerSupportsCancellation = true;
+            measureBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            measureBackgroundWorker.DoWork += MeasureBackgroundWorkerDoWork;
+            measureBackgroundWorker.RunWorkerCompleted += measureBackgroundWorker_RunWorkerCompleted;
 
             _handler = new Handler(out var resultStatus);
             if (!resultStatus.Status)
@@ -79,7 +79,23 @@ namespace SyncMeasure
             Close();
         }
 
-        /// <summary>
+        private void DisableControls()
+        {
+            menuStrip.Enabled = false;
+            graphicsGB.Enabled = false;
+            cvvMethodGB.Enabled = false;
+            timeLagGB.Enabled = false;
+        }
+
+        private void EnableControls()
+        {
+            menuStrip.Enabled = true;
+            graphicsGB.Enabled = true;
+            cvvMethodGB.Enabled = true;
+            timeLagGB.Enabled = true;
+        }
+
+    /// <summary>
         /// On GraphBox double click, open a dialog that fits the drawn graph.
         /// </summary>
         /// <param name="sender"></param>
@@ -261,8 +277,7 @@ namespace SyncMeasure
         private void measureBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             progGroupBox.Hide();
-            menuStrip.Enabled = true;
-            graphicsGB.Enabled = true;
+            EnableControls();
             if (e.Cancelled)
             {
                 MessageBox.Show(this, @"Sync Measurement cancelled by user.", Resources.TITLE + @" - Sync Measurement cancelled.",
@@ -340,8 +355,7 @@ namespace SyncMeasure
             if (measureBackgroundWorker.IsBusy || loadingBackgroundWorker.IsBusy) return;
             Clear();
             sumGroupBox.Hide();
-            menuStrip.Enabled = false;
-            graphicsGB.Enabled = false;
+            DisableControls();
             circularProgressBar.Text = @"Measuring" + Environment.NewLine + @"0%";
             cancelButton.Enabled = true;
             progGroupBox.Show();
