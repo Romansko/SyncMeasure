@@ -53,6 +53,9 @@
             this.averageText = new System.Windows.Forms.Label();
             this.timeLagGB = new System.Windows.Forms.GroupBox();
             this.timeLagLabel = new System.Windows.Forms.Label();
+            this.absCvvButton = new System.Windows.Forms.RadioButton();
+            this.squareCvvButton = new System.Windows.Forms.RadioButton();
+            this.cvvButton = new System.Windows.Forms.RadioButton();
             this.loadingBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.progGroupBox = new System.Windows.Forms.GroupBox();
             this.cancelButton = new System.Windows.Forms.Button();
@@ -88,9 +91,6 @@
             this.linesRB = new System.Windows.Forms.RadioButton();
             this.pointsRB = new System.Windows.Forms.RadioButton();
             this.cvvMethodGB = new System.Windows.Forms.GroupBox();
-            this.absCvvButton = new System.Windows.Forms.RadioButton();
-            this.squareCvvButton = new System.Windows.Forms.RadioButton();
-            this.cvvButton = new System.Windows.Forms.RadioButton();
             this.menuStrip.SuspendLayout();
             this.timeLagGB.SuspendLayout();
             this.progGroupBox.SuspendLayout();
@@ -325,6 +325,52 @@
             this.timeLagLabel.Text = "0 [ms]";
             this.toolTip.SetToolTip(this.timeLagLabel, "Current time lag [ms] for person 1 with respect to person 0.");
             // 
+            // absCvvButton
+            // 
+            this.absCvvButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.absCvvButton.AutoSize = true;
+            this.absCvvButton.Location = new System.Drawing.Point(75, 19);
+            this.absCvvButton.Name = "absCvvButton";
+            this.absCvvButton.Size = new System.Drawing.Size(50, 17);
+            this.absCvvButton.TabIndex = 2;
+            this.absCvvButton.Text = "|CVV|";
+            this.toolTip.SetToolTip(this.absCvvButton, "Absolute value CVV. To be used with \"Mirror\" motion.");
+            this.absCvvButton.UseVisualStyleBackColor = true;
+            this.absCvvButton.CheckedChanged += new System.EventHandler(this.cvvMethod_CheckedChanged);
+            // 
+            // squareCvvButton
+            // 
+            this.squareCvvButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.squareCvvButton.AutoSize = true;
+            this.squareCvvButton.Location = new System.Drawing.Point(131, 19);
+            this.squareCvvButton.Name = "squareCvvButton";
+            this.squareCvvButton.Size = new System.Drawing.Size(58, 17);
+            this.squareCvvButton.TabIndex = 1;
+            this.squareCvvButton.Text = "CVV^2";
+            this.toolTip.SetToolTip(this.squareCvvButton, "Square CVV. To be used with \"Mirror\" motion. Differentitates more strongly betwee" +
+        "n cosine values near +-1.");
+            this.squareCvvButton.UseVisualStyleBackColor = true;
+            this.squareCvvButton.CheckedChanged += new System.EventHandler(this.cvvMethod_CheckedChanged);
+            // 
+            // cvvButton
+            // 
+            this.cvvButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.cvvButton.AutoSize = true;
+            this.cvvButton.Checked = true;
+            this.cvvButton.Location = new System.Drawing.Point(14, 19);
+            this.cvvButton.Name = "cvvButton";
+            this.cvvButton.Size = new System.Drawing.Size(46, 17);
+            this.cvvButton.TabIndex = 0;
+            this.cvvButton.TabStop = true;
+            this.cvvButton.Text = "CVV";
+            this.toolTip.SetToolTip(this.cvvButton, "Regular CVV. Might be a negative value. To be used with regular motion.");
+            this.cvvButton.UseVisualStyleBackColor = true;
+            this.cvvButton.CheckedChanged += new System.EventHandler(this.cvvMethod_CheckedChanged);
+            // 
             // progGroupBox
             // 
             this.progGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -384,7 +430,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(468, 510);
+            this.tabPage2.Size = new System.Drawing.Size(453, 557);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Hands CVV";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -395,7 +441,7 @@
             this.handGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.handGraphBox.Location = new System.Drawing.Point(3, 3);
             this.handGraphBox.Name = "handGraphBox";
-            this.handGraphBox.Size = new System.Drawing.Size(462, 504);
+            this.handGraphBox.Size = new System.Drawing.Size(447, 551);
             this.handGraphBox.TabIndex = 6;
             this.handGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -404,7 +450,7 @@
             this.tabPage3.Controls.Add(this.armGraphBox);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(468, 510);
+            this.tabPage3.Size = new System.Drawing.Size(453, 557);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Arm CVV";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -415,7 +461,7 @@
             this.armGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.armGraphBox.Location = new System.Drawing.Point(0, 0);
             this.armGraphBox.Name = "armGraphBox";
-            this.armGraphBox.Size = new System.Drawing.Size(468, 510);
+            this.armGraphBox.Size = new System.Drawing.Size(453, 557);
             this.armGraphBox.TabIndex = 7;
             this.armGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -424,7 +470,7 @@
             this.tabPage4.Controls.Add(this.elbowGraphBox);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(468, 510);
+            this.tabPage4.Size = new System.Drawing.Size(453, 557);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Elbow CVV";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -435,7 +481,7 @@
             this.elbowGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elbowGraphBox.Location = new System.Drawing.Point(0, 0);
             this.elbowGraphBox.Name = "elbowGraphBox";
-            this.elbowGraphBox.Size = new System.Drawing.Size(468, 510);
+            this.elbowGraphBox.Size = new System.Drawing.Size(453, 557);
             this.elbowGraphBox.TabIndex = 7;
             this.elbowGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -445,7 +491,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(468, 510);
+            this.tabPage5.Size = new System.Drawing.Size(453, 557);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Grab Strength";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -456,7 +502,7 @@
             this.grabStrBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grabStrBox.Location = new System.Drawing.Point(3, 3);
             this.grabStrBox.Name = "grabStrBox";
-            this.grabStrBox.Size = new System.Drawing.Size(462, 504);
+            this.grabStrBox.Size = new System.Drawing.Size(447, 551);
             this.grabStrBox.TabIndex = 8;
             this.grabStrBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -466,7 +512,7 @@
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage6.Size = new System.Drawing.Size(468, 510);
+            this.tabPage6.Size = new System.Drawing.Size(453, 557);
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "Pinch Strength";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -477,7 +523,7 @@
             this.pinchStrBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pinchStrBox.Location = new System.Drawing.Point(3, 3);
             this.pinchStrBox.Name = "pinchStrBox";
-            this.pinchStrBox.Size = new System.Drawing.Size(462, 504);
+            this.pinchStrBox.Size = new System.Drawing.Size(447, 551);
             this.pinchStrBox.TabIndex = 8;
             this.pinchStrBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -700,51 +746,6 @@
             this.cvvMethodGB.TabIndex = 12;
             this.cvvMethodGB.TabStop = false;
             this.cvvMethodGB.Text = "CVV Calculation Method";
-            // 
-            // absCvvButton
-            // 
-            this.absCvvButton.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.absCvvButton.AutoSize = true;
-            this.absCvvButton.Location = new System.Drawing.Point(75, 19);
-            this.absCvvButton.Name = "absCvvButton";
-            this.absCvvButton.Size = new System.Drawing.Size(50, 17);
-            this.absCvvButton.TabIndex = 2;
-            this.absCvvButton.Text = "|CVV|";
-            this.toolTip.SetToolTip(this.absCvvButton, "Absolute value CVV.");
-            this.absCvvButton.UseVisualStyleBackColor = true;
-            this.absCvvButton.CheckedChanged += new System.EventHandler(this.cvvMethod_CheckedChanged);
-            // 
-            // squareCvvButton
-            // 
-            this.squareCvvButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.squareCvvButton.AutoSize = true;
-            this.squareCvvButton.Location = new System.Drawing.Point(131, 19);
-            this.squareCvvButton.Name = "squareCvvButton";
-            this.squareCvvButton.Size = new System.Drawing.Size(58, 17);
-            this.squareCvvButton.TabIndex = 1;
-            this.squareCvvButton.Text = "CVV^2";
-            this.toolTip.SetToolTip(this.squareCvvButton, "Square CVV.");
-            this.squareCvvButton.UseVisualStyleBackColor = true;
-            this.squareCvvButton.CheckedChanged += new System.EventHandler(this.cvvMethod_CheckedChanged);
-            // 
-            // cvvButton
-            // 
-            this.cvvButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.cvvButton.AutoSize = true;
-            this.cvvButton.Checked = true;
-            this.cvvButton.Location = new System.Drawing.Point(14, 19);
-            this.cvvButton.Name = "cvvButton";
-            this.cvvButton.Size = new System.Drawing.Size(46, 17);
-            this.cvvButton.TabIndex = 0;
-            this.cvvButton.TabStop = true;
-            this.cvvButton.Text = "CVV";
-            this.toolTip.SetToolTip(this.cvvButton, "Regular CVV. Might be a negative value.");
-            this.cvvButton.UseVisualStyleBackColor = true;
-            this.cvvButton.CheckedChanged += new System.EventHandler(this.cvvMethod_CheckedChanged);
             // 
             // SyncMeasureForm
             // 
