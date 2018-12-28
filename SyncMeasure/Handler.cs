@@ -672,10 +672,9 @@ namespace SyncMeasure
                         break;
                 }
 
-                double x, y, z;
-                x = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_X]];
-                y = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Y]];
-                z = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Z]];
+                var x = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_X]];
+                var y = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Y]];
+                var z = (double) dataFrame[index, _colNames[Resources.ELBOW_POS_Z]];
                 var elbowPos = new Vector(x, y, z);
 
                 x = (double) dataFrame[index, _colNames[Resources.ARM_POS_X]];

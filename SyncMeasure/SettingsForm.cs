@@ -110,7 +110,7 @@ namespace SyncMeasure
                 var hand = GetWeightValue(Resources.HAND);
                 var grab = GetWeightValue(Resources.GRAB);
                 var pinch = GetWeightValue(Resources.PINCH);
-                var gesture = GetWeightValue(Resources.GESTURE);
+                // var gesture = GetWeightValue(Resources.GESTURE);
 
                 if (!_handler.SetWeight(arm, elbow, hand, grab, pinch, out var errMsg))
                 {
