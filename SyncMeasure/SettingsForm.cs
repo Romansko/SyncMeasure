@@ -22,14 +22,7 @@ namespace SyncMeasure
         public SettingsForm(Handler handler, ESettings settings)
         {
             InitializeComponent();
-            if (settings.Equals(ESettings.NAMES))
-            {
-                Text = @"CSV File column names. (R Format).";
-            }
-            else
-            {
-                Text = @"Sync Weights";
-            }
+            Text = settings.Equals(ESettings.NAMES) ? @"CSV File column names. (R Format)." : @"Sync Weights";
             _handler = handler;
             _settings = settings;
             defaultsButton.Visible = settings.Equals(ESettings.NAMES);
@@ -127,6 +120,7 @@ namespace SyncMeasure
             }
 
             _handler.SaveUserSettings();
+            DialogResult = DialogResult.OK;
             Close();
         }
 
@@ -222,7 +216,7 @@ namespace SyncMeasure
             /* Don't allow invalid weights input */
             if (e.RowIndex < maxWeightIndex)
             {
-                var regex = new Regex("(0.\\d+$)|0$");
+                var regex = new Regex("(0.\\d+$)|0$|1$");
                 if (!regex.IsMatch((string)e.Value))
                 {
                     e.Value = dgv[1, e.RowIndex].Value;       // old value.

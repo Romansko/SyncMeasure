@@ -95,7 +95,37 @@ namespace SyncMeasure
             timeLagGB.Enabled = true;
         }
 
-    /// <summary>
+        /// <summary>
+        /// Recalculate and update the average by provided weights.
+        /// </summary>
+        private void UpdateAverageLabel()
+        {
+            if (!sumGroupBox.Visible)
+            {
+                return;
+            }
+
+            try
+            {
+                double hands = double.Parse(handsLabel.Text);
+                double arms = double.Parse(armsLabel.Text);
+                double elbow = double.Parse(elbowsLabel.Text);
+                double grab = double.Parse(grabLabel.Text);
+                double pinch = double.Parse(pinchLabel.Text);
+
+                var weights = _handler.GetWeights();
+                double avg = weights[Resources.HAND] * hands + weights[Resources.ARM] * arms +
+                             weights[Resources.ELBOW] * elbow + weights[Resources.GRAB] * grab +
+                             weights[Resources.PINCH] * pinch;
+                avgLabel.Text = $@"{avg:0.00}";
+            }
+            catch (Exception)
+            {
+                // Don't care
+            }
+        }
+
+        /// <summary>
         /// On GraphBox double click, open a dialog that fits the drawn graph.
         /// </summary>
         /// <param name="sender"></param>
@@ -300,7 +330,7 @@ namespace SyncMeasure
                     pinchStrBox.Image = Image.FromFile(Path.GetFullPath(Resources.PINCH_GRAPH));
 
                     /* Loaded avg sync measurements */
-                    allLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.weighted")[0]:0.00}";
+                    avgLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.weighted")[0]:0.00}";
                     handsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.hands.cvv")[0]:0.00}";
                     armsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.arms.cvv")[0]:0.00}";
                     elbowsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.elbows.cvv")[0]:0.00}";
@@ -496,7 +526,11 @@ namespace SyncMeasure
 
         private void weightsColNamesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new SettingsForm(_handler, SettingsForm.ESettings.WEIGHTS)).ShowDialog();
+            var res = (new SettingsForm(_handler, SettingsForm.ESettings.WEIGHTS)).ShowDialog();
+            if (res == DialogResult.OK)
+            {
+                UpdateAverageLabel();
+            }
         }
 
         private void cSVFileColumnNamesToolStripMenuItem_Click(object sender, EventArgs e)

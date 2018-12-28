@@ -56,6 +56,11 @@
             this.absCvvButton = new System.Windows.Forms.RadioButton();
             this.squareCvvButton = new System.Windows.Forms.RadioButton();
             this.cvvButton = new System.Windows.Forms.RadioButton();
+            this.graphicsGB = new System.Windows.Forms.GroupBox();
+            this.bothRB = new System.Windows.Forms.RadioButton();
+            this.linesRB = new System.Windows.Forms.RadioButton();
+            this.pointsRB = new System.Windows.Forms.RadioButton();
+            this.cvvMethodGB = new System.Windows.Forms.GroupBox();
             this.loadingBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.progGroupBox = new System.Windows.Forms.GroupBox();
             this.cancelButton = new System.Windows.Forms.Button();
@@ -81,18 +86,15 @@
             this.elbowsLabel = new System.Windows.Forms.Label();
             this.armsLabel = new System.Windows.Forms.Label();
             this.handsLabel = new System.Windows.Forms.Label();
-            this.allLabel = new System.Windows.Forms.Label();
+            this.avgLabel = new System.Windows.Forms.Label();
             this.elbowCvvText = new System.Windows.Forms.Label();
             this.armsCvvText = new System.Windows.Forms.Label();
             this.handsCvvText = new System.Windows.Forms.Label();
             this.measureOnLoad = new System.Windows.Forms.CheckBox();
-            this.graphicsGB = new System.Windows.Forms.GroupBox();
-            this.bothRB = new System.Windows.Forms.RadioButton();
-            this.linesRB = new System.Windows.Forms.RadioButton();
-            this.pointsRB = new System.Windows.Forms.RadioButton();
-            this.cvvMethodGB = new System.Windows.Forms.GroupBox();
             this.menuStrip.SuspendLayout();
             this.timeLagGB.SuspendLayout();
+            this.graphicsGB.SuspendLayout();
+            this.cvvMethodGB.SuspendLayout();
             this.progGroupBox.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -103,8 +105,6 @@
             this.tabPage6.SuspendLayout();
             this.sumGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.graphicsGB.SuspendLayout();
-            this.cvvMethodGB.SuspendLayout();
             this.SuspendLayout();
             // 
             // openFileDialog
@@ -270,6 +270,10 @@
             this.aboutToolStripMenuItem1.Text = "&About";
             this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 
+            // toolTip
+            // 
+            this.toolTip.ShowAlways = true;
+            // 
             // label6
             // 
             this.label6.AutoSize = true;
@@ -311,7 +315,8 @@
             this.timeLagGB.TabIndex = 12;
             this.timeLagGB.TabStop = false;
             this.timeLagGB.Text = "Current Time Lag [ms]";
-            this.toolTip.SetToolTip(this.timeLagGB, "Current time lag [ms] for person 1 with respect to person 0.");
+            this.toolTip.SetToolTip(this.timeLagGB, "Current time lag [ms] for person 1 with respect to person 0. Changes will be refl" +
+        "ected on the next sync measuring.");
             // 
             // timeLagLabel
             // 
@@ -323,7 +328,8 @@
             this.timeLagLabel.Size = new System.Drawing.Size(41, 13);
             this.timeLagLabel.TabIndex = 0;
             this.timeLagLabel.Text = "0 [ms]";
-            this.toolTip.SetToolTip(this.timeLagLabel, "Current time lag [ms] for person 1 with respect to person 0.");
+            this.toolTip.SetToolTip(this.timeLagLabel, "Current time lag [ms] for person 1 with respect to person 0. Changes will be refl" +
+        "ected on the next sync measuring.");
             // 
             // absCvvButton
             // 
@@ -370,6 +376,76 @@
             this.toolTip.SetToolTip(this.cvvButton, "Regular CVV. Might be a negative value. To be used with regular motion.");
             this.cvvButton.UseVisualStyleBackColor = true;
             this.cvvButton.CheckedChanged += new System.EventHandler(this.cvvMethod_CheckedChanged);
+            // 
+            // graphicsGB
+            // 
+            this.graphicsGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.graphicsGB.Controls.Add(this.bothRB);
+            this.graphicsGB.Controls.Add(this.linesRB);
+            this.graphicsGB.Controls.Add(this.pointsRB);
+            this.graphicsGB.Location = new System.Drawing.Point(489, 112);
+            this.graphicsGB.Name = "graphicsGB";
+            this.graphicsGB.Size = new System.Drawing.Size(195, 45);
+            this.graphicsGB.TabIndex = 11;
+            this.graphicsGB.TabStop = false;
+            this.graphicsGB.Text = "Graph Graphics";
+            this.toolTip.SetToolTip(this.graphicsGB, "Changes will be reflected on the next sync measuring.");
+            // 
+            // bothRB
+            // 
+            this.bothRB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.bothRB.AutoSize = true;
+            this.bothRB.Checked = true;
+            this.bothRB.Location = new System.Drawing.Point(75, 19);
+            this.bothRB.Name = "bothRB";
+            this.bothRB.Size = new System.Drawing.Size(47, 17);
+            this.bothRB.TabIndex = 2;
+            this.bothRB.TabStop = true;
+            this.bothRB.Text = "Both";
+            this.bothRB.UseVisualStyleBackColor = true;
+            this.bothRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
+            // 
+            // linesRB
+            // 
+            this.linesRB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.linesRB.AutoSize = true;
+            this.linesRB.Location = new System.Drawing.Point(131, 19);
+            this.linesRB.Name = "linesRB";
+            this.linesRB.Size = new System.Drawing.Size(50, 17);
+            this.linesRB.TabIndex = 1;
+            this.linesRB.Text = "Lines";
+            this.linesRB.UseVisualStyleBackColor = true;
+            this.linesRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
+            // 
+            // pointsRB
+            // 
+            this.pointsRB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.pointsRB.AutoSize = true;
+            this.pointsRB.Location = new System.Drawing.Point(14, 19);
+            this.pointsRB.Name = "pointsRB";
+            this.pointsRB.Size = new System.Drawing.Size(54, 17);
+            this.pointsRB.TabIndex = 0;
+            this.pointsRB.Text = "Points";
+            this.pointsRB.UseVisualStyleBackColor = true;
+            this.pointsRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
+            // 
+            // cvvMethodGB
+            // 
+            this.cvvMethodGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cvvMethodGB.Controls.Add(this.absCvvButton);
+            this.cvvMethodGB.Controls.Add(this.squareCvvButton);
+            this.cvvMethodGB.Controls.Add(this.cvvButton);
+            this.cvvMethodGB.Location = new System.Drawing.Point(489, 61);
+            this.cvvMethodGB.Name = "cvvMethodGB";
+            this.cvvMethodGB.Size = new System.Drawing.Size(195, 45);
+            this.cvvMethodGB.TabIndex = 12;
+            this.cvvMethodGB.TabStop = false;
+            this.cvvMethodGB.Text = "CVV Calculation Method";
+            this.toolTip.SetToolTip(this.cvvMethodGB, "Changes will be reflected on the next sync measuring.");
             // 
             // progGroupBox
             // 
@@ -538,7 +614,7 @@
             this.sumGroupBox.Controls.Add(this.elbowsLabel);
             this.sumGroupBox.Controls.Add(this.armsLabel);
             this.sumGroupBox.Controls.Add(this.handsLabel);
-            this.sumGroupBox.Controls.Add(this.allLabel);
+            this.sumGroupBox.Controls.Add(this.avgLabel);
             this.sumGroupBox.Controls.Add(this.elbowCvvText);
             this.sumGroupBox.Controls.Add(this.armsCvvText);
             this.sumGroupBox.Controls.Add(this.handsCvvText);
@@ -629,14 +705,14 @@
             this.handsLabel.TabIndex = 5;
             this.handsLabel.Text = "label";
             // 
-            // allLabel
+            // avgLabel
             // 
-            this.allLabel.AutoSize = true;
-            this.allLabel.Location = new System.Drawing.Point(152, 25);
-            this.allLabel.Name = "allLabel";
-            this.allLabel.Size = new System.Drawing.Size(29, 13);
-            this.allLabel.TabIndex = 4;
-            this.allLabel.Text = "label";
+            this.avgLabel.AutoSize = true;
+            this.avgLabel.Location = new System.Drawing.Point(152, 25);
+            this.avgLabel.Name = "avgLabel";
+            this.avgLabel.Size = new System.Drawing.Size(29, 13);
+            this.avgLabel.TabIndex = 4;
+            this.avgLabel.Text = "label";
             // 
             // elbowCvvText
             // 
@@ -679,74 +755,6 @@
             this.measureOnLoad.Text = "Measure Sync on load";
             this.measureOnLoad.UseVisualStyleBackColor = true;
             // 
-            // graphicsGB
-            // 
-            this.graphicsGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.graphicsGB.Controls.Add(this.bothRB);
-            this.graphicsGB.Controls.Add(this.linesRB);
-            this.graphicsGB.Controls.Add(this.pointsRB);
-            this.graphicsGB.Location = new System.Drawing.Point(489, 112);
-            this.graphicsGB.Name = "graphicsGB";
-            this.graphicsGB.Size = new System.Drawing.Size(195, 45);
-            this.graphicsGB.TabIndex = 11;
-            this.graphicsGB.TabStop = false;
-            this.graphicsGB.Text = "Graph Graphics";
-            // 
-            // bothRB
-            // 
-            this.bothRB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.bothRB.AutoSize = true;
-            this.bothRB.Checked = true;
-            this.bothRB.Location = new System.Drawing.Point(75, 19);
-            this.bothRB.Name = "bothRB";
-            this.bothRB.Size = new System.Drawing.Size(47, 17);
-            this.bothRB.TabIndex = 2;
-            this.bothRB.TabStop = true;
-            this.bothRB.Text = "Both";
-            this.bothRB.UseVisualStyleBackColor = true;
-            this.bothRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
-            // 
-            // linesRB
-            // 
-            this.linesRB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.linesRB.AutoSize = true;
-            this.linesRB.Location = new System.Drawing.Point(131, 19);
-            this.linesRB.Name = "linesRB";
-            this.linesRB.Size = new System.Drawing.Size(50, 17);
-            this.linesRB.TabIndex = 1;
-            this.linesRB.Text = "Lines";
-            this.linesRB.UseVisualStyleBackColor = true;
-            this.linesRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
-            // 
-            // pointsRB
-            // 
-            this.pointsRB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.pointsRB.AutoSize = true;
-            this.pointsRB.Location = new System.Drawing.Point(14, 19);
-            this.pointsRB.Name = "pointsRB";
-            this.pointsRB.Size = new System.Drawing.Size(54, 17);
-            this.pointsRB.TabIndex = 0;
-            this.pointsRB.Text = "Points";
-            this.pointsRB.UseVisualStyleBackColor = true;
-            this.pointsRB.CheckedChanged += new System.EventHandler(this.graphics_CheckedChanged);
-            // 
-            // cvvMethodGB
-            // 
-            this.cvvMethodGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cvvMethodGB.Controls.Add(this.absCvvButton);
-            this.cvvMethodGB.Controls.Add(this.squareCvvButton);
-            this.cvvMethodGB.Controls.Add(this.cvvButton);
-            this.cvvMethodGB.Location = new System.Drawing.Point(489, 61);
-            this.cvvMethodGB.Name = "cvvMethodGB";
-            this.cvvMethodGB.Size = new System.Drawing.Size(195, 45);
-            this.cvvMethodGB.TabIndex = 12;
-            this.cvvMethodGB.TabStop = false;
-            this.cvvMethodGB.Text = "CVV Calculation Method";
-            // 
             // SyncMeasureForm
             // 
             this.AllowDrop = true;
@@ -776,6 +784,10 @@
             this.menuStrip.PerformLayout();
             this.timeLagGB.ResumeLayout(false);
             this.timeLagGB.PerformLayout();
+            this.graphicsGB.ResumeLayout(false);
+            this.graphicsGB.PerformLayout();
+            this.cvvMethodGB.ResumeLayout(false);
+            this.cvvMethodGB.PerformLayout();
             this.progGroupBox.ResumeLayout(false);
             this.tabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
@@ -788,10 +800,6 @@
             this.sumGroupBox.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.graphicsGB.ResumeLayout(false);
-            this.graphicsGB.PerformLayout();
-            this.cvvMethodGB.ResumeLayout(false);
-            this.cvvMethodGB.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -827,7 +835,7 @@
         private System.Windows.Forms.Label elbowsLabel;
         private System.Windows.Forms.Label armsLabel;
         private System.Windows.Forms.Label handsLabel;
-        private System.Windows.Forms.Label allLabel;
+        private System.Windows.Forms.Label avgLabel;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem controlsToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
