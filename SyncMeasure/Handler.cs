@@ -22,6 +22,7 @@ namespace SyncMeasure
         private ECvv _cvvMethod;
         private string _graphic;
         private int _timeLag;                                   // Time lag [ms] for person 1 with respect to person 0. 
+        private int _nbasis;
 
         public enum EGraphics
         {
@@ -96,6 +97,7 @@ namespace SyncMeasure
             _cvvMethod = ECvv.CVV;
             _graphic = "b";
             _timeLag = 0;
+            _nbasis = 300;      // Dimension of B-spline basis used to represent each person's data along each dimension.
             SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             SetNewFormatDefaults();
             LoadUserSettings();
@@ -308,7 +310,7 @@ namespace SyncMeasure
 
                 if (ReportProgress(20, bgWorker, args)) return null;
 
-                var cvvCommand = " cosfunc(make.fd(timestamps, pos_1, pos_2), lag = " + (_timeLag / 1000.0) + ")";
+                var cvvCommand = " cosfunc(make.fd(timestamps, pos_1, pos_2, nbasis = "+_nbasis+"), lag = " + (_timeLag / 1000.0) + ")";
                 string assign = " <- ";
                 // ToDo: Enable parallel calculations?
                 // _engine.Evaluate("plan(multiprocess)");
@@ -954,6 +956,22 @@ namespace SyncMeasure
             _timeLag = timeLag;
         }
 
+        public int GetTimeLag()
+        {
+            return _timeLag;
+        }
+
+        public void SetNBasis(int nbasis)
+        {
+            _nbasis = nbasis;
+            SaveUserSettings();
+        }
+
+        public int GetNBasis()
+        {
+            return _nbasis;
+        }
+
         public void SetCvvMethod(ECvv cvvMethod)
         {
             _cvvMethod = cvvMethod;
@@ -996,6 +1014,12 @@ namespace SyncMeasure
             if (cvv?.Attributes?["Method"] != null)
             {
                 Enum.TryParse(cvv.Attributes["Method"].Value, out _cvvMethod);
+            }
+
+            var nb = rootElement.SelectSingleNode("nbasis");
+            if (nb?.Attributes?["Value"] != null)
+            {
+                int.TryParse(nb.Attributes["Value"].Value, out _nbasis);
             }
 
             var names = rootElement.SelectSingleNode("Names");
@@ -1046,9 +1070,12 @@ namespace SyncMeasure
             writer.WriteStartElement(Resources.TITLE);
             writer.WriteAttributeString("Version", SyncMeasureForm.Version);
 
-
             writer.WriteStartElement("CVV");
             writer.WriteAttributeString("Method", _cvvMethod.ToString());
+            writer.WriteEndElement();
+
+            writer.WriteStartElement("nbasis");
+            writer.WriteAttributeString("Value", _nbasis.ToString());
             writer.WriteEndElement();
 
             writer.WriteStartElement("Names");      // Column Names

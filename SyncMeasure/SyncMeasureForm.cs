@@ -246,6 +246,10 @@ namespace SyncMeasure
                 msg = @"Loading Cancelled by user.";
                 title = Resources.TITLE + @" - Loading cancelled.";
                 icon = MessageBoxIcon.Information;
+                if (sumGroupBox.Enabled)
+                {
+                    sumGroupBox.Show();
+                }
             }
             else
             {
@@ -267,6 +271,10 @@ namespace SyncMeasure
                 }
                 else
                 {
+                    if (sumGroupBox.Enabled)
+                    {
+                        sumGroupBox.Show();
+                    }
                     measureToolStripMenuItem.Enabled = false;
                     icon = MessageBoxIcon.Error;
                     title = Resources.TITLE + @" - File loading failed.";
@@ -284,6 +292,7 @@ namespace SyncMeasure
             circularProgressBar.Text = @"Loading.." + Environment.NewLine + @"0%";
             cancelButton.Enabled = true;
             progGroupBox.Show();
+            sumGroupBox.Hide();
             _prevLoadedFile = _loadedFile;
             _loadedFile = Path.GetFileNameWithoutExtension(filePath);
             loadingBackgroundWorker.RunWorkerAsync(filePath);
@@ -336,6 +345,7 @@ namespace SyncMeasure
                     elbowsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.elbows.cvv")[0]:0.00}";
                     grabLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.grab")[0]:0.00}";
                     pinchLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.pinch")[0]:0.00}";
+                    nbasisLabel.Text = _handler.GetNBasis().ToString(); // Get used nbasis.
 
                     var cvv = _handler.GetCvvMethod();
                     var handsText = @"Avg Hands CVV:";
@@ -360,6 +370,7 @@ namespace SyncMeasure
                         armsCvvText.Text = armsText;
                     }
 
+                    sumGroupBox.Enabled = true;
                     sumGroupBox.Show();
                     MessageBox.Show(this, @"Successfully measured sync.", Resources.TITLE + @" - Success.",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -437,20 +448,46 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void SetTimeLag(object sender, EventArgs e)
         {
-            var res = Interaction.InputBox(@"Enter Time Lag (milliseconds) for person 1 with respect to person 0:", @"Set Time Lag [ms]");
+            var res = Interaction.InputBox(@"Enter Time Lag (milliseconds) for person 1 with respect to person 0:",
+                @"Set Time Lag [ms]", _handler.GetTimeLag().ToString());
             if (string.IsNullOrEmpty(res))
             {
                 return;
             }
             if (!int.TryParse(res, out var lag))
             {
-                MessageBox.Show(this, @"Invalid input", @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                var res2 = MessageBox.Show(this, @"Invalid input.", @"Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+                if (res2 == DialogResult.Retry)
+                {
+                    SetTimeLag(sender, e);
+                }
+                return;     // return for recursion.
             }
+
             _handler.SetTimeLag(lag);
             timeLagLabel.Text = lag + @" [ms]";
         }
 
+        private void SetNBasis(object sender, EventArgs e)
+        {
+            var res = Interaction.InputBox(@"Enter nbasis (default = 300):", @"nbasis", _handler.GetNBasis().ToString());
+            if (string.IsNullOrEmpty(res))
+            {
+                return;
+            }
+            if (!int.TryParse(res, out var nbasis) || nbasis < 4)
+            {
+                var res2 = MessageBox.Show(this, @"Invalid input. nbasis must be an integer > 4.", @"Error",
+                    MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+                if (res2 == DialogResult.Retry)
+                {
+                    SetNBasis(sender, e);
+                }
+                return;     // return for recursion.
+            }
+
+            _handler.SetNBasis(nbasis);
+        }
 
         /// <summary>
         /// User's radio box selection changed. lines / points graph representation.
@@ -549,7 +586,7 @@ namespace SyncMeasure
             (new Combiner(_handler)).ShowDialog();
         }
 
-
+       
     }
 }
 
