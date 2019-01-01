@@ -43,3 +43,6 @@ install.packages("data.table")
 
 - [CyotekImageBox](https://www.nuget.org/packages/CyotekImageBox/) for Graph plots.
 
+
+
+_Project was devoloped and built with Visual Studio 2017, .NET framework 4.5.2._
