@@ -200,7 +200,7 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void dataGridView_CellParsing(object sender, DataGridViewCellParsingEventArgs e)
         {
-            if (e.RowIndex < 0 || e.ColumnIndex != 1 || !(sender is DataGridView))
+            if (e.RowIndex < 1 || e.ColumnIndex != 1 || !(sender is DataGridView))
             {
                 return;
             }
@@ -209,17 +209,16 @@ namespace SyncMeasure
 
             if (dgv[1, e.RowIndex].ReadOnly)
             {
-                return;     // Header rows.
+                return; // Header rows.
             }
-            var maxWeightIndex = _handler.GetWeights().Count + 1;   // + 1 for Header row.
 
             /* Don't allow invalid weights input */
-            if (e.RowIndex < maxWeightIndex)
+            if (_settings.Equals(ESettings.WEIGHTS))
             {
                 var regex = new Regex("(0.\\d+$)|0$|1$");
-                if (!regex.IsMatch((string)e.Value))
+                if (!regex.IsMatch((string) e.Value))
                 {
-                    e.Value = dgv[1, e.RowIndex].Value;       // old value.
+                    e.Value = dgv[1, e.RowIndex].Value; // old value.
                     e.ParsingApplied = true;
                     MessageBox.Show(this, @"Invalid weight value!", Resources.TITLE + @" - Invalid Weight",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -235,8 +234,11 @@ namespace SyncMeasure
             }
 
             /* Col Names */
-            e.Value = _handler.CreateValidColumnName((string)e.Value);
-            e.ParsingApplied = true;
+            if (_settings.Equals(ESettings.NAMES))
+            {
+                e.Value = _handler.CreateValidColumnName((string)e.Value);
+                e.ParsingApplied = true;
+            }
         }
 
         private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
