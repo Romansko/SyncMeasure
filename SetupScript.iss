@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SyncMeasure"
-#define MyAppVersion "1.6"
+#define MyAppVersion "1.7"
 #define MyAppPublisher "Roman Koifman"
 #define MyAppURL "https://github.com/Romansko/SyncMeasure"
 #define MyAppExeName "SyncMeasure.exe"

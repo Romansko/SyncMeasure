@@ -238,6 +238,58 @@ namespace SyncMeasure
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="makeFdObj">Data Frame representing the make.fd object</param>
+        private double FindBestCvvTimeLag(string makeFdObj)
+        {
+            if (!_engine.Evaluate("exists('"+ makeFdObj + "')").AsLogical()[0])
+            {
+                return 0;
+            }
+
+            var multilagCmd = "objdf <- multilag(" + makeFdObj;
+            if (_cvvMethod.Equals(ECvv.SQUARE_CVV))
+            {
+                multilagCmd += ", power=2)";
+            }
+            else
+            {
+                multilagCmd += ")";
+            }
+            _engine.Evaluate(multilagCmd);
+            _engine.Evaluate("objdf <- objdf$data.frame");
+            _engine.Evaluate("range <- levels(as.factor(objdf$lag))");
+            var range = _engine.GetSymbol("range").AsCharacter();
+
+            var maxCvvLag = "";
+            double maxCvv = 0;
+            foreach (var lag in range)
+            {
+                var name = CreateValidColumnName("lag_" + lag);
+                _engine.Evaluate(name + " <- mean( objdf[objdf$lag == " + lag + ",]$cosine )");
+                var value = (double) _engine.GetSymbol(name).AsVector()[0];
+                if (value > maxCvv)
+                {
+                    maxCvv = value;
+                    maxCvvLag = lag;
+                }
+            }
+
+            foreach (var lag in range)
+            {
+                RemoveFromR(CreateValidColumnName("lag_" + lag));
+            }
+            RemoveFromR("objdf", "range");
+            if (double.TryParse(maxCvvLag, out var timeLag))
+            {
+                return timeLag;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
         /// Measure Synchronization from loaded DataFrame.
         /// </summary>
         /// <param name="bgWorker"></param>
@@ -248,7 +300,7 @@ namespace SyncMeasure
             try
             {
                 /* prepare objects for R parsing */
-                var timestamps = new List<int>();
+                var timestamps = new List<double>();
                 var armsPos = GetSyncArray();
                 var handsPos = GetSyncArray();
                 var elbowsPos = GetSyncArray();
@@ -277,13 +329,13 @@ namespace SyncMeasure
                     }
                 }
                 
-                _engine.SetSymbol("timestamps", _engine.CreateIntegerVector(timestamps));
+                _engine.SetSymbol("timestamps", _engine.CreateNumericVector(timestamps));
                 _engine.Evaluate("minTime <- timestamps[1]");
                 _engine.Evaluate("maxTime <- timestamps[length(timestamps)]");
-                _engine.Evaluate("laggedTs <- timestamps + " + _timeLag);           // to be used with grab/pinch
+                _engine.Evaluate("laggedTs <- timestamps + " + (_timeLag / 1000.0));           // to be used with grab/pinch
                 _engine.Evaluate("laggedTs <- replace(laggedTs, laggedTs < minTime, NA)");
                 _engine.Evaluate("laggedTs <- replace(laggedTs, laggedTs > maxTime, NA)");
-                _engine.Evaluate("omittedTs <- as.integer(na.omit(laggedTs))");     // to be used with cvv
+                _engine.Evaluate("omittedTs <- as.numeric(na.omit(laggedTs))");     // to be used with cvv
                 RemoveFromR("minTime", "maxTime");
 
                 for (var i = 0; i < 2; ++i)     // for both hands.
@@ -310,7 +362,8 @@ namespace SyncMeasure
 
                 if (ReportProgress(20, bgWorker, args)) return null;
 
-                var cvvCommand = " cosfunc(make.fd(timestamps, pos_1, pos_2, nbasis = "+_nbasis+"), lag = " + (_timeLag / 1000.0) + ")";
+                var makeFdCommand = "make.fd(timestamps, pos_1, pos_2, nbasis = " + _nbasis + ")";
+                var cvvCommand = " cosfunc(" + makeFdCommand + ", lag = " + (_timeLag / 1000.0) + ")";
                 string assign = " <- ";
                 // ToDo: Enable parallel calculations?
                 // _engine.Evaluate("plan(multiprocess)");
@@ -321,7 +374,7 @@ namespace SyncMeasure
                 _engine.Evaluate("pos_1 <- cbind(hand0.pos.x, hand0.pos.y, hand0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(hand1.pos.x, hand1.pos.y, hand1.pos.z)");
                 _engine.Evaluate("hand.cvv" + assign + cvvCommand);
-
+                
                 if (ReportProgress(40, bgWorker, args)) return null;
 
                 // Arm
@@ -483,9 +536,10 @@ namespace SyncMeasure
                 }
 
                 /* Align timestamps - timestamp(i) = timestamp(i) - timestamp(0) */
-                _engine.Evaluate(name + "[," + _colNames[Resources.TIMESTAMP] + " := " + name + "[," +
-                                 _colNames[Resources.TIMESTAMP] + "] - " + name + "[1," +
-                                 _colNames[Resources.TIMESTAMP] + "]]");
+                cmd = name + "[," + _colNames[Resources.TIMESTAMP] + " := " + name + "[," +
+                      _colNames[Resources.TIMESTAMP] + "] - " + name + "[1," +
+                      _colNames[Resources.TIMESTAMP] + "]]";
+                _engine.Evaluate(cmd);
 
                 return new ResultStatus(true, "");
             }
@@ -608,20 +662,12 @@ namespace SyncMeasure
                         }
                     }
 
-                    int timestamp, ts1, ts2;
-                    if (_format.Equals(EFormat.NEW))
-                    {
-                        ts1 = (int)(1000 * (double)dataFrame[i, _colNames[Resources.TIMESTAMP]]);
-                        ts2 = (int)(1000 * (double)dataFrame[i + 1, _colNames[Resources.TIMESTAMP]]);
-                    } 
-                    else 
-                    {
-                        ts1 = (int)dataFrame[i, _colNames[Resources.TIMESTAMP]];
-                        ts2 = (int)dataFrame[i + 1, _colNames[Resources.TIMESTAMP]];
-                    }
-                    
+                    double timestamp;
+                    var ts1 = (double) dataFrame[i, _colNames[Resources.TIMESTAMP]];
+                    var ts2 = (double) dataFrame[i + 1, _colNames[Resources.TIMESTAMP]];
+
                     var diff = ts2 - ts1;
-                    if (diff == 0)
+                    if (Math.Abs(diff) < 0.00001)
                     {
                         timestamp = ts1;
                     }

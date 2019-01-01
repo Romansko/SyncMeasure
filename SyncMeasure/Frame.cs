@@ -6,9 +6,9 @@ namespace SyncMeasure
     {
         public int Id { get; }
         public List<Hand> Hands { get; }
-        public int Timestamp { get; }
+        public double Timestamp { get; }
 
-        public Frame(int id, List<Hand> hands, int timestamp)
+        public Frame(int id, List<Hand> hands, double timestamp)
         {
             Id = id;
             Hands = hands ?? new List<Hand>();
