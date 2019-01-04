@@ -12,6 +12,8 @@ namespace SyncMeasure
         public Combiner(Handler handler)
         {
             InitializeComponent();
+            numericUpDown1.Controls[1].KeyPress += textBox_KeyPress;
+            numericUpDown2.Controls[1].KeyPress += textBox_KeyPress;
             /* Remove up down arrows */
             numericUpDown1.Controls.RemoveAt(0);
             numericUpDown2.Controls.RemoveAt(0);
@@ -30,6 +32,17 @@ namespace SyncMeasure
                 return;
             var tb = (TextBox) ((NumericUpDown) sender).Controls[0];
             BeginInvoke((Action) delegate { tb.SelectAll(); });         // must be executed async or otherwise won't work.
+        }
+
+        /// <summary>
+        /// Disable - input for frame ids.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '-')
+                e.Handled = true;
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)

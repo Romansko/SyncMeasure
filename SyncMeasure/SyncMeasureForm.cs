@@ -448,45 +448,24 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void SetTimeLag(object sender, EventArgs e)
         {
-            var res = Interaction.InputBox(@"Enter Time Lag (milliseconds) for person 1 with respect to person 0:",
-                @"Set Time Lag [ms]", _handler.GetTimeLag().ToString());
-            if (string.IsNullOrEmpty(res))
+            var inputBox = new InputBox(@"Enter Time Lag (milliseconds) for person 1 with respect to person 0:",
+                @"Set Time Lag [ms]", _handler.GetTimeLag());
+            var res = inputBox.ShowDialog(this);
+            if (res == DialogResult.OK)
             {
-                return;
-            }
-            if (!int.TryParse(res, out var lag))
-            {
-                var res2 = MessageBox.Show(this, @"Invalid input.", @"Error", MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-                if (res2 == DialogResult.Retry)
-                {
-                    SetTimeLag(sender, e);
-                }
-                return;     // return for recursion.
-            }
-
-            _handler.SetTimeLag(lag);
-            timeLagLabel.Text = lag + @" [ms]";
+                _handler.SetTimeLag(inputBox.GetValue());
+                timeLagLabel.Text = inputBox.GetValue() + @" [ms]";
+            } 
         }
 
         private void SetNBasis(object sender, EventArgs e)
         {
-            var res = Interaction.InputBox(@"Enter nbasis (default = 300):", @"nbasis", _handler.GetNBasis().ToString());
-            if (string.IsNullOrEmpty(res))
+            var inputBox = new InputBox(@"Enter nbasis (default = 300):", @"nbasis", _handler.GetNBasis());
+            var res = inputBox.ShowDialog(this);
+            if (res == DialogResult.OK)
             {
-                return;
+                _handler.SetNBasis(inputBox.GetValue());
             }
-            if (!int.TryParse(res, out var nbasis) || nbasis < 4)
-            {
-                var res2 = MessageBox.Show(this, @"Invalid input. nbasis must be an integer > 4.", @"Error",
-                    MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
-                if (res2 == DialogResult.Retry)
-                {
-                    SetNBasis(sender, e);
-                }
-                return;     // return for recursion.
-            }
-
-            _handler.SetNBasis(nbasis);
         }
 
         /// <summary>

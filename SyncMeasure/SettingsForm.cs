@@ -18,14 +18,25 @@ namespace SyncMeasure
 
         private readonly Handler _handler;
         private readonly ESettings _settings;
-        
+
         public SettingsForm(Handler handler, ESettings settings)
         {
             InitializeComponent();
-            Text = settings.Equals(ESettings.NAMES) ? @"CSV File column names. (R Format)." : @"Sync Weights";
+            if (settings.Equals(ESettings.NAMES))
+            {
+                Text = @"CSV File column names. (R Format).";
+                defaultsButton.Visible = true;
+                var col = dataGridView.Columns["Enabled"];
+                if (col != null) col.Visible = false;
+
+            }
+            else
+            {
+                Text = @"Sync Weights";
+                defaultsButton.Visible = false;
+            }
             _handler = handler;
             _settings = settings;
-            defaultsButton.Visible = settings.Equals(ESettings.NAMES);
             LoadSettings();
         }
 
@@ -55,7 +66,6 @@ namespace SyncMeasure
                     dataGridView.Rows.Add(n.Key, n.Value);
                     var thisRow = dataGridView.Rows[dataGridView.Rows.Count - 1];
                     thisRow.Cells[0].Style.BackColor = Color.AliceBlue;
-                    thisRow.Cells[2].ReadOnly = true;
                 }
             }
             else    // Weights
@@ -179,14 +189,14 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void defaultsButton_Click(object sender, EventArgs e)
         {
-            var msg = @"Set New Format Column Names?" + Environment.NewLine + @"Yes for New format. No for old format.";
-            var res = MessageBox.Show(this, msg, @"Set Defaults", MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Question);
-            if (res.Equals(DialogResult.Yes))
+            var formatMsgBox = new FormatDefaultMsgBox();
+            formatMsgBox.ShowDialog(this);
+            var res = formatMsgBox.GetFormat();
+            if (res.Equals(Handler.EFormat.NEW))
             {
                 _handler.SetNewFormatDefaults();
             }
-            else if (res.Equals(DialogResult.No))
+            else if (res.Equals(Handler.EFormat.OLD))
             {
                 _handler.SetOldFormatDefaults();
             }

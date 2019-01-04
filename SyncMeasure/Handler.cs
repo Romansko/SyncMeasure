@@ -34,6 +34,7 @@ namespace SyncMeasure
 
         public enum EFormat
         {
+            NONE,
             OLD,
             NEW
         };
@@ -546,7 +547,7 @@ namespace SyncMeasure
                     {
                         var errorMessage = @"Provided file doesn't contain column name: " + cName +
                                            Environment.NewLine +
-                                           @"Try changing Default _format in settings or rename column name.";
+                                           @"Try changing Default format in settings or rename column name.";
                         return new ResultStatus(false, errorMessage);
                     }
                 }
@@ -587,6 +588,15 @@ namespace SyncMeasure
             return new ResultStatus(true, "");
         }
 
+        private dynamic UnboxTimestamp(object tsObject)
+        {
+            if (tsObject is int ts)
+            {
+                return ts;
+            }
+            return (double) tsObject;
+        }
+
         /// <summary>
         /// Parse csv output file.
         /// </summary>
@@ -624,7 +634,8 @@ namespace SyncMeasure
                  * Filter non two hands rows. Truncate timestamps to compensate for the gap created by filtering
                  */
                 var frames = new List<Frame>();
-                var tsDelta = (double) dataFrame[0, _colNames[Resources.TIMESTAMP]]; // initial delta. If TS alignment applied, =0.
+                // initial delta. If TS alignment applied, =0.
+                double tsDelta = UnboxTimestamp(dataFrame[0, _colNames[Resources.TIMESTAMP]]);
                 int firstGapIndex = -1;
                 int firstHandId = -1, secondHandId = -1;
                 for (var i = 0; i < dataFrame.RowCount - 1; /* inc i by cases */)
@@ -644,18 +655,19 @@ namespace SyncMeasure
 
                     if (firstGapIndex > -1) // mind the gap.
                     {
-                        tsDelta += (double)dataFrame[i, _colNames[Resources.TIMESTAMP]] -
-                                   (double)dataFrame[firstGapIndex, _colNames[Resources.TIMESTAMP]];
+                        tsDelta += UnboxTimestamp(dataFrame[i, _colNames[Resources.TIMESTAMP]]) -
+                                   UnboxTimestamp(dataFrame[firstGapIndex, _colNames[Resources.TIMESTAMP]]);
                         firstGapIndex = -1;
                     }
 
                     /* Timestamps should be equal in a single frame.
                      * If not, get the avg of both rather than throwing away the frame.
                      */
-                    var ts1 = (double)dataFrame[i, _colNames[Resources.TIMESTAMP]] - tsDelta;
-                    var ts2 = (double)dataFrame[i + 1, _colNames[Resources.TIMESTAMP]] - tsDelta;
-                    var diff = ts2 - ts1;
+                    double ts1 = UnboxTimestamp(dataFrame[i, _colNames[Resources.TIMESTAMP]]);
+                    double ts2 = UnboxTimestamp(dataFrame[i + 1, _colNames[Resources.TIMESTAMP]]);
+                    double diff = ts2 - ts1;
                     double timestamp = (Math.Abs(diff) < DELTA) ? ts1 : ts1 + diff / 2;
+                    timestamp -= tsDelta;
 
                     /* Hand objects parsing */
                     var hand1 = GetHand(dataFrame, i, out errMsg);
@@ -1065,15 +1077,20 @@ namespace SyncMeasure
 
         public void AmendColumnsByFormat()
         {
-            if (_format == EFormat.OLD)
+            switch (_format)
             {
-                if (!_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Add(Resources.HAND_ID, "");
-                if (_colNames.ContainsKey(Resources.GRAB_ANGLE)) _colNames.Remove(Resources.GRAB_ANGLE);
-            }
-            else        // NEW
-            {
-                if (_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Remove(Resources.HAND_ID);
-                if (!_colNames.ContainsKey(Resources.GRAB_ANGLE)) _colNames.Add(Resources.GRAB_ANGLE, "");
+                case EFormat.OLD:
+                {
+                    if (!_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Add(Resources.HAND_ID, "");
+                    if (_colNames.ContainsKey(Resources.GRAB_ANGLE)) _colNames.Remove(Resources.GRAB_ANGLE);
+                    break;
+                }
+                case EFormat.NEW:
+                {
+                    if (_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Remove(Resources.HAND_ID);
+                    if (!_colNames.ContainsKey(Resources.GRAB_ANGLE)) _colNames.Add(Resources.GRAB_ANGLE, "");
+                    break;
+                }
             }
         }
 
