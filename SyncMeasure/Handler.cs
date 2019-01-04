@@ -388,17 +388,23 @@ namespace SyncMeasure
                 _engine.Evaluate("pos_1 <- cbind(arm0.pos.x, arm0.pos.y, arm0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(arm1.pos.x, arm1.pos.y, arm1.pos.z)");                
                 _engine.Evaluate("arm.cvv" + assign + cvvCommand);
+
+                /*
                 _engine.Evaluate("test <- " + makeFdCommand);
-                //var b = FindBestCvvTimeLag("test");
+                var b = FindBestCvvTimeLag("test");
+                */
                 if (ReportProgress(60, bgWorker, args)) return null;
 
                 // Elbow
                 _engine.Evaluate("pos_1 <- cbind(elbow0.pos.x, elbow0.pos.y, elbow0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(elbow1.pos.x, elbow1.pos.y, elbow1.pos.z)");
                 _engine.Evaluate("elbow.cvv" + assign + cvvCommand);
-                _engine.Evaluate("test <- " + makeFdCommand);
 
-              // var c = FindBestCvvTimeLag("test");
+                /*
+                _engine.Evaluate("test <- " + makeFdCommand);
+                var c = FindBestCvvTimeLag("test");
+                */
+
                 if (ReportProgress(80, bgWorker, args)) return null;
 
                 _engine.Evaluate("hcvv <- hand.cvv(omittedTs)");
