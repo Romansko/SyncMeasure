@@ -225,7 +225,7 @@ namespace SyncMeasure
                     return;
                 }
 
-                if (Math.Abs(Convert.ToDouble(e.Value)) < 0.0001)
+                if (Math.Abs(Convert.ToDouble(e.Value)) < Handler.DELTA)
                 {
                     dgv[2, e.RowIndex].Value = false;
                     e.ParsingApplied = true;

@@ -159,7 +159,7 @@
             this.allGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.allGraphBox.Location = new System.Drawing.Point(3, 3);
             this.allGraphBox.Name = "allGraphBox";
-            this.allGraphBox.Size = new System.Drawing.Size(447, 414);
+            this.allGraphBox.Size = new System.Drawing.Size(383, 418);
             this.allGraphBox.TabIndex = 5;
             this.allGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -177,7 +177,7 @@
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.ShowItemToolTips = true;
-            this.menuStrip.Size = new System.Drawing.Size(696, 27);
+            this.menuStrip.Size = new System.Drawing.Size(632, 27);
             this.menuStrip.TabIndex = 6;
             // 
             // loadToolStripMenuItem
@@ -329,7 +329,7 @@
             // 
             this.timeLagGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.timeLagGB.Controls.Add(this.timeLagLabel);
-            this.timeLagGB.Location = new System.Drawing.Point(489, 163);
+            this.timeLagGB.Location = new System.Drawing.Point(425, 163);
             this.timeLagGB.Name = "timeLagGB";
             this.timeLagGB.Size = new System.Drawing.Size(195, 45);
             this.timeLagGB.TabIndex = 12;
@@ -403,7 +403,7 @@
             this.graphicsGB.Controls.Add(this.bothRB);
             this.graphicsGB.Controls.Add(this.linesRB);
             this.graphicsGB.Controls.Add(this.pointsRB);
-            this.graphicsGB.Location = new System.Drawing.Point(489, 112);
+            this.graphicsGB.Location = new System.Drawing.Point(425, 112);
             this.graphicsGB.Name = "graphicsGB";
             this.graphicsGB.Size = new System.Drawing.Size(195, 45);
             this.graphicsGB.TabIndex = 11;
@@ -459,7 +459,7 @@
             this.cvvMethodGB.Controls.Add(this.absCvvButton);
             this.cvvMethodGB.Controls.Add(this.squareCvvButton);
             this.cvvMethodGB.Controls.Add(this.cvvButton);
-            this.cvvMethodGB.Location = new System.Drawing.Point(489, 61);
+            this.cvvMethodGB.Location = new System.Drawing.Point(425, 61);
             this.cvvMethodGB.Name = "cvvMethodGB";
             this.cvvMethodGB.Size = new System.Drawing.Size(195, 45);
             this.cvvMethodGB.TabIndex = 12;
@@ -483,7 +483,7 @@
             this.progGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.progGroupBox.Controls.Add(this.cancelButton);
             this.progGroupBox.Controls.Add(this.circularProgressBar);
-            this.progGroupBox.Location = new System.Drawing.Point(489, 333);
+            this.progGroupBox.Location = new System.Drawing.Point(425, 337);
             this.progGroupBox.Name = "progGroupBox";
             this.progGroupBox.Size = new System.Drawing.Size(195, 154);
             this.progGroupBox.TabIndex = 7;
@@ -517,7 +517,7 @@
             this.tabControl.Location = new System.Drawing.Point(12, 41);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(461, 446);
+            this.tabControl.Size = new System.Drawing.Size(397, 450);
             this.tabControl.TabIndex = 8;
             // 
             // tabPage1
@@ -526,7 +526,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(453, 420);
+            this.tabPage1.Size = new System.Drawing.Size(389, 424);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "All";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -653,7 +653,7 @@
             this.sumGroupBox.Controls.Add(this.handsCvvText);
             this.sumGroupBox.Controls.Add(this.averageText);
             this.sumGroupBox.Enabled = false;
-            this.sumGroupBox.Location = new System.Drawing.Point(489, 218);
+            this.sumGroupBox.Location = new System.Drawing.Point(425, 222);
             this.sumGroupBox.Name = "sumGroupBox";
             this.sumGroupBox.Size = new System.Drawing.Size(195, 269);
             this.sumGroupBox.TabIndex = 9;
@@ -791,7 +791,7 @@
             // 
             this.measureOnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.measureOnLoad.AutoSize = true;
-            this.measureOnLoad.Location = new System.Drawing.Point(491, 38);
+            this.measureOnLoad.Location = new System.Drawing.Point(427, 38);
             this.measureOnLoad.Name = "measureOnLoad";
             this.measureOnLoad.Size = new System.Drawing.Size(132, 17);
             this.measureOnLoad.TabIndex = 10;
@@ -804,7 +804,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightBlue;
-            this.ClientSize = new System.Drawing.Size(696, 499);
+            this.ClientSize = new System.Drawing.Size(632, 503);
             this.Controls.Add(this.cvvMethodGB);
             this.Controls.Add(this.timeLagGB);
             this.Controls.Add(this.graphicsGB);
@@ -816,7 +816,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip;
-            this.MinimumSize = new System.Drawing.Size(712, 538);
+            this.MinimumSize = new System.Drawing.Size(648, 542);
             this.Name = "SyncMeasureForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SyncMeasure";

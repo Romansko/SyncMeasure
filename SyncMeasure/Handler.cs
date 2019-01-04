@@ -23,6 +23,7 @@ namespace SyncMeasure
         private string _graphic;
         private int _timeLag;                                   // Time lag [ms] for person 1 with respect to person 0. 
         private int _nbasis;
+        public const double DELTA = 0.000001;
 
         public enum EGraphics
         {
@@ -243,6 +244,7 @@ namespace SyncMeasure
         /// <param name="makeFdObj">Data Frame representing the make.fd object</param>
         private double FindBestCvvTimeLag(string makeFdObj)
         {
+            
             if (!_engine.Evaluate("exists('"+ makeFdObj + "')").AsLogical()[0])
             {
                 return 0;
@@ -258,6 +260,7 @@ namespace SyncMeasure
                 multilagCmd += ")";
             }
             _engine.Evaluate(multilagCmd);
+            _engine.Evaluate("dev.off()");      // turn off the popped up window.
             _engine.Evaluate("objdf <- objdf$data.frame");
             _engine.Evaluate("range <- levels(as.factor(objdf$lag))");
             var range = _engine.GetSymbol("range").AsCharacter();
@@ -374,21 +377,28 @@ namespace SyncMeasure
                 _engine.Evaluate("pos_1 <- cbind(hand0.pos.x, hand0.pos.y, hand0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(hand1.pos.x, hand1.pos.y, hand1.pos.z)");
                 _engine.Evaluate("hand.cvv" + assign + cvvCommand);
-                
+
+                /*
+                _engine.Evaluate("test <- " + makeFdCommand);
+                var a = FindBestCvvTimeLag("test");
+                */
                 if (ReportProgress(40, bgWorker, args)) return null;
 
                 // Arm
                 _engine.Evaluate("pos_1 <- cbind(arm0.pos.x, arm0.pos.y, arm0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(arm1.pos.x, arm1.pos.y, arm1.pos.z)");                
                 _engine.Evaluate("arm.cvv" + assign + cvvCommand);
-
+                _engine.Evaluate("test <- " + makeFdCommand);
+                //var b = FindBestCvvTimeLag("test");
                 if (ReportProgress(60, bgWorker, args)) return null;
 
                 // Elbow
                 _engine.Evaluate("pos_1 <- cbind(elbow0.pos.x, elbow0.pos.y, elbow0.pos.z)");
                 _engine.Evaluate("pos_2 <- cbind(elbow1.pos.x, elbow1.pos.y, elbow1.pos.z)");
                 _engine.Evaluate("elbow.cvv" + assign + cvvCommand);
+                _engine.Evaluate("test <- " + makeFdCommand);
 
+              // var c = FindBestCvvTimeLag("test");
                 if (ReportProgress(80, bgWorker, args)) return null;
 
                 _engine.Evaluate("hcvv <- hand.cvv(omittedTs)");
@@ -535,7 +545,7 @@ namespace SyncMeasure
                     }
                 }
 
-                /* Align timestamps - timestamp(i) = timestamp(i) - timestamp(0) */
+                /* Align timestamps to start from [0]: timestamp(i) = timestamp(i) - timestamp(0) */
                 cmd = name + "[," + _colNames[Resources.TIMESTAMP] + " := " + name + "[," +
                       _colNames[Resources.TIMESTAMP] + "] - " + name + "[1," +
                       _colNames[Resources.TIMESTAMP] + "]]";
@@ -581,54 +591,85 @@ namespace SyncMeasure
         public ResultStatus LoadCsvFile(string filePath, BackgroundWorker bgWorker, DoWorkEventArgs args)
         {
             var resultStatus = LoadFileToR("dataset", filePath);
-            if (!resultStatus.Status) return resultStatus;      // if loading to R failed.
+            if (!resultStatus.Status) return resultStatus; // if loading to R failed.
 
             try
             {
-                /* filter only the frames with two hands */
-                _engine.Evaluate("dataset <- dataset[dataset$" + _colNames[Resources.HANDS_IN_FRAME] + " == 2,]");
+                string errMsg;
+                /* Filter non two hands rows - Testing if file is valid */
+                _engine.Evaluate("dataset.test <- dataset[dataset$" + _colNames[Resources.HANDS_IN_FRAME] + " == 2,]");
+                if (0 == _engine.Evaluate("nrow(dataset.test)").AsInteger()[0])
+                {
+                    errMsg = @"Loaded file doesn't contain rows with 2 Hands in frames." + Environment.NewLine;
+                    errMsg += @"Please load a valid file.";
+                    return new ResultStatus(false, errMsg); // no valid rows found.
+                }
+                RemoveFromR("dataset.test");
 
                 // retrieve the data frame
                 var dataFrame = _engine.GetSymbol("dataset").AsDataFrame();
-                
                 if (dataFrame == null)
                 {
                     return new ResultStatus(false, @"Failed to load '" + Path.GetFileName(filePath));
                 }
 
-                string errorMessage;
-                if (dataFrame.RowCount == 0)
-                {
-                    errorMessage = @"Only one hand detected in frames. File might be representing 'Alone Mode'.";
-                    errorMessage += @" Please load Autonomous or Sync mode file.";
-                    return new ResultStatus(false, errorMessage);
-                }
-
+                /*
+                 * Build Frames list. 
+                 * Filter non two hands rows. Truncate timestamps to compensate for the gap created by filtering
+                 */
                 var frames = new List<Frame>();
-                int firstHandId = -1;
-                int secondHandId = -1;
-                for (var i = 0; i < dataFrame.RowCount - 1; i = i + 2)
+                var tsDelta = (double) dataFrame[0, _colNames[Resources.TIMESTAMP]]; // initial delta. If TS alignment applied, =0.
+                int firstGapIndex = -1;
+                int firstHandId = -1, secondHandId = -1;
+                for (var i = 0; i < dataFrame.RowCount - 1; /* inc i by cases */)
                 {
                     var percent = (double) i / dataFrame.RowCount * 100;
-                    if (ReportProgress((int)percent, bgWorker, args)) return null;
+                    if (ReportProgress((int) percent, bgWorker, args)) return null;
 
-                    var hand1 = GetHand(dataFrame, i, out errorMessage);
-                    var hand2 = GetHand(dataFrame, i + 1, out errorMessage);
+                    if ((int) dataFrame[i, _colNames[Resources.HANDS_IN_FRAME]] != 2)
+                    {
+                        if (firstGapIndex == -1)
+                        {
+                            firstGapIndex = i;
+                        }
+                        i++;
+                        continue;
+                    }
+
+                    if (firstGapIndex > -1) // mind the gap.
+                    {
+                        tsDelta += (double)dataFrame[i, _colNames[Resources.TIMESTAMP]] -
+                                   (double)dataFrame[firstGapIndex, _colNames[Resources.TIMESTAMP]];
+                        firstGapIndex = -1;
+                    }
+
+                    /* Timestamps should be equal in a single frame.
+                     * If not, get the avg of both rather than throwing away the frame.
+                     */
+                    var ts1 = (double)dataFrame[i, _colNames[Resources.TIMESTAMP]] - tsDelta;
+                    var ts2 = (double)dataFrame[i + 1, _colNames[Resources.TIMESTAMP]] - tsDelta;
+                    var diff = ts2 - ts1;
+                    double timestamp = (Math.Abs(diff) < DELTA) ? ts1 : ts1 + diff / 2;
+
+                    /* Hand objects parsing */
+                    var hand1 = GetHand(dataFrame, i, out errMsg);
+                    var hand2 = GetHand(dataFrame, i + 1, out errMsg);
                     if (hand1 == null || hand2 == null)
                     {
-                        return new ResultStatus(false, errorMessage);
+                        return new ResultStatus(false, errMsg);
                     }
 
                     var fid1 = (int) dataFrame[i, _colNames[Resources.FRAME_ID]];
                     var fid2 = (int) dataFrame[i + 1, _colNames[Resources.FRAME_ID]];
                     if (fid1 != fid2)
                     {
-                        errorMessage = @"Invalid frameIDs in single frame: " + fid1 + ", " + fid2;
-                        return new ResultStatus(false, errorMessage);
+                        errMsg = @"Invalid frameIDs in single frame: " + fid1 + ", " + fid2 + Environment.NewLine;
+                        errMsg += @"(Row #" + i + " and #" + (i + 1) + ")";
+                        return new ResultStatus(false, errMsg);
                     }
 
                     /* Try to recognize hands that went out of frame */
-                    if (firstHandId == -1 || secondHandId == -1)     // Initialize
+                    if (firstHandId == -1 || secondHandId == -1) // Initialize
                     {
                         firstHandId = hand1.Id;
                         secondHandId = hand2.Id;
@@ -652,33 +693,20 @@ namespace SyncMeasure
                                 hand2.Id = sameType ? secondHandId : firstHandId;
                             }
                         }
-                        else if (firstHandId != hand1.Id)     // only 1st hand went out of frame.
+                        else if (firstHandId != hand1.Id) // only 1st hand went out of frame.
                         {
-                            hand1.Id = firstHandId;           // Reconnecting ID is enough.
+                            hand1.Id = firstHandId; // Reconnecting ID is enough.
                         }
-                        else  // only 2nd hand went out of frame.
+                        else // only 2nd hand went out of frame.
                         {
-                            hand2.Id = secondHandId;           // Reconnecting ID is enough.
+                            hand2.Id = secondHandId; // Reconnecting ID is enough.
                         }
-                    }
-
-                    double timestamp;
-                    var ts1 = (double) dataFrame[i, _colNames[Resources.TIMESTAMP]];
-                    var ts2 = (double) dataFrame[i + 1, _colNames[Resources.TIMESTAMP]];
-
-                    var diff = ts2 - ts1;
-                    if (Math.Abs(diff) < 0.00001)
-                    {
-                        timestamp = ts1;
-                    }
-                    else
-                    {
-                        timestamp = ts1 + diff / 2;
                     }
 
                     var frame = new Frame(fid1, new List<Hand> {hand1, hand2}, timestamp);
                     frames.Add(frame);
-                }
+                    i += 2;
+                }   // for
 
                 if (ReportProgress(99, bgWorker, args)) return null;
                 _frames = frames;
@@ -687,7 +715,8 @@ namespace SyncMeasure
             }
             catch (Exception e)
             {
-                return new ResultStatus(false, e.Message);
+                return new ResultStatus(false,
+                    @"Failed to load '" + Path.GetFileName(filePath) + Environment.NewLine + e.Message);
             }
         }
 
@@ -865,7 +894,7 @@ namespace SyncMeasure
         public bool SetWeight(double arm, double elbow, double hand, double grab, double pinch, out string errorMessage)
         {
             var weightSum = arm + elbow + hand + grab + pinch;
-            if (Math.Abs(weightSum - 1.0) > 0.0001)  // for not losing precision.
+            if (Math.Abs(weightSum - 1.0) > DELTA)  // for not losing precision.
             {
                 errorMessage = @"Invalid weights sum: Must be equal to 1.";
                 return false;

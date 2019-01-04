@@ -23,6 +23,7 @@ namespace SyncMeasure
         public SyncMeasureForm()
         {
             InitializeComponent();
+            Size = new Size(757, 617);      // optimal size.
             timeLagGB.Click += SetTimeLag;
             timeLagLabel.Click += SetTimeLag;
             Version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
@@ -30,7 +31,7 @@ namespace SyncMeasure
             _loadedFile = _prevLoadedFile = "";
             _title = Text;
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
-
+            
             /* BackgroundWorkers initialize */
             loadingBackgroundWorker.WorkerReportsProgress = true;
             loadingBackgroundWorker.WorkerSupportsCancellation = true;
@@ -293,7 +294,6 @@ namespace SyncMeasure
             cancelButton.Enabled = true;
             progGroupBox.Show();
             sumGroupBox.Hide();
-            _prevLoadedFile = _loadedFile;
             _loadedFile = Path.GetFileNameWithoutExtension(filePath);
             loadingBackgroundWorker.RunWorkerAsync(filePath);
         }
@@ -329,7 +329,7 @@ namespace SyncMeasure
                 try
                 {
                     Clear();
-
+                  
                     /* Loaded graphs images */
                     allGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ALL_GRAPH));
                     handGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.HAND_CVV_GRAPH));
