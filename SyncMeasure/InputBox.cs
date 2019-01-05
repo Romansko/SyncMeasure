@@ -7,18 +7,27 @@ namespace SyncMeasure
     public partial class InputBox : Form
     {
         private string _lastText;
+        private readonly bool _unsigned;
 
-        public InputBox(string message, string title, int defaultValue)
+        public InputBox(string message, string title, int defaultValue, bool unsigned = false)
         {
             InitializeComponent();
             Text = title;
             label.Text = message;
             numericUpDown.Maximum = int.MaxValue;
-            numericUpDown.Minimum = int.MinValue;
-            numericUpDown.Value = defaultValue;
+            numericUpDown.Minimum = unsigned ? 0 : int.MinValue;
             numericUpDown.Controls[1].Enter += textBox_Enter;
             numericUpDown.Controls[1].TextChanged += textBox_TextChanged;
             _lastText = numericUpDown.Controls[1].Text;
+            _unsigned = unsigned;
+            try
+            {
+                numericUpDown.Value = defaultValue;
+            }
+            catch (Exception)
+            {
+                // Don't care
+            }
         }
 
         public int GetValue()
@@ -63,7 +72,8 @@ namespace SyncMeasure
         {
             if (!(sender is TextBox tb))
                 return;
-            var regex = new Regex("^-?[0-9]*$");    // match to integer (signed/unsigned)
+            string regStr = _unsigned ? "^[0-9]*$" : "^-?[0-9]*$";
+            var regex = new Regex(regStr);    // match to integer (signed/unsigned)
             if (!regex.IsMatch(tb.Text))
             {
                 tb.Text = _lastText;        // recover last valid text.

@@ -460,7 +460,7 @@ namespace SyncMeasure
 
         private void SetNBasis(object sender, EventArgs e)
         {
-            var inputBox = new InputBox(@"Enter nbasis (default = 300):", @"nbasis", _handler.GetNBasis());
+            var inputBox = new InputBox(@"Enter nbasis (default = 300):", @"nbasis", _handler.GetNBasis(), true);
             var res = inputBox.ShowDialog(this);
             if (res == DialogResult.OK)
             {
