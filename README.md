@@ -43,6 +43,6 @@ install.packages("data.table")
 
 - [CyotekImageBox](https://www.nuget.org/packages/CyotekImageBox/) for Graph plots.
 
-
+- [EPPlus](https://www.nuget.org/packages/EPPlus/) for exporting excel reports.
 
 _Project was devoloped and built with Visual Studio 2017, .NET framework 4.5.2._
