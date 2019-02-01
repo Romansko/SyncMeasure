@@ -37,6 +37,7 @@
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.measureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.combineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadParseMultipleFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.weightsColNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cSVFileColumnNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -95,6 +96,8 @@
             this.armsCvvText = new System.Windows.Forms.Label();
             this.handsCvvText = new System.Windows.Forms.Label();
             this.measureOnLoad = new System.Windows.Forms.CheckBox();
+            this.bulkParserBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.bulkOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.menuStrip.SuspendLayout();
             this.timeLagGB.SuspendLayout();
             this.graphicsGB.SuspendLayout();
@@ -171,6 +174,7 @@
             this.loadToolStripMenuItem,
             this.measureToolStripMenuItem,
             this.combineToolStripMenuItem,
+            this.loadParseMultipleFilesToolStripMenuItem,
             this.settingsToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.menuStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
@@ -205,6 +209,13 @@
             this.combineToolStripMenuItem.Text = "&Combine";
             this.combineToolStripMenuItem.ToolTipText = "Combine alone files to single file.";
             this.combineToolStripMenuItem.Click += new System.EventHandler(this.combineToolStripMenuItem_Click);
+            // 
+            // loadParseMultipleFilesToolStripMenuItem
+            // 
+            this.loadParseMultipleFilesToolStripMenuItem.Name = "loadParseMultipleFilesToolStripMenuItem";
+            this.loadParseMultipleFilesToolStripMenuItem.Size = new System.Drawing.Size(138, 23);
+            this.loadParseMultipleFilesToolStripMenuItem.Text = "Parse Multiple Files";
+            this.loadParseMultipleFilesToolStripMenuItem.Click += new System.EventHandler(this.ParseMultipleFilesToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
@@ -537,7 +548,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(453, 420);
+            this.tabPage2.Size = new System.Drawing.Size(389, 424);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Hands CVV";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -548,7 +559,7 @@
             this.handGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.handGraphBox.Location = new System.Drawing.Point(3, 3);
             this.handGraphBox.Name = "handGraphBox";
-            this.handGraphBox.Size = new System.Drawing.Size(447, 414);
+            this.handGraphBox.Size = new System.Drawing.Size(383, 418);
             this.handGraphBox.TabIndex = 6;
             this.handGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -557,7 +568,7 @@
             this.tabPage3.Controls.Add(this.armGraphBox);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(453, 420);
+            this.tabPage3.Size = new System.Drawing.Size(389, 424);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Arm CVV";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -568,7 +579,7 @@
             this.armGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.armGraphBox.Location = new System.Drawing.Point(0, 0);
             this.armGraphBox.Name = "armGraphBox";
-            this.armGraphBox.Size = new System.Drawing.Size(453, 420);
+            this.armGraphBox.Size = new System.Drawing.Size(389, 424);
             this.armGraphBox.TabIndex = 7;
             this.armGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -577,7 +588,7 @@
             this.tabPage4.Controls.Add(this.elbowGraphBox);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(453, 420);
+            this.tabPage4.Size = new System.Drawing.Size(389, 424);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Elbow CVV";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -588,7 +599,7 @@
             this.elbowGraphBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.elbowGraphBox.Location = new System.Drawing.Point(0, 0);
             this.elbowGraphBox.Name = "elbowGraphBox";
-            this.elbowGraphBox.Size = new System.Drawing.Size(453, 420);
+            this.elbowGraphBox.Size = new System.Drawing.Size(389, 424);
             this.elbowGraphBox.TabIndex = 7;
             this.elbowGraphBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -598,7 +609,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(453, 420);
+            this.tabPage5.Size = new System.Drawing.Size(389, 424);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Grab Strength";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -609,7 +620,7 @@
             this.grabStrBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grabStrBox.Location = new System.Drawing.Point(3, 3);
             this.grabStrBox.Name = "grabStrBox";
-            this.grabStrBox.Size = new System.Drawing.Size(447, 414);
+            this.grabStrBox.Size = new System.Drawing.Size(383, 418);
             this.grabStrBox.TabIndex = 8;
             this.grabStrBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -619,7 +630,7 @@
             this.tabPage6.Location = new System.Drawing.Point(4, 22);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage6.Size = new System.Drawing.Size(453, 420);
+            this.tabPage6.Size = new System.Drawing.Size(389, 424);
             this.tabPage6.TabIndex = 5;
             this.tabPage6.Text = "Pinch Strength";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -630,7 +641,7 @@
             this.pinchStrBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pinchStrBox.Location = new System.Drawing.Point(3, 3);
             this.pinchStrBox.Name = "pinchStrBox";
-            this.pinchStrBox.Size = new System.Drawing.Size(447, 414);
+            this.pinchStrBox.Size = new System.Drawing.Size(383, 418);
             this.pinchStrBox.TabIndex = 8;
             this.pinchStrBox.DoubleClick += new System.EventHandler(this.graphBox_DoubleClick);
             // 
@@ -798,6 +809,14 @@
             this.measureOnLoad.Text = "Measure Sync on load";
             this.measureOnLoad.UseVisualStyleBackColor = true;
             // 
+            // bulkOpenFileDialog
+            // 
+            this.bulkOpenFileDialog.DefaultExt = "csv";
+            this.bulkOpenFileDialog.Filter = "csv|*.csv";
+            this.bulkOpenFileDialog.InitialDirectory = ".";
+            this.bulkOpenFileDialog.Multiselect = true;
+            this.bulkOpenFileDialog.Title = "Leap Motion output file";
+            // 
             // SyncMeasureForm
             // 
             this.AllowDrop = true;
@@ -914,6 +933,9 @@
         private System.Windows.Forms.ToolStripMenuItem setNBasisToolStripMenuItem;
         private System.Windows.Forms.Label nbasisLabel;
         private System.Windows.Forms.Label label3;
+        private System.ComponentModel.BackgroundWorker bulkParserBackgroundWorker;
+        private System.Windows.Forms.OpenFileDialog bulkOpenFileDialog;
+        private System.Windows.Forms.ToolStripMenuItem loadParseMultipleFilesToolStripMenuItem;
     }
 }
 

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "SyncMeasure"
-#define MyAppVersion "1.8"
+#define MyAppVersion "1.9"
 #define MyAppPublisher "Roman Koifman"
 #define MyAppURL "https://github.com/Romansko/SyncMeasure"
 #define MyAppExeName "SyncMeasure.exe"
@@ -42,6 +42,7 @@ Source: "packages\DynamicInterop.0.8.1\lib\netstandard1.2\DynamicInterop.dll"; D
 Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.NativeLibrary.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "packages\WinFormAnimation.1.5.6298.3372\lib\net35-client\WinFormAnimation.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\EPPlus.4.5.3\lib\net40\EPPlus.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

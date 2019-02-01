@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using RDotNet;
 using SyncMeasure.Properties;
-
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace SyncMeasure
 {
@@ -240,7 +243,7 @@ namespace SyncMeasure
         }
 
         /// <summary>
-        /// 
+        /// Try to find best cvv considering time lag += x.
         /// </summary>
         /// <param name="makeFdObj">Data Frame representing the make.fd object</param>
         private double FindBestCvvTimeLag(string makeFdObj)
@@ -861,6 +864,114 @@ namespace SyncMeasure
             {
                 return new ResultStatus(false, @"Failed to save merged file:" + Environment.NewLine + e.Message);
             }
+        }
+
+        /// <summary>
+        /// Parse Bulk files.
+        /// </summary>
+        /// <param name="worker"></param>
+        /// <param name="e"></param>
+        public void ParseBulkFiles(BackgroundWorker worker, DoWorkEventArgs e)
+        {
+            var syncParamsList = new Dictionary<string, SyncParams>();
+            var files = (string[])e.Argument;
+            foreach (var filePath in files)
+            {
+                var result = LoadCsvFile(filePath, worker, e);
+                if (result == null) return;     // cancelled
+                if (!result.Status)  // bad status, continue.
+                {
+                    continue;
+                }
+                /* status ok, measure sync */
+                result = MeasureSynchronization(worker, e);
+                if (result == null) return;     // cancelled
+                if (!result.Status)  // bad status, continue.
+                {
+                    continue;
+                }
+                /* build object to return */
+                /* Loaded avg sync measurements */
+                var syncParams = new SyncParams
+                {
+                    AvgHandCvv = (double) GetRSymbolAsVector("avg.hands.cvv")[0],
+                    AvgArmCvv = (double) GetRSymbolAsVector("avg.arms.cvv")[0],
+                    AvgElbowCvv = (double) GetRSymbolAsVector("avg.elbows.cvv")[0],
+                    AvgGrabSync = (double) GetRSymbolAsVector("avg.grab")[0],
+                    AvgPinchSync = (double) GetRSymbolAsVector("avg.pinch")[0],
+                    SyncConfig =
+                    {
+                        NBasis = GetNBasis(),
+                        TimeLag = GetTimeLag(),
+                        CvvCalcMethod = GetCvvMethod()
+                    }
+                };
+                Debug.Assert(filePath != null, nameof(filePath) + " != null");
+                syncParamsList.Add(Path.GetFileNameWithoutExtension(filePath), syncParams);
+
+            }   // foreach
+
+            e.Result = syncParamsList;
+        }
+
+        /// <summary>
+        /// Export bulk results to excel.
+        /// </summary>
+        /// <param name="syncParamsList"></param>
+        /// <returns></returns>
+        public ResultStatus ExportSyncParams(Dictionary<string, SyncParams> syncParamsList)
+        {
+            if (syncParamsList == null || syncParamsList.Count == 0)
+            {
+                return new ResultStatus(false, @"Invalid Sync Params! Have you loaded sync csv files?");
+            }
+
+            // using block so we don't have to explicitly dispose of the object.
+            using (var excel = new ExcelPackage())
+            {
+                var excelWorksheet = excel.Workbook.Worksheets.Add(@"SyncMeasure v" + SyncMeasureForm.Version);
+                // Define Header row
+                var headerRow = new List<string[]>
+                {
+                    new[]
+                    {
+                        "File Name", "nBasis", "Time Lag [ms]", "CVV Method", "Avg Hands CVV",
+                        "Avg Arms CVV", "Avg Elbow CVV", "Avg Grab Sync", "Avg Pinch Sync"
+                    }
+                };
+                // Determine the header range (e.g. A1:E1)
+                var range = "A1:" + char.ConvertFromUtf32(headerRow[0].Length + 64) + "1";
+                excelWorksheet.Cells[range].LoadFromArrays(headerRow);
+                excelWorksheet.Cells[range].Style.Font.Bold = true;
+                excelWorksheet.Cells[range].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                
+                // populate data
+                int rowIndex = 1;
+                foreach (var pair in syncParamsList)
+                {
+                    var fileName = pair.Key;
+                    var syncParams = pair.Value;
+
+                    var row = new List<object[]>
+                    {
+                        new object[]
+                        {
+                            fileName, syncParams.SyncConfig.NBasis, syncParams.SyncConfig.TimeLag,
+                            syncParams.SyncConfig.CvvCalcMethod, syncParams.AvgHandCvv,
+                            syncParams.AvgArmCvv, syncParams.AvgElbowCvv,
+                            syncParams.AvgGrabSync, syncParams.AvgPinchSync
+                        }
+                    };
+                    excelWorksheet.Cells[++rowIndex, 1].LoadFromArrays(row);
+                }
+                excelWorksheet.Cells[excelWorksheet.Dimension.Address].AutoFitColumns();
+                var dirPath = Path.GetFullPath("./Reports/");
+                Directory.CreateDirectory(dirPath);
+                var reportPath = dirPath + "SyncReport_" + DateTime.Now.ToString("ddMMyyyy_HHmm") + ".xlsx";
+                var excelFile = new FileInfo(reportPath.Replace("\\", "/"));
+                excel.SaveAs(excelFile);
+                return new ResultStatus(true, reportPath);
+            } // ExcelPackage
         }
 
         /************************************* USER SETTINGS ***************************************/

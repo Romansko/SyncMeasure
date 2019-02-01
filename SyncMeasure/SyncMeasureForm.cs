@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -6,7 +7,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Cyotek.Windows.Forms;
-using Microsoft.VisualBasic;
 using SyncMeasure.Properties;
 using Path = System.IO.Path;
 
@@ -23,7 +23,7 @@ namespace SyncMeasure
         public SyncMeasureForm()
         {
             InitializeComponent();
-            Size = new Size(757, 617);      // optimal size.
+            Size = new Size(757, 617); // optimal size.
             timeLagGB.Click += SetTimeLag;
             timeLagLabel.Click += SetTimeLag;
             Version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
@@ -31,7 +31,7 @@ namespace SyncMeasure
             _loadedFile = _prevLoadedFile = "";
             _title = Text;
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
-            
+
             /* BackgroundWorkers initialize */
             loadingBackgroundWorker.WorkerReportsProgress = true;
             loadingBackgroundWorker.WorkerSupportsCancellation = true;
@@ -43,6 +43,11 @@ namespace SyncMeasure
             measureBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
             measureBackgroundWorker.DoWork += MeasureBackgroundWorkerDoWork;
             measureBackgroundWorker.RunWorkerCompleted += measureBackgroundWorker_RunWorkerCompleted;
+            bulkParserBackgroundWorker.WorkerReportsProgress = true;
+            bulkParserBackgroundWorker.WorkerSupportsCancellation = true;
+            bulkParserBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            bulkParserBackgroundWorker.DoWork += bulkParserBackgroundWorker_DoWork;
+            bulkParserBackgroundWorker.RunWorkerCompleted += bulkParserBackgroundWorker_RunWorkerCompleted;
 
             _handler = new Handler(out var resultStatus);
             if (!resultStatus.Status)
@@ -142,7 +147,7 @@ namespace SyncMeasure
             {
                 var imgBox = new ImageBox
                 {
-                    Image = ((ImageBox)sender).Image,
+                    Image = ((ImageBox) sender).Image,
                     Dock = DockStyle.Fill,
                     Zoom = 90
                 };
@@ -158,9 +163,10 @@ namespace SyncMeasure
                 {
                     form.Text += @" (" + _handler.GetCvvMethod() + @")";
                 }
+
                 form.Controls.Add(imgBox);
                 form.ShowIcon = false;
-                form.Show();        // Allow multiple windows
+                form.Show(); // Allow multiple windows
             }
             catch (Exception)
             {
@@ -186,6 +192,12 @@ namespace SyncMeasure
 
         /************************************** BackgroundWorker functions **********************/
 
+        private bool IsBusy()
+        {
+            return (loadingBackgroundWorker.IsBusy || measureBackgroundWorker.IsBusy ||
+                    bulkParserBackgroundWorker.IsBusy);
+        }
+
         /// <summary>
         /// update % for workers.
         /// </summary>
@@ -209,9 +221,15 @@ namespace SyncMeasure
             {
                 loadingBackgroundWorker.CancelAsync();
             }
+
             if (measureBackgroundWorker.IsBusy && measureBackgroundWorker.WorkerSupportsCancellation)
             {
                 measureBackgroundWorker.CancelAsync();
+            }
+
+            if (bulkParserBackgroundWorker.IsBusy && bulkParserBackgroundWorker.WorkerSupportsCancellation)
+            {
+                bulkParserBackgroundWorker.CancelAsync();
             }
         }
 
@@ -236,7 +254,7 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void loadingBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            Text = _title;  // main program title
+            Text = _title; // main program title
             progGroupBox.Hide();
             menuStrip.Enabled = true;
             string msg;
@@ -276,11 +294,13 @@ namespace SyncMeasure
                     {
                         sumGroupBox.Show();
                     }
+
                     measureToolStripMenuItem.Enabled = false;
                     icon = MessageBoxIcon.Error;
                     title = Resources.TITLE + @" - File loading failed.";
                 }
             }
+
             if (!string.IsNullOrEmpty(_prevLoadedFile))
                 Text += @" - Loaded file: " + _prevLoadedFile;
             MessageBox.Show(this, msg, title, MessageBoxButtons.OK, icon);
@@ -288,7 +308,8 @@ namespace SyncMeasure
 
         private void LoadFile(string filePath)
         {
-            if (loadingBackgroundWorker.IsBusy || measureBackgroundWorker.IsBusy) return;
+            if (IsBusy()) return;
+            
             menuStrip.Enabled = false;
             circularProgressBar.Text = @"Loading.." + Environment.NewLine + @"0%";
             cancelButton.Enabled = true;
@@ -319,17 +340,19 @@ namespace SyncMeasure
             EnableControls();
             if (e.Cancelled)
             {
-                MessageBox.Show(this, @"Sync Measurement cancelled by user.", Resources.TITLE + @" - Sync Measurement cancelled.",
+                MessageBox.Show(this, @"Sync Measurement cancelled by user.",
+                    Resources.TITLE + @" - Sync Measurement cancelled.",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            var status = (ResultStatus)e.Result;
+
+            var status = (ResultStatus) e.Result;
             if (status.Status)
             {
                 try
                 {
                     Clear();
-                  
+
                     /* Loaded graphs images */
                     allGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ALL_GRAPH));
                     handGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.HAND_CVV_GRAPH));
@@ -389,11 +412,56 @@ namespace SyncMeasure
         }
 
         /// <summary>
+        /// Main work for bulk parser.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bulkParserBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            if (sender is BackgroundWorker worker)
+            {
+                _handler.ParseBulkFiles(worker, e);
+            }     
+        }
+
+        /// <summary>
+        /// bulk parsing completed
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bulkParserBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            progGroupBox.Hide();
+            EnableControls();
+            if (e.Cancelled)
+            {
+                MessageBox.Show(this, @"Sync Measurement cancelled by user.",
+                    Resources.TITLE + @" - Sync Measurement cancelled.",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var result = _handler.ExportSyncParams((Dictionary<string, SyncParams>) e.Result);
+            if (result.Status)
+            {
+                var argument = "/select, \"" + result.Message + "\"";
+                Process.Start("explorer.exe", argument);
+                MessageBox.Show(this, @"Sync Report generated successfully", @"Success", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show(this, result.Message, @"Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+    /// <summary>
         /// Measure Sync
         /// </summary>
         private void MeasureSync()
         {
-            if (measureBackgroundWorker.IsBusy || loadingBackgroundWorker.IsBusy) return;
+            if (IsBusy()) return;
             Clear();
             sumGroupBox.Hide();
             DisableControls();
@@ -565,7 +633,22 @@ namespace SyncMeasure
             (new Combiner(_handler)).ShowDialog();
         }
 
-       
+        /// <summary>
+        /// On Parse tool strip click.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ParseMultipleFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (bulkOpenFileDialog.ShowDialog() != DialogResult.OK) return;
+            DisableControls();
+            cancelButton.Enabled = true;
+            circularProgressBar.Text = @"Parsing.." + Environment.NewLine + @"0%";
+            progGroupBox.Show();
+            sumGroupBox.Hide();
+            _loadedFile = "Parsing multiple files.";
+            bulkParserBackgroundWorker.RunWorkerAsync(bulkOpenFileDialog.FileNames);
+        }
     }
 }
 
