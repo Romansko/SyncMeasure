@@ -46,3 +46,10 @@ install.packages("data.table")
 - [EPPlus](https://www.nuget.org/packages/EPPlus/) for exporting excel reports.
 
 _Project was devoloped and built with Visual Studio 2017, .NET framework 4.5.2._
+
+
+
+**Troubleshooting**
+
+- If program won't start, uninstall previous versions and re-install SyncMeasure.
+- If doesn't help, try to start SyncMeasure with Adminsitrative Rights.
