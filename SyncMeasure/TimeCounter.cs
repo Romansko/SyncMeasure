@@ -11,23 +11,13 @@ namespace SyncMeasure
 
         public static void Start()
         {
-            if (StopWatch.IsRunning)
-                StopWatch.Restart();
-            else StopWatch.Start();
+            StopWatch.Restart();
         }
 
-        public static void Stop()
+
+        public static string Stop()
         {
             StopWatch.Stop();
-        }
-
-        public static TimeSpan Elapsed()
-        {
-            return StopWatch.Elapsed;
-        }
-
-        public static string ElapsedString()
-        {
             var timeElapsed = "Time passed: ";
             if (StopWatch.Elapsed.Hours > 0)
             {

@@ -243,7 +243,6 @@ namespace SyncMeasure
             TimeCounter.Start();
             var filePath = (string)e.Argument;
             e.Result = _handler.LoadCsvFile(filePath, loadingBackgroundWorker, e);
-            TimeCounter.Stop();
         }
 
         /// <summary>
@@ -278,7 +277,7 @@ namespace SyncMeasure
                     Clear();
                     sumGroupBox.Hide();
                     measureToolStripMenuItem.Enabled = true;
-                    msg = @"File successfully loaded." + Environment.NewLine + TimeCounter.ElapsedString();
+                    msg = @"File successfully loaded." + Environment.NewLine + TimeCounter.Stop();
                     title = Resources.TITLE + @" - File loaded.";
                     icon = MessageBoxIcon.Information;
                     _prevLoadedFile = _loadedFile;
@@ -327,7 +326,6 @@ namespace SyncMeasure
         {
             TimeCounter.Start();
             e.Result = _handler.MeasureSynchronization(measureBackgroundWorker, e);
-            TimeCounter.Stop();
         }
 
         /// <summary>
@@ -396,7 +394,7 @@ namespace SyncMeasure
 
                     sumGroupBox.Enabled = true;
                     sumGroupBox.Show();
-                    var msg = @"Successfully measured sync." + Environment.NewLine + TimeCounter.ElapsedString();
+                    var msg = @"Successfully measured sync." + Environment.NewLine + TimeCounter.Stop();
                     MessageBox.Show(this, msg, Resources.TITLE + @" - Success.",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -424,7 +422,6 @@ namespace SyncMeasure
             _bulkCheckpoints = bulkOpenFileDialog.FileNames.Length * 2;  // #files - Loading, Measuring.
             TimeCounter.Start();
             _handler.ParseBulkFiles(bulkParserBackgroundWorker, e);
-            TimeCounter.Stop();
         }
 
         /// <summary>
@@ -449,7 +446,7 @@ namespace SyncMeasure
             {
                 var argument = "/select, \"" + result.Message + "\"";
                 Process.Start("explorer.exe", argument);
-                var msg = @"Sync Report generated successfully" + Environment.NewLine + TimeCounter.ElapsedString();
+                var msg = @"Sync Report generated successfully" + Environment.NewLine + TimeCounter.Stop();
                 MessageBox.Show(this, msg, @"Success", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
             }
