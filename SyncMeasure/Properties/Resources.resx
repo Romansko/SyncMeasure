@@ -260,4 +260,7 @@
     <value>Timestamp</value>
     <comment>csv column</comment>
   </data>
+  <data name="BULK" xml:space="preserve">
+    <value>bulk</value>
+  </data>
 </root>

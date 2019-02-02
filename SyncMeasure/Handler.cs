@@ -28,6 +28,10 @@ namespace SyncMeasure
         private int _nbasis;
         public const double DELTA = 0.000001;
 
+        public static readonly string REPORT_DIR = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "SyncMeasure");
+
         public enum EGraphics
         {
             POINTS,
@@ -106,6 +110,8 @@ namespace SyncMeasure
             SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             SetNewFormatDefaults();
             LoadUserSettings();
+
+            Directory.CreateDirectory(REPORT_DIR);  // create reports directory.
         }
 
         ~Handler()
@@ -611,7 +617,6 @@ namespace SyncMeasure
         {
             var resultStatus = LoadFileToR("dataset", filePath);
             if (!resultStatus.Status) return resultStatus; // if loading to R failed.
-
             try
             {
                 string errMsg;
@@ -875,10 +880,13 @@ namespace SyncMeasure
         {
             var syncParamsList = new Dictionary<string, SyncParams>();
             var files = (string[])e.Argument;
+
+            int steps = 0;
             foreach (var filePath in files)
             {
                 var result = LoadCsvFile(filePath, worker, e);
                 if (result == null) return;     // cancelled
+                worker.ReportProgress(++steps, Resources.BULK);     // report steps
                 if (!result.Status)  // bad status, continue.
                 {
                     continue;
@@ -886,6 +894,7 @@ namespace SyncMeasure
                 /* status ok, measure sync */
                 result = MeasureSynchronization(worker, e);
                 if (result == null) return;     // cancelled
+                worker.ReportProgress(++steps, Resources.BULK);     // report steps
                 if (!result.Status)  // bad status, continue.
                 {
                     continue;
@@ -965,12 +974,18 @@ namespace SyncMeasure
                     excelWorksheet.Cells[++rowIndex, 1].LoadFromArrays(row);
                 }
                 excelWorksheet.Cells[excelWorksheet.Dimension.Address].AutoFitColumns();
-                var dirPath = Path.GetFullPath("./Reports/");
-                Directory.CreateDirectory(dirPath);
-                var reportPath = dirPath + "SyncReport_" + DateTime.Now.ToString("ddMMyyyy_HHmm") + ".xlsx";
-                var excelFile = new FileInfo(reportPath.Replace("\\", "/"));
-                excel.SaveAs(excelFile);
-                return new ResultStatus(true, reportPath);
+                try
+                {
+                    var reportName = "SyncReport_" + DateTime.Now.ToString("ddMMyyyy_HHmm") + ".xlsx";
+                    var reportPath = Path.Combine(REPORT_DIR, reportName);
+                    var excelFile = new FileInfo(reportPath.Replace("\\", "/"));
+                    excel.SaveAs(excelFile);
+                    return new ResultStatus(true, reportPath);
+                }
+                catch (Exception e)
+                {
+                    return new ResultStatus(false, e.Message);
+                }
             } // ExcelPackage
         }
 

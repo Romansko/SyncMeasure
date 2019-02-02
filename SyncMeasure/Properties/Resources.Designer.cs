@@ -115,21 +115,26 @@ namespace SyncMeasure.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to bulk.
+        /// </summary>
+        internal static string BULK {
+            get {
+                return ResourceManager.GetString("BULK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {\rtf1\ansi
         ///\b SyncMeasure Controls \b0
         ///\line\line
-        ///- Loading cvs can be done by dragging csv file to SyncMeasure or by clicking Load button (ctrl+L).
+        ///- To analyze a file, it needs to be loaded and then measured.
+        ///- Loading cvs can be done by dragging csv file to SyncMeasure or by clicking the Load button or by ctrl+L.
         ///\line\line
-        ///- Sync Measurement can be done by clicking Enter or by clicking Measure button.
+        ///- Sync Measurement can be done by clicking Enter or by clicking Measure button.s
         ///\line\line
         ///- After parsing data, you can double click the graphs to expand. Use mouse wheel to zoom in / out.
         ///\line\line
-        ///-------------------------
-        ///\line\line\line
-        ///SyncMeasure Homepage: 
-        ///\hlinkbase https://github.com/Romansko/SyncMeasure \hlinkbase0
-        ///\line
-        ///}.
+        ///- Combine option is intended to combine &apos;Alone&apos; files which holds dat [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Controls {
             get {

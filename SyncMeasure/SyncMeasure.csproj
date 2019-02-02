@@ -182,6 +182,7 @@
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TimeCounter.cs" />
     <Compile Include="FormatDefaultMsgBox.cs">
       <SubType>Form</SubType>
     </Compile>

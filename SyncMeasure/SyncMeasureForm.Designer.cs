@@ -34,10 +34,16 @@
             this.circularProgressBar = new CircularProgressBar.CircularProgressBar();
             this.allGraphBox = new Cyotek.Windows.Forms.ImageBox();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.measureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.combineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadParseMultipleFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.parseMultipleFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openReportsFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.weightsColNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cSVFileColumnNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -171,10 +177,7 @@
             this.menuStrip.BackColor = System.Drawing.SystemColors.Control;
             this.menuStrip.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.loadToolStripMenuItem,
-            this.measureToolStripMenuItem,
-            this.combineToolStripMenuItem,
-            this.loadParseMultipleFilesToolStripMenuItem,
+            this.fileToolStripMenuItem,
             this.settingsToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.menuStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
@@ -184,38 +187,80 @@
             this.menuStrip.Size = new System.Drawing.Size(632, 27);
             this.menuStrip.TabIndex = 6;
             // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.loadToolStripMenuItem,
+            this.measureToolStripMenuItem,
+            this.toolStripSeparator4,
+            this.combineToolStripMenuItem,
+            this.toolStripSeparator5,
+            this.parseMultipleFilesToolStripMenuItem,
+            this.openReportsFolderToolStripMenuItem,
+            this.toolStripSeparator6,
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(41, 23);
+            this.fileToolStripMenuItem.Text = "&File";
+            // 
             // loadToolStripMenuItem
             // 
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
             this.loadToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.L)));
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(51, 23);
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(205, 24);
             this.loadToolStripMenuItem.Text = "&Load";
-            this.loadToolStripMenuItem.ToolTipText = "Load LeapMotion output csv file. (ctrl+L).";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
             // measureToolStripMenuItem
             // 
             this.measureToolStripMenuItem.Enabled = false;
             this.measureToolStripMenuItem.Name = "measureToolStripMenuItem";
-            this.measureToolStripMenuItem.Size = new System.Drawing.Size(106, 23);
-            this.measureToolStripMenuItem.Text = "&Measure Sync";
-            this.measureToolStripMenuItem.ToolTipText = "Measure the synchrony. (Enter).";
+            this.measureToolStripMenuItem.Size = new System.Drawing.Size(205, 24);
+            this.measureToolStripMenuItem.Text = "&Measure";
             this.measureToolStripMenuItem.Click += new System.EventHandler(this.measureToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(202, 6);
             // 
             // combineToolStripMenuItem
             // 
             this.combineToolStripMenuItem.Name = "combineToolStripMenuItem";
-            this.combineToolStripMenuItem.Size = new System.Drawing.Size(76, 23);
+            this.combineToolStripMenuItem.Size = new System.Drawing.Size(205, 24);
             this.combineToolStripMenuItem.Text = "&Combine";
-            this.combineToolStripMenuItem.ToolTipText = "Combine alone files to single file.";
             this.combineToolStripMenuItem.Click += new System.EventHandler(this.combineToolStripMenuItem_Click);
             // 
-            // loadParseMultipleFilesToolStripMenuItem
+            // toolStripSeparator5
             // 
-            this.loadParseMultipleFilesToolStripMenuItem.Name = "loadParseMultipleFilesToolStripMenuItem";
-            this.loadParseMultipleFilesToolStripMenuItem.Size = new System.Drawing.Size(138, 23);
-            this.loadParseMultipleFilesToolStripMenuItem.Text = "Parse Multiple Files";
-            this.loadParseMultipleFilesToolStripMenuItem.Click += new System.EventHandler(this.ParseMultipleFilesToolStripMenuItem_Click);
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(202, 6);
+            // 
+            // parseMultipleFilesToolStripMenuItem
+            // 
+            this.parseMultipleFilesToolStripMenuItem.Name = "parseMultipleFilesToolStripMenuItem";
+            this.parseMultipleFilesToolStripMenuItem.Size = new System.Drawing.Size(205, 24);
+            this.parseMultipleFilesToolStripMenuItem.Text = "&Parse Multiple Files";
+            this.parseMultipleFilesToolStripMenuItem.Click += new System.EventHandler(this.ParseMultipleFilesToolStripMenuItem_Click);
+            // 
+            // openReportsFolderToolStripMenuItem
+            // 
+            this.openReportsFolderToolStripMenuItem.Name = "openReportsFolderToolStripMenuItem";
+            this.openReportsFolderToolStripMenuItem.Size = new System.Drawing.Size(205, 24);
+            this.openReportsFolderToolStripMenuItem.Text = "Open Reports Folder";
+            this.openReportsFolderToolStripMenuItem.Click += new System.EventHandler(this.openReportsFolderToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(202, 6);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(205, 24);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
             // 
@@ -872,9 +917,7 @@
         private CircularProgressBar.CircularProgressBar circularProgressBar;
         private Cyotek.Windows.Forms.ImageBox allGraphBox;
         private System.Windows.Forms.MenuStrip menuStrip;
-        private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem measureToolStripMenuItem;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.ToolTip toolTip;
         private System.ComponentModel.BackgroundWorker loadingBackgroundWorker;
@@ -918,7 +961,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ToolStripMenuItem combineToolStripMenuItem;
         private System.Windows.Forms.RadioButton bothRB;
         private System.Windows.Forms.ToolStripMenuItem cSVFileColumnNamesToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
@@ -935,7 +977,16 @@
         private System.Windows.Forms.Label label3;
         private System.ComponentModel.BackgroundWorker bulkParserBackgroundWorker;
         private System.Windows.Forms.OpenFileDialog bulkOpenFileDialog;
-        private System.Windows.Forms.ToolStripMenuItem loadParseMultipleFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem measureToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem combineToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem parseMultipleFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openReportsFolderToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }
 

@@ -45,7 +45,7 @@ namespace SyncMeasure
             measureBackgroundWorker.RunWorkerCompleted += measureBackgroundWorker_RunWorkerCompleted;
             bulkParserBackgroundWorker.WorkerReportsProgress = true;
             bulkParserBackgroundWorker.WorkerSupportsCancellation = true;
-            bulkParserBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            bulkParserBackgroundWorker.ProgressChanged += bulkBackgroundWorker_ProgressChanged;
             bulkParserBackgroundWorker.DoWork += bulkParserBackgroundWorker_DoWork;
             bulkParserBackgroundWorker.RunWorkerCompleted += bulkParserBackgroundWorker_RunWorkerCompleted;
 
@@ -240,11 +240,10 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void loadingBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (sender is BackgroundWorker worker)
-            {
-                var filePath = (string) e.Argument;
-                e.Result = _handler.LoadCsvFile(filePath, worker, e);
-            }
+            TimeCounter.Start();
+            var filePath = (string)e.Argument;
+            e.Result = _handler.LoadCsvFile(filePath, loadingBackgroundWorker, e);
+            TimeCounter.Stop();
         }
 
         /// <summary>
@@ -279,7 +278,7 @@ namespace SyncMeasure
                     Clear();
                     sumGroupBox.Hide();
                     measureToolStripMenuItem.Enabled = true;
-                    msg = @"File successfully loaded.";
+                    msg = @"File successfully loaded." + Environment.NewLine + TimeCounter.ElapsedString();
                     title = Resources.TITLE + @" - File loaded.";
                     icon = MessageBoxIcon.Information;
                     _prevLoadedFile = _loadedFile;
@@ -326,7 +325,9 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void MeasureBackgroundWorkerDoWork(object sender, DoWorkEventArgs e)
         {
+            TimeCounter.Start();
             e.Result = _handler.MeasureSynchronization(measureBackgroundWorker, e);
+            TimeCounter.Stop();
         }
 
         /// <summary>
@@ -395,7 +396,8 @@ namespace SyncMeasure
 
                     sumGroupBox.Enabled = true;
                     sumGroupBox.Show();
-                    MessageBox.Show(this, @"Successfully measured sync.", Resources.TITLE + @" - Success.",
+                    var msg = @"Successfully measured sync." + Environment.NewLine + TimeCounter.ElapsedString();
+                    MessageBox.Show(this, msg, Resources.TITLE + @" - Success.",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
@@ -418,10 +420,10 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void bulkParserBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (sender is BackgroundWorker worker)
-            {
-                _handler.ParseBulkFiles(worker, e);
-            }     
+            _bulkSteps = 0;
+            TimeCounter.Start();
+            _handler.ParseBulkFiles(bulkParserBackgroundWorker, e);
+            TimeCounter.Stop();
         }
 
         /// <summary>
@@ -446,7 +448,8 @@ namespace SyncMeasure
             {
                 var argument = "/select, \"" + result.Message + "\"";
                 Process.Start("explorer.exe", argument);
-                MessageBox.Show(this, @"Sync Report generated successfully", @"Success", MessageBoxButtons.OK,
+                var msg = @"Sync Report generated successfully" + Environment.NewLine + TimeCounter.ElapsedString();
+                MessageBox.Show(this, msg, @"Success", MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
             }
             else
@@ -456,7 +459,28 @@ namespace SyncMeasure
             }
         }
 
-    /// <summary>
+        private int _bulkSteps;
+        /// <summary>
+        /// update % for workers.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bulkBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            var checkpoints = bulkOpenFileDialog.FileNames.Length * 2;  // #files - Loading, Measuring.
+            var regex = "([1-9]?[0-9]|100)%$";
+            if (e.UserState != null && e.UserState.Equals(Resources.BULK))
+            {
+                _bulkSteps = e.ProgressPercentage;
+            }
+            else
+            {
+                var per = (100 * _bulkSteps + e.ProgressPercentage) / checkpoints;
+                circularProgressBar.Text = Regex.Replace(circularProgressBar.Text, regex, per + "%");
+            }
+        }
+
+        /// <summary>
         /// Measure Sync
         /// </summary>
         private void MeasureSync()
@@ -646,8 +670,27 @@ namespace SyncMeasure
             circularProgressBar.Text = @"Parsing.." + Environment.NewLine + @"0%";
             progGroupBox.Show();
             sumGroupBox.Hide();
-            _loadedFile = "Parsing multiple files.";
+            Text = _title;
+            measureToolStripMenuItem.Enabled = false;
             bulkParserBackgroundWorker.RunWorkerAsync(bulkOpenFileDialog.FileNames);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void openReportsFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(Handler.REPORT_DIR);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(this, @"Reports folder doesn't exists", @"Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
     }
 }
