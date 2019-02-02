@@ -36,13 +36,19 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "SyncMeasure\bin\x86\Release\SyncMeasure.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "SyncMeasure\resources\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\CircularProgressBar.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\WinFormAnimation.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "packages\CyotekImageBox.1.2.1\lib\net20\Cyotek.Windows.Forms.ImageBox.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "packages\DynamicInterop.0.8.1\lib\netstandard1.2\DynamicInterop.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.NativeLibrary.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\CircularProgressBar.2.6.6823.24527\lib\net35-client\CircularProgressBar.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "packages\WinFormAnimation.1.5.6298.3372\lib\net35-client\WinFormAnimation.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\WinFormAnimation.1.5.6298.3372\lib\net35-client\WinFormAnimation.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\CyotekImageBox.1.2.1\lib\net20\Cyotek.Windows.Forms.ImageBox.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\CyotekImageBox.1.2.1\lib\net20\Cyotek.Windows.Forms.ImageBox.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\DynamicInterop.0.8.1\lib\netstandard1.2\DynamicInterop.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\DynamicInterop.0.8.1\lib\netstandard1.2\DynamicInterop.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.xml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.NativeLibrary.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\R.NET.1.7.0\lib\net40\RDotNet.NativeLibrary.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "packages\EPPlus.4.5.3\lib\net40\EPPlus.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "packages\EPPlus.4.5.3\lib\net40\EPPlus.xml"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
