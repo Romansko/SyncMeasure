@@ -421,6 +421,7 @@ namespace SyncMeasure
         private void bulkParserBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             _bulkSteps = 0;
+            _bulkCheckpoints = bulkOpenFileDialog.FileNames.Length * 2;  // #files - Loading, Measuring.
             TimeCounter.Start();
             _handler.ParseBulkFiles(bulkParserBackgroundWorker, e);
             TimeCounter.Stop();
@@ -460,6 +461,7 @@ namespace SyncMeasure
         }
 
         private int _bulkSteps;
+        private int _bulkCheckpoints;
         /// <summary>
         /// update % for workers.
         /// </summary>
@@ -467,7 +469,6 @@ namespace SyncMeasure
         /// <param name="e"></param>
         private void bulkBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            var checkpoints = bulkOpenFileDialog.FileNames.Length * 2;  // #files - Loading, Measuring.
             var regex = "([1-9]?[0-9]|100)%$";
             if (e.UserState != null && e.UserState.Equals(Resources.BULK))
             {
@@ -475,7 +476,7 @@ namespace SyncMeasure
             }
             else
             {
-                var per = (100 * _bulkSteps + e.ProgressPercentage) / checkpoints;
+                var per = (100 * _bulkSteps + e.ProgressPercentage) / _bulkCheckpoints;
                 circularProgressBar.Text = Regex.Replace(circularProgressBar.Text, regex, per + "%");
             }
         }
