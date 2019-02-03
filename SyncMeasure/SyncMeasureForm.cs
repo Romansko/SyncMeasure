@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -48,6 +49,12 @@ namespace SyncMeasure
             bulkParserBackgroundWorker.ProgressChanged += bulkBackgroundWorker_ProgressChanged;
             bulkParserBackgroundWorker.DoWork += bulkParserBackgroundWorker_DoWork;
             bulkParserBackgroundWorker.RunWorkerCompleted += bulkParserBackgroundWorker_RunWorkerCompleted;
+            combineBackgroundWorker.WorkerReportsProgress = true;
+            combineBackgroundWorker.WorkerSupportsCancellation = true;
+            combineBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
+            combineBackgroundWorker.DoWork += combineBackgroundWorker_DoWork;
+            combineBackgroundWorker.RunWorkerCompleted += combineBackgroundWorker_RunWorkerCompleted;
+
 
             _handler = new Handler(out var resultStatus);
             if (!resultStatus.Status)
@@ -231,6 +238,11 @@ namespace SyncMeasure
             {
                 bulkParserBackgroundWorker.CancelAsync();
             }
+
+            if (combineBackgroundWorker.IsBusy && combineBackgroundWorker.WorkerSupportsCancellation)
+            {
+                combineBackgroundWorker.CancelAsync();
+            }
         }
 
         /// <summary>
@@ -306,8 +318,13 @@ namespace SyncMeasure
 
         private void LoadFile(string filePath)
         {
-            if (IsBusy()) return;
-            
+            if (IsBusy())
+            {
+                MessageBox.Show(this, @"SyncMeasure is busy!", @"Busy SyncMeasure", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
             menuStrip.Enabled = false;
             circularProgressBar.Text = @"Loading.." + Environment.NewLine + @"0%";
             cancelButton.Enabled = true;
@@ -435,8 +452,8 @@ namespace SyncMeasure
             EnableControls();
             if (e.Cancelled)
             {
-                MessageBox.Show(this, @"Sync Measurement cancelled by user.",
-                    Resources.TITLE + @" - Sync Measurement cancelled.",
+                MessageBox.Show(this, @"Bulk Parsing Cancelled.",
+                    @"Bulk Parsing Cancelled",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
@@ -478,12 +495,65 @@ namespace SyncMeasure
             }
         }
 
+        private void combineBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            _handler.BulkCombineAloneFiles(bulkOpenFileDialog.FileNames, combineBackgroundWorker, e);
+        }
+
+        private void combineBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            progGroupBox.Hide();
+            EnableControls();
+            if (e.Cancelled)
+            {
+                MessageBox.Show(this, @"Cross Combining Cancelled.",
+                    @"Cross Combining Cancelled",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                if (e.Result is ResultStatus result)
+                {
+                    if (result.Status)
+                    {
+                        var msg = @"Merged selected alone files" + Environment.NewLine + TimeCounter.Stop();
+                        MessageBox.Show(this, msg,
+                            @"Merged selected alone files",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show(this, result.Message,
+                            @"Merging Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+   
+            }
+
+            try
+            {
+                var dirPath = Path.Combine(Handler.OUT_DIR, "Combined");
+                Directory.CreateDirectory(dirPath);
+                Process.Start(dirPath);
+            }
+            catch (Exception)
+            {
+                // Don't care
+            }
+        }
+
         /// <summary>
         /// Measure Sync
         /// </summary>
         private void MeasureSync()
         {
-            if (IsBusy()) return;
+            if (IsBusy())
+            {
+                MessageBox.Show(this, @"SyncMeasure is busy!", @"Busy SyncMeasure", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
             Clear();
             sumGroupBox.Hide();
             DisableControls();
@@ -656,12 +726,44 @@ namespace SyncMeasure
         }
 
         /// <summary>
+        /// Cross Combine selected files. 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void crossCombineToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (IsBusy())
+            {
+                MessageBox.Show(this, @"SyncMeasure is busy!", @"Busy SyncMeasure", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+
+            bulkOpenFileDialog.Title = @"Cross Combine files selection";
+            if (bulkOpenFileDialog.ShowDialog() != DialogResult.OK) return;
+            DisableControls();
+            cancelButton.Enabled = true;
+            circularProgressBar.Text = @"Combining.." + Environment.NewLine + @"0%";
+            progGroupBox.Show();
+            sumGroupBox.Hide();
+            Text = _title;
+            combineBackgroundWorker.RunWorkerAsync(bulkOpenFileDialog.FileNames);
+        }
+
+        /// <summary>
         /// On Parse tool strip click.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ParseMultipleFilesToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (IsBusy())
+            {
+                MessageBox.Show(this, @"SyncMeasure is busy!", @"Busy SyncMeasure", MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
+            }
+            bulkOpenFileDialog.Title = @"Multiple Files Parsing selection";
             if (bulkOpenFileDialog.ShowDialog() != DialogResult.OK) return;
             DisableControls();
             cancelButton.Enabled = true;
@@ -682,14 +784,16 @@ namespace SyncMeasure
         {
             try
             {
-                Process.Start(Handler.REPORT_DIR);
+                Process.Start(Handler.OUT_DIR);
             }
             catch (Exception)
             {
-                MessageBox.Show(this, @"Reports folder doesn't exists", @"Error", MessageBoxButtons.OK,
+                MessageBox.Show(this, @"Folder doesn't exists", @"Error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
         }
+
+      
     }
 }
 

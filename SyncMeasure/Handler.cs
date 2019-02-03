@@ -28,7 +28,7 @@ namespace SyncMeasure
         private int _nbasis;
         public const double DELTA = 0.000001;
 
-        public static readonly string REPORT_DIR = Path.Combine(
+        public static readonly string OUT_DIR = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "SyncMeasure");
 
@@ -111,7 +111,7 @@ namespace SyncMeasure
             SetNewFormatDefaults();
             LoadUserSettings();
 
-            Directory.CreateDirectory(REPORT_DIR);  // create reports directory.
+            Directory.CreateDirectory(OUT_DIR);  // create reports directory.
         }
 
         ~Handler()
@@ -746,6 +746,42 @@ namespace SyncMeasure
             }
         }
 
+        public void BulkCombineAloneFiles(string[] fileNames, BackgroundWorker bgWorker, DoWorkEventArgs args)
+        {
+            TimeCounter.Start();
+            if (fileNames == null || fileNames.Length < 2)
+            {
+                args.Result = new ResultStatus(false, @"No valid files are selected");
+                return;
+            }
+            var dirPath = Path.Combine(OUT_DIR, "Combined");
+            Directory.CreateDirectory(dirPath);
+            int iterations = fileNames.Length * (fileNames.Length - 1);
+            int k = 0;
+            for (int i = 0; i < fileNames.Length; ++i)
+            {
+                for (int j = 0; j < fileNames.Length; ++j)
+                {
+                    if (j == i) continue; // skip self merge.
+                    if (ReportProgress(++k * 100 / iterations, bgWorker, args))
+                    {
+                        args.Result = null;
+                        return;
+                    }
+                    
+                    var result = LoadAloneFileToR("file1", fileNames[i]);
+                    if (!result.Status) continue;
+                    result = LoadAloneFileToR("file2", fileNames[j]);
+                    if (!result.Status) continue;
+                    var fileName = "AloneFileMerged_" + DateTime.Now.ToString("ddMMyyyy_HHmm") + "_" + i + "_" + j +
+                                   ".csv";
+                    var filePath = Path.Combine(dirPath, fileName);
+                    CombineAloneFiles(filePath, 0, 0);
+                }
+            }
+            args.Result = new ResultStatus(true, "");
+        }
+
         /// <summary>
         /// Build Hand with given index and parsed member DataFrame.
         /// </summary>
@@ -977,7 +1013,7 @@ namespace SyncMeasure
                 try
                 {
                     var reportName = "SyncReport_" + DateTime.Now.ToString("ddMMyyyy_HHmm") + ".xlsx";
-                    var reportPath = Path.Combine(REPORT_DIR, reportName);
+                    var reportPath = Path.Combine(OUT_DIR, reportName);
                     var excelFile = new FileInfo(reportPath.Replace("\\", "/"));
                     excel.SaveAs(excelFile);
                     return new ResultStatus(true, reportPath);
