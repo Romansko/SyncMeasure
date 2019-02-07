@@ -758,27 +758,28 @@ namespace SyncMeasure
             Directory.CreateDirectory(dirPath);
             int iterations = fileNames.Length * (fileNames.Length - 1);
             int k = 0;
-            for (int i = 0; i < fileNames.Length; ++i)
+            for (int i = 0; i < fileNames.Length - 1; ++i)
             {
-                for (int j = 0; j < fileNames.Length; ++j)
+                for (int j = i + 1; j < fileNames.Length; ++j)
                 {
-                    if (j == i) continue; // skip self merge.
                     if (ReportProgress(++k * 100 / iterations, bgWorker, args))
                     {
                         args.Result = null;
                         return;
                     }
-                    
+
                     var result = LoadAloneFileToR("file1", fileNames[i]);
                     if (!result.Status) continue;
                     result = LoadAloneFileToR("file2", fileNames[j]);
                     if (!result.Status) continue;
-                    var fileName = "AloneFileMerged_" + DateTime.Now.ToString("ddMMyyyy_HHmm") + "_" + i + "_" + j +
-                                   ".csv";
+
+                    var fileName = Path.GetFileNameWithoutExtension(fileNames[i]) + "_" +
+                                   Path.GetFileName(fileNames[j]);
                     var filePath = Path.Combine(dirPath, fileName);
                     CombineAloneFiles(filePath, 0, 0);
                 }
             }
+
             args.Result = new ResultStatus(true, "");
         }
 
@@ -896,9 +897,20 @@ namespace SyncMeasure
                 _engine.Evaluate("for (i in 1:nrow(combined)) combined[i, " + _colNames[Resources.FRAME_ID] +
                                  " := i / 2 + i %% 2]");
 
-                filePath = filePath.Replace("\\", "/"); // fix for [R].
+                /* Amend times - Calculate Avg */
+                string avgString = "( (combined[i," + _colNames[Resources.TIMESTAMP] + "] + " +
+                                   "combined[i+1," + _colNames[Resources.TIMESTAMP] + "])/2 )";
+                _engine.Evaluate("for (i in 1:(nrow(combined)-1)) { " +
+                                 "if (i%%2 == 1) {" +
+                                 "avg <- " + avgString + "; " +
+                                 "combined[i," + _colNames[Resources.TIMESTAMP] + " := avg]; " +
+                                 "combined[i+1," + _colNames[Resources.TIMESTAMP] + " := avg]; " +
+                                 "}}");
+
+                /* Generate csv file */
+                filePath = filePath.Replace("\\", "/");      // fix for [R].
                 _engine.Evaluate("fwrite(combined, file=file.path('" + filePath + "'), sep=',', quote = F, verbose = F)");
-                RemoveFromR("dt1", "dt2", "size");
+                RemoveFromR("dt1", "dt2", "size", "avg");
                 return new ResultStatus(true, "");
             }
             catch (Exception e)

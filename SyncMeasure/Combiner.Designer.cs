@@ -61,7 +61,7 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 35);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(220, 131);
+            this.groupBox1.Size = new System.Drawing.Size(241, 131);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "First \"Alone\" File";
@@ -84,7 +84,7 @@
             this.numericUpDown1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.numericUpDown1.Enabled = false;
             this.numericUpDown1.InterceptArrowKeys = false;
-            this.numericUpDown1.Location = new System.Drawing.Point(108, 90);
+            this.numericUpDown1.Location = new System.Drawing.Point(129, 90);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             2147483647,
             0,
@@ -128,9 +128,9 @@
             this.groupBox2.Controls.Add(this.numericUpDown2);
             this.groupBox2.Controls.Add(this.checkBox2);
             this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Location = new System.Drawing.Point(241, 35);
+            this.groupBox2.Location = new System.Drawing.Point(256, 35);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(220, 131);
+            this.groupBox2.Size = new System.Drawing.Size(242, 131);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Second \"Alone\" File";
@@ -153,7 +153,7 @@
             this.numericUpDown2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.numericUpDown2.Enabled = false;
             this.numericUpDown2.InterceptArrowKeys = false;
-            this.numericUpDown2.Location = new System.Drawing.Point(108, 90);
+            this.numericUpDown2.Location = new System.Drawing.Point(130, 90);
             this.numericUpDown2.Maximum = new decimal(new int[] {
             2147483647,
             0,
@@ -205,7 +205,7 @@
             this.mergeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.mergeButton.Enabled = false;
             this.mergeButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.mergeButton.Location = new System.Drawing.Point(12, 180);
+            this.mergeButton.Location = new System.Drawing.Point(12, 192);
             this.mergeButton.Name = "mergeButton";
             this.mergeButton.Size = new System.Drawing.Size(81, 33);
             this.mergeButton.TabIndex = 5;
@@ -219,7 +219,7 @@
             this.cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.cancelButton.Location = new System.Drawing.Point(380, 180);
+            this.cancelButton.Location = new System.Drawing.Point(417, 192);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(81, 33);
             this.cancelButton.TabIndex = 6;
@@ -243,8 +243,9 @@
             // 
             // mergeCB
             // 
+            this.mergeCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.mergeCB.AutoSize = true;
-            this.mergeCB.Location = new System.Drawing.Point(99, 189);
+            this.mergeCB.Location = new System.Drawing.Point(99, 201);
             this.mergeCB.Name = "mergeCB";
             this.mergeCB.Size = new System.Drawing.Size(146, 17);
             this.mergeCB.TabIndex = 7;
@@ -257,7 +258,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.cancelButton;
-            this.ClientSize = new System.Drawing.Size(473, 225);
+            this.ClientSize = new System.Drawing.Size(510, 237);
             this.Controls.Add(this.mergeCB);
             this.Controls.Add(this.cancelButton);
             this.Controls.Add(this.mergeButton);

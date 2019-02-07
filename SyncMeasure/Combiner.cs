@@ -125,6 +125,8 @@ namespace SyncMeasure
                     MessageBoxIcon.Information);
                 return;
             }
+
+            saveFileDialog.FileName = label1.Text + @"_" + label2.Text;
             if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
 
             Application.UseWaitCursor = true;
