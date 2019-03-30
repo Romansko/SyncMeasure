@@ -25,6 +25,7 @@ namespace SyncMeasure
         {
             InitializeComponent();
             Size = new Size(757, 617); // optimal size.
+            progGroupBox.BringToFront();
             timeLagGB.Click += SetTimeLag;
             timeLagLabel.Click += SetTimeLag;
             Version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
@@ -342,7 +343,7 @@ namespace SyncMeasure
         private void MeasureBackgroundWorkerDoWork(object sender, DoWorkEventArgs e)
         {
             TimeCounter.Start();
-            e.Result = _handler.MeasureSynchronization(measureBackgroundWorker, e);
+            e.Result = _handler.MeasureSynchronization(measureBackgroundWorker, e, true);
         }
 
         /// <summary>
@@ -745,8 +746,6 @@ namespace SyncMeasure
             cancelButton.Enabled = true;
             circularProgressBar.Text = @"Combining.." + Environment.NewLine + @"0%";
             progGroupBox.Show();
-            sumGroupBox.Hide();
-            Text = _title;
             combineBackgroundWorker.RunWorkerAsync(bulkOpenFileDialog.FileNames);
         }
 
@@ -765,6 +764,7 @@ namespace SyncMeasure
             }
             bulkOpenFileDialog.Title = @"Multiple Files Parsing selection";
             if (bulkOpenFileDialog.ShowDialog() != DialogResult.OK) return;
+            Clear();                // clear graphs
             DisableControls();
             cancelButton.Enabled = true;
             circularProgressBar.Text = @"Parsing.." + Environment.NewLine + @"0%";

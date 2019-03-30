@@ -37,12 +37,13 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.measureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.parseMultipleFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.combineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.crossCombineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.parseMultipleFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openReportsFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.weightsColNamesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -105,7 +106,6 @@
             this.bulkParserBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             this.bulkOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.combineBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip.SuspendLayout();
             this.timeLagGB.SuspendLayout();
             this.graphicsGB.SuspendLayout();
@@ -222,6 +222,13 @@
             this.measureToolStripMenuItem.Text = "&Measure";
             this.measureToolStripMenuItem.Click += new System.EventHandler(this.measureToolStripMenuItem_Click);
             // 
+            // parseMultipleFilesToolStripMenuItem
+            // 
+            this.parseMultipleFilesToolStripMenuItem.Name = "parseMultipleFilesToolStripMenuItem";
+            this.parseMultipleFilesToolStripMenuItem.Size = new System.Drawing.Size(195, 24);
+            this.parseMultipleFilesToolStripMenuItem.Text = "&Parse Multiple Files";
+            this.parseMultipleFilesToolStripMenuItem.Click += new System.EventHandler(this.ParseMultipleFilesToolStripMenuItem_Click);
+            // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
@@ -248,13 +255,6 @@
             this.toolStripSeparator5.Name = "toolStripSeparator5";
             this.toolStripSeparator5.Size = new System.Drawing.Size(192, 6);
             // 
-            // parseMultipleFilesToolStripMenuItem
-            // 
-            this.parseMultipleFilesToolStripMenuItem.Name = "parseMultipleFilesToolStripMenuItem";
-            this.parseMultipleFilesToolStripMenuItem.Size = new System.Drawing.Size(195, 24);
-            this.parseMultipleFilesToolStripMenuItem.Text = "&Parse Multiple Files";
-            this.parseMultipleFilesToolStripMenuItem.Click += new System.EventHandler(this.ParseMultipleFilesToolStripMenuItem_Click);
-            // 
             // openReportsFolderToolStripMenuItem
             // 
             this.openReportsFolderToolStripMenuItem.Name = "openReportsFolderToolStripMenuItem";
@@ -262,6 +262,11 @@
             this.openReportsFolderToolStripMenuItem.Text = "Open Data Folder";
             this.openReportsFolderToolStripMenuItem.ToolTipText = "Open SyncMeasure Data folder containing reports and combined files.";
             this.openReportsFolderToolStripMenuItem.Click += new System.EventHandler(this.openReportsFolderToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(192, 6);
             // 
             // exitToolStripMenuItem
             // 
@@ -869,11 +874,6 @@
             this.bulkOpenFileDialog.InitialDirectory = ".";
             this.bulkOpenFileDialog.Multiselect = true;
             this.bulkOpenFileDialog.Title = "Leap Motion output file";
-            // 
-            // toolStripSeparator7
-            // 
-            this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(192, 6);
             // 
             // SyncMeasureForm
             // 
