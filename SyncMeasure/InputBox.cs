@@ -12,12 +12,15 @@ namespace SyncMeasure
         public InputBox(string message, string title, int defaultValue, bool unsigned = false)
         {
             InitializeComponent();
-            Text = title;
+            Text       = title;
             label.Text = message;
+
             numericUpDown.Maximum = int.MaxValue;
             numericUpDown.Minimum = unsigned ? 0 : int.MinValue;
-            numericUpDown.Controls[1].Enter += textBox_Enter;
+
+            numericUpDown.Controls[1].Enter       += textBox_Enter;
             numericUpDown.Controls[1].TextChanged += textBox_TextChanged;
+
             _lastText = numericUpDown.Controls[1].Text;
             _unsigned = unsigned;
             try
@@ -72,7 +75,7 @@ namespace SyncMeasure
         {
             if (!(sender is TextBox tb))
                 return;
-            string regStr = _unsigned ? "^[0-9]*$" : "^-?[0-9]*$";
+            var regStr = _unsigned ? "^[0-9]*$" : "^-?[0-9]*$";
             var regex = new Regex(regStr);    // match to integer (signed/unsigned)
             if (!regex.IsMatch(tb.Text))
             {

@@ -16,7 +16,7 @@ namespace SyncMeasure
             NAMES
         }
 
-        private readonly Handler _handler;
+        private readonly Handler   _handler;
         private readonly ESettings _settings;
 
         public SettingsForm(Handler handler, ESettings settings)
@@ -51,13 +51,14 @@ namespace SyncMeasure
             dataGridView.Rows.Add();
             var row = dataGridView.Rows[0];
             row.ReadOnly = true;
-            row.Cells[0].Style.BackColor = row.Cells[1].Style.BackColor = row.Cells[2].Style.BackColor = Color.Gray;
+
+            row.Cells[0].Style.BackColor          = row.Cells[1].Style.BackColor = row.Cells[2].Style.BackColor = Color.Gray;
             row.Cells[1].Style.SelectionForeColor = Color.Black;
             row.Cells[0].Style.SelectionBackColor = row.Cells[1].Style.SelectionBackColor = row.Cells[2].Style.SelectionBackColor = Color.Gray;
 
             if (_settings.Equals(ESettings.NAMES))
             {
-                var colNames = _handler.GetColNames();        
+                var colNames       = _handler.GetColNames();        
                 row.Cells[0].Value = @"Column Name";
                 row.Cells[1].Value = @"Column R Name";
 
@@ -115,10 +116,10 @@ namespace SyncMeasure
             }
             else    // Weights
             {
-                var arm = GetWeightValue(Resources.ARM);
+                var arm   = GetWeightValue(Resources.ARM);
                 var elbow = GetWeightValue(Resources.ELBOW);
-                var hand = GetWeightValue(Resources.HAND);
-                var grab = GetWeightValue(Resources.GRAB);
+                var hand  = GetWeightValue(Resources.HAND);
+                var grab  = GetWeightValue(Resources.GRAB);
                 var pinch = GetWeightValue(Resources.PINCH);
                 // var gesture = GetWeightValue(Resources.GESTURE);
 

@@ -6,7 +6,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Xml;
 using RDotNet;
 using SyncMeasure.Properties;
@@ -21,11 +20,11 @@ namespace SyncMeasure
         private readonly Dictionary<string, double> _weights;   // weight of sync properties.
         private readonly Dictionary<string, string> _colNames;  // csv file column names. (to be read with R).
         private List<Frame> _frames;                            // The parsed data.
-        private EFormat _format;                                // format being used.
-        private ECvv _cvvMethod;
-        private string _graphic;
-        private int _timeLag;                                   // Time lag [ms] for person 1 with respect to person 0. 
-        private int _nbasis;
+        private EFormat     _format;                            // format being used.
+        private ECvv        _cvvMethod;
+        private string      _graphic;
+        private int         _timeLag;                           // Time lag [ms] for person 1 with respect to person 0. 
+        private int         _nbasis;
         public const double DELTA = 0.000001;
 
         public static readonly string OUT_DIR = Path.Combine(
@@ -70,43 +69,43 @@ namespace SyncMeasure
             /* .NET initialization */
             _weights = new Dictionary<string, double>
             {
-                {Resources.ARM, 0.3}, // Arm's CVV weight.
+                {Resources.ARM,   0.3}, // Arm's CVV weight.
                 {Resources.ELBOW, 0.3}, // Elbow's CVV weight.
-                {Resources.HAND, 0.3}, // Hand's CVV weight.
-                {Resources.GRAB, 0.05}, // Grab weight.
+                {Resources.HAND,  0.3}, // Hand's CVV weight.
+                {Resources.GRAB,  0.05}, // Grab weight.
                 {Resources.PINCH, 0.05} // Pinch weight.
                 //{Resources.GESTURE, 0} // Gesture's weight.
             };
             _colNames = new Dictionary<string, string>
             {
-                {Resources.TIMESTAMP, ""},
-                {Resources.FRAME_ID, ""},
-                {Resources.HAND_ID, ""},
+                {Resources.TIMESTAMP,      ""},
+                {Resources.FRAME_ID,       ""},
+                {Resources.HAND_ID,        ""},
                 {Resources.HANDS_IN_FRAME, ""},
-                {Resources.HAND_TYPE, ""},
-                {Resources.HAND_POS_X, ""},
-                {Resources.HAND_POS_Y, ""},
-                {Resources.HAND_POS_Z, ""},
-                {Resources.HAND_VEL_X, ""},
-                {Resources.HAND_VEL_Y, ""},
-                {Resources.HAND_VEL_Z, ""},
-                {Resources.PITCH, ""},
-                {Resources.ROLL, ""},
-                {Resources.YAW, ""},
-                {Resources.GRAB_STRENGTH, ""},
+                {Resources.HAND_TYPE,      ""},
+                {Resources.HAND_POS_X,     ""},
+                {Resources.HAND_POS_Y,     ""},
+                {Resources.HAND_POS_Z,     ""},
+                {Resources.HAND_VEL_X,     ""},
+                {Resources.HAND_VEL_Y,     ""},
+                {Resources.HAND_VEL_Z,     ""},
+                {Resources.PITCH,          ""},
+                {Resources.ROLL,           ""},
+                {Resources.YAW,            ""},
+                {Resources.GRAB_STRENGTH,  ""},
                 {Resources.PINCH_STRENGTH, ""},
-                {Resources.ARM_POS_X, ""},
-                {Resources.ARM_POS_Y, ""},
-                {Resources.ARM_POS_Z, ""},
-                {Resources.ELBOW_POS_X, ""},
-                {Resources.ELBOW_POS_Y, ""},
-                {Resources.ELBOW_POS_Z, ""},
-                {Resources.GRAB_ANGLE, ""}
+                {Resources.ARM_POS_X,      ""},
+                {Resources.ARM_POS_Y,      ""},
+                {Resources.ARM_POS_Z,      ""},
+                {Resources.ELBOW_POS_X,    ""},
+                {Resources.ELBOW_POS_Y,    ""},
+                {Resources.ELBOW_POS_Z,    ""},
+                {Resources.GRAB_ANGLE,     ""}
             };
             _cvvMethod = ECvv.CVV;
-            _graphic = "b";
-            _timeLag = 0;
-            _nbasis = 300;      // Dimension of B-spline basis used to represent each person's data along each dimension.
+            _graphic   = "b";
+            _timeLag   = 0;
+            _nbasis    = 300;  // Dimension of B-spline basis used to represent each person's data along each dimension.
             SetWeight(0.3, 0.3, 0.3, 0.05, 0.05, out _);      // Default weight initialization 
             SetNewFormatDefaults();
             LoadUserSettings();
@@ -117,12 +116,12 @@ namespace SyncMeasure
         ~Handler()
         {
             /* Try delete saved graphs */
-            try { File.Delete(Resources.ARM_CVV_GRAPH); } catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.ARM_CVV_GRAPH); }   catch (Exception) {/*ignored*/}
             try { File.Delete(Resources.ELBOW_CVV_GRAPH); } catch (Exception) {/*ignored*/}
-            try { File.Delete(Resources.HAND_CVV_GRAPH); } catch (Exception) {/*ignored*/}
-            try { File.Delete(Resources.GRAB_GRAPH); } catch (Exception) {/*ignored*/}
-            try { File.Delete(Resources.PINCH_GRAPH); } catch (Exception) {/*ignored*/}
-            try { File.Delete(Resources.ALL_GRAPH); } catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.HAND_CVV_GRAPH); }  catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.GRAB_GRAPH); }      catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.PINCH_GRAPH); }     catch (Exception) {/*ignored*/}
+            try { File.Delete(Resources.ALL_GRAPH); }       catch (Exception) {/*ignored*/}
 
             _engine.Dispose();
         }
@@ -327,11 +326,11 @@ namespace SyncMeasure
             try
             {
                 /* prepare objects for R parsing */
-                var timestamps = new List<double>();
-                var armsPos = GetSyncArray();
-                var handsPos = GetSyncArray();
-                var elbowsPos = GetSyncArray();
-                var grabStrength = GetStrengthArray();
+                var timestamps    = new List<double>();
+                var armsPos       = GetSyncArray();
+                var handsPos      = GetSyncArray();
+                var elbowsPos     = GetSyncArray();
+                var grabStrength  = GetStrengthArray();
                 var pinchStrength = GetStrengthArray();
 
                 foreach (var frame in _frames)
@@ -716,7 +715,7 @@ namespace SyncMeasure
                     /* Try to recognize hands that went out of frame */
                     if (firstHandId == -1 || secondHandId == -1) // Initialize
                     {
-                        firstHandId = hand1.Id;
+                        firstHandId  = hand1.Id;
                         secondHandId = hand2.Id;
                     }
                     else
@@ -724,7 +723,7 @@ namespace SyncMeasure
                         if (firstHandId != hand1.Id && secondHandId != hand2.Id)
                         {
                             /* Both hands went out of frame at the same time */
-                            var firstHandLeft = frames[frames.Count - 1].Hands[0].IsLeft;
+                            var firstHandLeft  = frames[frames.Count - 1].Hands[0].IsLeft;
                             var secondHandLeft = frames[frames.Count - 1].Hands[1].IsLeft;
                             if (firstHandLeft == secondHandLeft)
                             {
@@ -970,10 +969,10 @@ namespace SyncMeasure
                 /* Loaded avg sync measurements */
                 var syncParams = new SyncParams
                 {
-                    AvgHandCvv = (double) GetRSymbolAsVector("avg.hands.cvv")[0],
-                    AvgArmCvv = (double) GetRSymbolAsVector("avg.arms.cvv")[0],
-                    AvgElbowCvv = (double) GetRSymbolAsVector("avg.elbows.cvv")[0],
-                    AvgGrabSync = (double) GetRSymbolAsVector("avg.grab")[0],
+                    AvgHandCvv   = (double) GetRSymbolAsVector("avg.hands.cvv")[0],
+                    AvgArmCvv    = (double) GetRSymbolAsVector("avg.arms.cvv")[0],
+                    AvgElbowCvv  = (double) GetRSymbolAsVector("avg.elbows.cvv")[0],
+                    AvgGrabSync  = (double) GetRSymbolAsVector("avg.grab")[0],
                     AvgPinchSync = (double) GetRSymbolAsVector("avg.pinch")[0],
                     SyncConfig =
                     {
@@ -1045,7 +1044,7 @@ namespace SyncMeasure
                 {
                     var reportName = "SyncReport_" + DateTime.Now.ToString("ddMMyyyy_HHmm") + ".xlsx";
                     var reportPath = Path.Combine(OUT_DIR, reportName);
-                    var excelFile = new FileInfo(reportPath.Replace("\\", "/"));
+                    var excelFile  = new FileInfo(reportPath.Replace("\\", "/"));
                     excel.SaveAs(excelFile);
                     return new ResultStatus(true, reportPath);
                 }
@@ -1112,11 +1111,11 @@ namespace SyncMeasure
             }
 
             errorMessage = "";
-            _weights[Resources.ARM] = arm;
+            _weights[Resources.ARM]   = arm;
             _weights[Resources.ELBOW] = elbow;
-            _weights[Resources.HAND] = hand;
-            _weights[Resources.GRAB] = grab;
-            _weights[Resources.GRAB] = grab;
+            _weights[Resources.HAND]  = hand;
+            _weights[Resources.GRAB]  = grab;
+            _weights[Resources.GRAB]  = grab;
             _weights[Resources.PINCH] = pinch;
             return true;
         }
@@ -1193,28 +1192,28 @@ namespace SyncMeasure
             AmendColumnsByFormat();
 
             /* Set column names as appear in R env. */
-            _colNames[Resources.TIMESTAMP] = "Time";
-            _colNames[Resources.FRAME_ID] = "Frame.ID";
+            _colNames[Resources.TIMESTAMP] =      "Time";
+            _colNames[Resources.FRAME_ID] =       "Frame.ID";
             _colNames[Resources.HANDS_IN_FRAME] = "X..hands";
-            _colNames[Resources.HAND_TYPE] = "Hand.Type";
-            _colNames[Resources.HAND_POS_X] = "Wrist.Pos.X";
-            _colNames[Resources.HAND_POS_Y] = "Wrist.Pos.Y";
-            _colNames[Resources.HAND_POS_Z] = "Wrist.Pos.Z";
-            _colNames[Resources.HAND_VEL_X] = "Velocity.X";
-            _colNames[Resources.HAND_VEL_Y] = "Velocity.Y";
-            _colNames[Resources.HAND_VEL_Z] = "Velocity.Z";
-            _colNames[Resources.PITCH] = "Pitch";
-            _colNames[Resources.ROLL] = "Roll";
-            _colNames[Resources.YAW] = "Yaw";
-            _colNames[Resources.GRAB_STRENGTH] = "Grab.Strenth";
+            _colNames[Resources.HAND_TYPE] =      "Hand.Type";
+            _colNames[Resources.HAND_POS_X] =     "Wrist.Pos.X";
+            _colNames[Resources.HAND_POS_Y] =     "Wrist.Pos.Y";
+            _colNames[Resources.HAND_POS_Z] =     "Wrist.Pos.Z";
+            _colNames[Resources.HAND_VEL_X] =     "Velocity.X";
+            _colNames[Resources.HAND_VEL_Y] =     "Velocity.Y";
+            _colNames[Resources.HAND_VEL_Z] =     "Velocity.Z";
+            _colNames[Resources.PITCH] =          "Pitch";
+            _colNames[Resources.ROLL] =           "Roll";
+            _colNames[Resources.YAW] =            "Yaw";
+            _colNames[Resources.GRAB_STRENGTH] =  "Grab.Strenth";       // typo is deliberate.
             _colNames[Resources.PINCH_STRENGTH] = "Pinch.Strength";
-            _colNames[Resources.GRAB_ANGLE] = "Grab.Angle";
-            _colNames[Resources.ARM_POS_X] = "Position.X";
-            _colNames[Resources.ARM_POS_Y] = "Position.Y";
-            _colNames[Resources.ARM_POS_Z] = "Position.Z";
-            _colNames[Resources.ELBOW_POS_X] = "Elbow.pos.X";
-            _colNames[Resources.ELBOW_POS_Y] = "Elbow.Pos.Y";
-            _colNames[Resources.ELBOW_POS_Z] = "Elbow.Pos.Z"; 
+            _colNames[Resources.GRAB_ANGLE] =     "Grab.Angle";
+            _colNames[Resources.ARM_POS_X] =      "Position.X";
+            _colNames[Resources.ARM_POS_Y] =      "Position.Y";
+            _colNames[Resources.ARM_POS_Z] =      "Position.Z";
+            _colNames[Resources.ELBOW_POS_X] =    "Elbow.pos.X";
+            _colNames[Resources.ELBOW_POS_Y] =    "Elbow.Pos.Y";
+            _colNames[Resources.ELBOW_POS_Z] =    "Elbow.Pos.Z"; 
         }
 
         public void SetGraphics(EGraphics graphics)
@@ -1274,13 +1273,13 @@ namespace SyncMeasure
             {
                 case EFormat.OLD:
                 {
-                    if (!_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Add(Resources.HAND_ID, "");
+                    if (!_colNames.ContainsKey(Resources.HAND_ID))   _colNames.Add(Resources.HAND_ID, "");
                     if (_colNames.ContainsKey(Resources.GRAB_ANGLE)) _colNames.Remove(Resources.GRAB_ANGLE);
                     break;
                 }
                 case EFormat.NEW:
                 {
-                    if (_colNames.ContainsKey(Resources.HAND_ID)) _colNames.Remove(Resources.HAND_ID);
+                    if (_colNames.ContainsKey(Resources.HAND_ID))     _colNames.Remove(Resources.HAND_ID);
                     if (!_colNames.ContainsKey(Resources.GRAB_ANGLE)) _colNames.Add(Resources.GRAB_ANGLE, "");
                     break;
                 }

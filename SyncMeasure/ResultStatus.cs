@@ -8,7 +8,7 @@ namespace SyncMeasure
 
         public ResultStatus(bool status, string msg)
         {
-            Status = status;
+            Status  = status;
             Message = msg;
         }
     }

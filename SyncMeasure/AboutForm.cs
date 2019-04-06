@@ -8,11 +8,11 @@ namespace SyncMeasure
         public AboutForm()
         {
             InitializeComponent();
-            Text = $@"About {AssemblyTitle}";
-            labelProductName.Text = AssemblyProduct;
-            labelVersion.Text = $@"Version {AssemblyVersion}";
-            labelCopyright.Text = AssemblyCopyright;
-            labelCompanyName.Text = AssemblyCompany;
+            Text                    = $@"About {AssemblyTitle}";
+            labelProductName.Text   = AssemblyProduct;
+            labelVersion.Text       = $@"Version {AssemblyVersion}";
+            labelCopyright.Text     = AssemblyCopyright;
+            labelCompanyName.Text   = AssemblyCompany;
             textBoxDescription.Text = AssemblyDescription;
         }
 

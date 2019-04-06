@@ -72,7 +72,7 @@ namespace SyncMeasure
             {
                 MessageBox.Show(this, res.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            label.Visible = res.Status;
+            label.Visible       = res.Status;
             mergeButton.Enabled = label1.Visible && label2.Visible;
         }
 
@@ -130,7 +130,7 @@ namespace SyncMeasure
             if (saveFileDialog.ShowDialog() != DialogResult.OK) return;
 
             Application.UseWaitCursor = true;
-            mergeButton.Enabled = false;
+            mergeButton.Enabled       = false;
             var res = _handler.CombineAloneFiles(saveFileDialog.FileName, (int)numericUpDown1.Value, (int)numericUpDown2.Value);
             Application.UseWaitCursor = false;
             if (!res.Status)

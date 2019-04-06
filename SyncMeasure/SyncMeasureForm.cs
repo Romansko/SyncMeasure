@@ -16,9 +16,9 @@ namespace SyncMeasure
     public partial class SyncMeasureForm : Form
     {
         private readonly Handler _handler;
-        private readonly string _title;
-        private string _loadedFile;
-        private string _prevLoadedFile;
+        private readonly string  _title;
+        private string           _loadedFile;
+        private string           _prevLoadedFile;
         public static string Version;
 
         public SyncMeasureForm()
@@ -26,8 +26,10 @@ namespace SyncMeasure
             InitializeComponent();
             Size = new Size(757, 617); // optimal size.
             progGroupBox.BringToFront();
-            timeLagGB.Click += SetTimeLag;
+
+            timeLagGB.Click    += SetTimeLag;
             timeLagLabel.Click += SetTimeLag;
+
             Version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
             Text += @" - v" + Version;
             _loadedFile = _prevLoadedFile = "";
@@ -35,25 +37,28 @@ namespace SyncMeasure
             openFileDialog.InitialDirectory = Path.GetFullPath("..\\..\\..\\Example Data");
 
             /* BackgroundWorkers initialize */
-            loadingBackgroundWorker.WorkerReportsProgress = true;
+            loadingBackgroundWorker.WorkerReportsProgress      = true;
             loadingBackgroundWorker.WorkerSupportsCancellation = true;
-            loadingBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
-            loadingBackgroundWorker.DoWork += loadingBackgroundWorker_DoWork;
+            loadingBackgroundWorker.ProgressChanged    += backgroundWorker_ProgressChanged;
+            loadingBackgroundWorker.DoWork             += loadingBackgroundWorker_DoWork;
             loadingBackgroundWorker.RunWorkerCompleted += loadingBackgroundWorker_RunWorkerCompleted;
-            measureBackgroundWorker.WorkerReportsProgress = true;
+
+            measureBackgroundWorker.WorkerReportsProgress      = true;
             measureBackgroundWorker.WorkerSupportsCancellation = true;
-            measureBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
-            measureBackgroundWorker.DoWork += MeasureBackgroundWorkerDoWork;
+            measureBackgroundWorker.ProgressChanged    += backgroundWorker_ProgressChanged;
+            measureBackgroundWorker.DoWork             += MeasureBackgroundWorkerDoWork;
             measureBackgroundWorker.RunWorkerCompleted += measureBackgroundWorker_RunWorkerCompleted;
-            bulkParserBackgroundWorker.WorkerReportsProgress = true;
+
+            bulkParserBackgroundWorker.WorkerReportsProgress      = true;
             bulkParserBackgroundWorker.WorkerSupportsCancellation = true;
-            bulkParserBackgroundWorker.ProgressChanged += bulkBackgroundWorker_ProgressChanged;
-            bulkParserBackgroundWorker.DoWork += bulkParserBackgroundWorker_DoWork;
+            bulkParserBackgroundWorker.ProgressChanged    += bulkBackgroundWorker_ProgressChanged;
+            bulkParserBackgroundWorker.DoWork             += bulkParserBackgroundWorker_DoWork;
             bulkParserBackgroundWorker.RunWorkerCompleted += bulkParserBackgroundWorker_RunWorkerCompleted;
-            combineBackgroundWorker.WorkerReportsProgress = true;
+
+            combineBackgroundWorker.WorkerReportsProgress      = true;
             combineBackgroundWorker.WorkerSupportsCancellation = true;
-            combineBackgroundWorker.ProgressChanged += backgroundWorker_ProgressChanged;
-            combineBackgroundWorker.DoWork += combineBackgroundWorker_DoWork;
+            combineBackgroundWorker.ProgressChanged    += backgroundWorker_ProgressChanged;
+            combineBackgroundWorker.DoWork             += combineBackgroundWorker_DoWork;
             combineBackgroundWorker.RunWorkerCompleted += combineBackgroundWorker_RunWorkerCompleted;
 
 
@@ -95,18 +100,18 @@ namespace SyncMeasure
 
         private void DisableControls()
         {
-            menuStrip.Enabled = false;
-            graphicsGB.Enabled = false;
+            menuStrip.Enabled   = false;
+            graphicsGB.Enabled  = false;
             cvvMethodGB.Enabled = false;
-            timeLagGB.Enabled = false;
+            timeLagGB.Enabled   = false;
         }
 
         private void EnableControls()
         {
-            menuStrip.Enabled = true;
-            graphicsGB.Enabled = true;
+            menuStrip.Enabled   = true;
+            graphicsGB.Enabled  = true;
             cvvMethodGB.Enabled = true;
-            timeLagGB.Enabled = true;
+            timeLagGB.Enabled   = true;
         }
 
         /// <summary>
@@ -122,9 +127,9 @@ namespace SyncMeasure
             try
             {
                 double hands = double.Parse(handsLabel.Text);
-                double arms = double.Parse(armsLabel.Text);
+                double arms  = double.Parse(armsLabel.Text);
                 double elbow = double.Parse(elbowsLabel.Text);
-                double grab = double.Parse(grabLabel.Text);
+                double grab  = double.Parse(grabLabel.Text);
                 double pinch = double.Parse(pinchLabel.Text);
 
                 var weights = _handler.GetWeights();
@@ -156,13 +161,13 @@ namespace SyncMeasure
                 var imgBox = new ImageBox
                 {
                     Image = ((ImageBox) sender).Image,
-                    Dock = DockStyle.Fill,
-                    Zoom = 90
+                    Dock  = DockStyle.Fill,
+                    Zoom  = 90
                 };
                 var form = new Form
                 {
                     FormBorderStyle = FormBorderStyle.FixedToolWindow,
-                    StartPosition = FormStartPosition.CenterParent,
+                    StartPosition   = FormStartPosition.CenterParent,
                     Size = imgBox.Image.Size,
                     Text = Resources.TITLE + @" - Graph Plot"
                 };
@@ -273,9 +278,9 @@ namespace SyncMeasure
             string title;
             if (e.Cancelled)
             {
-                msg = @"Loading Cancelled by user.";
+                msg   = @"Loading Cancelled by user.";
                 title = Resources.TITLE + @" - Loading cancelled.";
-                icon = MessageBoxIcon.Information;
+                icon  = MessageBoxIcon.Information;
                 if (sumGroupBox.Enabled)
                 {
                     sumGroupBox.Show();
@@ -290,9 +295,9 @@ namespace SyncMeasure
                     Clear();
                     sumGroupBox.Hide();
                     measureToolStripMenuItem.Enabled = true;
-                    msg = @"File successfully loaded." + Environment.NewLine + TimeCounter.Stop();
+                    msg   = @"File successfully loaded." + Environment.NewLine + TimeCounter.Stop();
                     title = Resources.TITLE + @" - File loaded.";
-                    icon = MessageBoxIcon.Information;
+                    icon  = MessageBoxIcon.Information;
                     _prevLoadedFile = _loadedFile;
                     if (measureOnLoad.Checked)
                     {
@@ -307,7 +312,7 @@ namespace SyncMeasure
                     }
 
                     measureToolStripMenuItem.Enabled = false;
-                    icon = MessageBoxIcon.Error;
+                    icon  = MessageBoxIcon.Error;
                     title = Resources.TITLE + @" - File loading failed.";
                 }
             }
@@ -371,43 +376,43 @@ namespace SyncMeasure
                     Clear();
 
                     /* Loaded graphs images */
-                    allGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ALL_GRAPH));
-                    handGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.HAND_CVV_GRAPH));
-                    armGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ARM_CVV_GRAPH));
+                    allGraphBox.Image   = Image.FromFile(Path.GetFullPath(Resources.ALL_GRAPH));
+                    handGraphBox.Image  = Image.FromFile(Path.GetFullPath(Resources.HAND_CVV_GRAPH));
+                    armGraphBox.Image   = Image.FromFile(Path.GetFullPath(Resources.ARM_CVV_GRAPH));
                     elbowGraphBox.Image = Image.FromFile(Path.GetFullPath(Resources.ELBOW_CVV_GRAPH));
-                    grabStrBox.Image = Image.FromFile(Path.GetFullPath(Resources.GRAB_GRAPH));
-                    pinchStrBox.Image = Image.FromFile(Path.GetFullPath(Resources.PINCH_GRAPH));
+                    grabStrBox.Image    = Image.FromFile(Path.GetFullPath(Resources.GRAB_GRAPH));
+                    pinchStrBox.Image   = Image.FromFile(Path.GetFullPath(Resources.PINCH_GRAPH));
 
                     /* Loaded avg sync measurements */
-                    avgLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.weighted")[0]:0.00}";
-                    handsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.hands.cvv")[0]:0.00}";
-                    armsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.arms.cvv")[0]:0.00}";
+                    avgLabel.Text    = $@"{_handler.GetRSymbolAsVector("avg.weighted")[0]:0.00}";
+                    handsLabel.Text  = $@"{_handler.GetRSymbolAsVector("avg.hands.cvv")[0]:0.00}";
+                    armsLabel.Text   = $@"{_handler.GetRSymbolAsVector("avg.arms.cvv")[0]:0.00}";
                     elbowsLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.elbows.cvv")[0]:0.00}";
-                    grabLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.grab")[0]:0.00}";
-                    pinchLabel.Text = $@"{_handler.GetRSymbolAsVector("avg.pinch")[0]:0.00}";
+                    grabLabel.Text   = $@"{_handler.GetRSymbolAsVector("avg.grab")[0]:0.00}";
+                    pinchLabel.Text  = $@"{_handler.GetRSymbolAsVector("avg.pinch")[0]:0.00}";
                     nbasisLabel.Text = _handler.GetNBasis().ToString(); // Get used nbasis.
 
                     var cvv = _handler.GetCvvMethod();
                     var handsText = @"Avg Hands CVV:";
                     var elbowText = @"Avg Elbows CVV:";
-                    var armsText = @"Avg Arms CVV:";
+                    var armsText  = @"Avg Arms CVV:";
                     if (cvv == Handler.ECvv.SQUARE_CVV)
                     {
                         handsCvvText.Text = handsText.Replace("CVV", "CVV^2");
                         elbowCvvText.Text = elbowText.Replace("CVV", "CVV^2");
-                        armsCvvText.Text = armsText.Replace("CVV", "CVV^2");
+                        armsCvvText.Text  = armsText.Replace("CVV", "CVV^2");
                     }
                     else if (cvv == Handler.ECvv.ABS_CVV)
                     {
                         handsCvvText.Text = handsText.Replace("CVV", "|CVV|");
                         elbowCvvText.Text = elbowText.Replace("CVV", "|CVV|");
-                        armsCvvText.Text = armsText.Replace("CVV", "|CVV|");
+                        armsCvvText.Text  = armsText.Replace("CVV", "|CVV|");
                     }
                     else
                     {
                         handsCvvText.Text = handsText;
                         elbowCvvText.Text = elbowText;
-                        armsCvvText.Text = armsText;
+                        armsCvvText.Text  = armsText;
                     }
 
                     sumGroupBox.Enabled = true;
