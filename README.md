@@ -1,7 +1,11 @@
 # SyncMeasure
+
 SyncMeasure is a synchrony measurement tool that use the Leap Motion controller output files in order to measure synchronization between two individuals.
 
-===============================================================================
+The software is used in article [ACTPSY_103210](https://doi.org/10.1016/j.actpsy.2020.103210) published in Acta Psychologica. "Impairments of interpersonal synchrony evident in attention deficit hyperactivity disorder (ADHD)".
+
+
+============================================================================
 
 **Installation Prerequisites - Important!**
 
@@ -23,7 +27,7 @@ install.packages("data.table")
 
 *If .NET 4.5.2 Framework is required during the setup, you can install it from:* [.NET v4.5.2](https://download.microsoft.com/download/B/4/1/B4119C11-0423-477B-80EE-7A474314B347/NDP452-KB2901954-Web.exe). *After .NET framework installation, Install SyncMeasure.*
 
-===============================================================================
+============================================================================
 
 **Synchronization Parameters**
 
@@ -31,7 +35,7 @@ install.packages("data.table")
 - CVV: As described in [CVV package](https://github.com/reissphil/cvv). Can be a negative value.
 - Grab and Pinch strength: The measurement is `1 - difference between hands`.
 
-===============================================================================
+============================================================================
 
 **Packages used**
 
